@@ -42,6 +42,24 @@ final class AppSettings {
         set { d.set(newValue, forKey: "showEditorLineNumbers"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
     }
 
+    /// Ordner, in dem der KI-Verwalter startet (Standard: Home).
+    var managerDir: String {
+        get { d.string(forKey: "managerDir") ?? FileManager.default.homeDirectoryForCurrentUser.path }
+        set { d.set(newValue, forKey: "managerDir") }
+    }
+
+    /// AI/Profil, mit dem der KI-Verwalter startet (Standard: Claude Code).
+    var managerProfile: String {
+        get { d.string(forKey: "managerProfile") ?? "Claude Code" }
+        set { d.set(newValue, forKey: "managerProfile") }
+    }
+
+    /// Eigener Startbefehl für den Verwalter, falls Profil „Custom Command…" (sonst leer).
+    var managerCommand: String {
+        get { d.string(forKey: "managerCommand") ?? "" }
+        set { d.set(newValue, forKey: "managerCommand") }
+    }
+
     var theme: Theme { Theme.named(themeName) }
 
     /// Auf ein einzelnes Terminal anwenden (z.B. beim Erzeugen einer Session).

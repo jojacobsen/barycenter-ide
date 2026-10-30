@@ -7,6 +7,8 @@ extension Notification.Name {
     static let selectionChanged = Notification.Name("BarycenterSelectionChanged")
     /// „Neue Session" wurde angefordert (＋ Button oder Cmd+T) -> Sheet zeigen.
     static let newSessionRequested = Notification.Name("BarycenterNewSessionRequested")
+    /// „KI-Verwalter starten" wurde angefordert -> Konfig-Sheet (Ordner + AI) zeigen.
+    static let managerRequested = Notification.Name("BarycenterManagerRequested")
 }
 
 enum ViewMode { case grid, focus }
@@ -104,16 +106,46 @@ final class SessionManager {
         LayoutStore.lastName = name
     }
 
-    /// Startet den KI-Verwalter (oder fokussiert ihn, falls er schon läuft).
-    func spawnManager() {
-        if let existing = sessions.first(where: { $0.isManager }) {
+    var managerIsRunning: Bool { managerSession != nil }
+
+    /// Startet den KI-Verwalter mit gewähltem Ordner + AI (oder fokussiert ihn, falls er schon läuft).
+    /// `launchCommand == "claude"` bekommt die Aufgabe als System-Prompt-Datei; andere AIs
+    /// (Codex/Gemini/Aider/Custom) bekommen sie als erste Nachricht „lies diese Datei".
+    func spawnManager(dir: String, profileName: String, launchCommand: String?) {
+        if let existing = managerSession {
             select(existing.id); setViewMode(.focus); return
         }
+        var cwd = dir
+        if !FileManager.default.fileExists(atPath: cwd) {
+            cwd = FileManager.default.homeDirectoryForCurrentUser.path
+        }
         let promptPath = writeManagerPrompt()
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        addSession(title: L("KI-Verwalter"), cwd: home, launchCommand: "claude",
-                   profileName: L("Manager"), isManager: true,
-                   extraArgs: ["--append-system-prompt-file", promptPath])
+        var extra: [String] = []
+        if launchCommand == "claude" {
+            extra = ["--append-system-prompt-file", promptPath]
+        }
+        let s = addSession(title: L("KI-Verwalter"), cwd: cwd, launchCommand: launchCommand,
+                           profileName: profileName, isManager: true, extraArgs: extra)
+        if launchCommand != "claude" {
+            // Andere AIs kennen kein --append-system-prompt-file: Aufgabe per erster Nachricht einspielen.
+            let msg = String(format: L("Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)."), promptPath)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                s.terminalView.send(txt: msg + "\r")
+            }
+        }
+    }
+
+    /// Bequemer Start mit den gespeicherten Verwalter-Einstellungen.
+    func spawnManagerFromSettings() {
+        let st = AppSettings.shared
+        let launch: String?
+        if st.managerProfile == Profile.customName {
+            let c = st.managerCommand.trimmingCharacters(in: .whitespaces)
+            launch = c.isEmpty ? "claude" : c
+        } else {
+            launch = Profile.builtins.first { $0.name == st.managerProfile }?.command ?? "claude"
+        }
+        spawnManager(dir: st.managerDir, profileName: st.managerProfile, launchCommand: launch)
     }
 
     private func writeManagerPrompt() -> String {

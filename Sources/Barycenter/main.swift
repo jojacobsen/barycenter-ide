@@ -268,7 +268,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc private func newSession()  { NotificationCenter.default.post(name: .newSessionRequested, object: nil) }
-    @objc private func startManager() { SessionManager.shared.spawnManager() }
+    @objc private func startManager() { NotificationCenter.default.post(name: .managerRequested, object: nil) }
     @objc private func closeSession() {
         if let id = SessionManager.shared.selectedID {
             SessionManager.shared.requestClose(id, window: window)

@@ -328,6 +328,7 @@ final class ContentViewController: NSViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .sessionsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .selectionChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentNewSession), name: .newSessionRequested, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(presentManager), name: .managerRequested, object: nil)
         rebuild()
     }
 
@@ -396,6 +397,14 @@ final class ContentViewController: NSViewController {
         // Nur blocken, wenn unser Sheet bereits offen ist (robust gegen Ghost-Einträge).
         if presentedViewControllers?.contains(where: { $0 is NewSessionSheetController }) == true { return }
         presentAsSheet(NewSessionSheetController())
+    }
+    @objc private func presentManager() {
+        // Läuft schon -> einfach fokussieren, kein Sheet.
+        if let m = SessionManager.shared.managerSession {
+            SessionManager.shared.select(m.id); SessionManager.shared.setViewMode(.focus); return
+        }
+        if presentedViewControllers?.contains(where: { $0 is ManagerSheetController }) == true { return }
+        presentAsSheet(ManagerSheetController())
     }
     @objc private func prevPage()   { SessionManager.shared.prevPage() }
     @objc private func nextPage()   { SessionManager.shared.nextPage() }

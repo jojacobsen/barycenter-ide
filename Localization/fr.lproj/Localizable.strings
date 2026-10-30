@@ -156,3 +156,9 @@
 /* Menu bar */
 "Barycenter anzeigen" = "Afficher Barycenter";
 "Keine aktiven Sessions" = "Aucune session active";
+
+/* Manager-Konfiguration */
+"AI:" = "IA :";
+"z. B. claude" = "p. ex. claude";
+"Der Verwalter steuert Barycenter (Sessions starten/senden/fokussieren) über seine Shell." = "Le gestionnaire pilote Barycenter (démarrer/envoyer/cibler des sessions) via son shell.";
+"Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)." = "Lis le fichier %@ — il décrit ton rôle de gestionnaire Barycenter et les commandes de contrôle (baryctl).";

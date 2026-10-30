@@ -363,7 +363,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         return v
     }
 
-    @objc private func startManager() { SessionManager.shared.spawnManager() }
+    @objc private func startManager() { NotificationCenter.default.post(name: .managerRequested, object: nil) }
 
     // MARK: Updates
 

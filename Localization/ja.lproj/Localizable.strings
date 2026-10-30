@@ -156,3 +156,9 @@
 /* Menu bar */
 "Barycenter anzeigen" = "Barycenter を表示";
 "Keine aktiven Sessions" = "アクティブなセッションはありません";
+
+/* Manager-Konfiguration */
+"AI:" = "AI:";
+"z. B. claude" = "例: claude";
+"Der Verwalter steuert Barycenter (Sessions starten/senden/fokussieren) über seine Shell." = "マネージャーはシェルを通じて Barycenter を操作します（セッションの起動・送信・フォーカス）。";
+"Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)." = "ファイル %@ を読んでください。Barycenter マネージャーとしての役割と制御コマンド（baryctl）が書かれています。";
