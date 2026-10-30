@@ -14,8 +14,9 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 [![Swift](https://img.shields.io/badge/Swift-AppKit-orange)](#build--run)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-early%20WIP-yellow)](#)
+[![Latest release](https://img.shields.io/github/v/release/jojacobsen/barycenter-ide?label=download&color=black)](https://github.com/jojacobsen/barycenter-ide/releases/latest)
 
-[Features](#features) · [Build from source](#build--run) · [Releases](#releases-signed-dmg)
+**[⬇︎ Download the latest signed & notarized DMG](https://github.com/jojacobsen/barycenter-ide/releases/latest)** · [Features](#features) · [Build from source](#build--run)
 
 <!-- <img src="docs/screenshot.png" width="820" alt="Barycenter" /> -->
 
@@ -79,7 +80,12 @@ open Barycenter.app
 
 ## Releases (signed DMG)
 
-To produce a distributable, **Developer ID–signed and Apple-notarized** `Barycenter.dmg`:
+Prebuilt, **Developer ID–signed and Apple-notarized** builds are on the
+[**Releases**](https://github.com/jojacobsen/barycenter-ide/releases/latest) page —
+download `Barycenter.dmg`, drag the app into Applications, and open it (no Gatekeeper
+warnings).
+
+To build one yourself:
 
 ```bash
 ./release.sh
