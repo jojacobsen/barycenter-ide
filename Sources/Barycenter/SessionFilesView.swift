@@ -99,6 +99,8 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         editor.drawsBackground = true
         editor.backgroundColor = storage.highlightr.theme.themeBackgroundColor
         editor.insertionPointColor = .white
+        editor.usesFindBar = true                    // native Cmd+F search bar to jump within long files
+        editor.isIncrementalSearchingEnabled = true
         editorScroll.documentView = editor
         editorScroll.hasVerticalScroller = true
         editorScroll.borderType = .noBorder

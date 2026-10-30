@@ -174,3 +174,10 @@
 "Neues Projekt" = "新規プロジェクト";
 "Anlegen" = "作成";
 "Projektname:" = "プロジェクト名:";
+
+/* Editor find */
+"Suchen" = "検索";
+"Suchen…" = "検索…";
+"Weitersuchen" = "次を検索";
+"Vorheriges suchen" = "前を検索";
+"Auswahl für Suche verwenden" = "選択部分を検索に使用";

@@ -174,3 +174,10 @@
 "Neues Projekt" = "Nuovo progetto";
 "Anlegen" = "Crea";
 "Projektname:" = "Nome del progetto:";
+
+/* Editor find */
+"Suchen" = "Trova";
+"Suchen…" = "Trova…";
+"Weitersuchen" = "Trova successivo";
+"Vorheriges suchen" = "Trova precedente";
+"Auswahl für Suche verwenden" = "Usa selezione per trovare";

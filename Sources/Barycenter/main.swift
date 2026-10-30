@@ -222,6 +222,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         editMenu.addItem(withTitle: L("Einfügen"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: L("Alles auswählen"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
 
+        // Suchen-Untermenü: treibt die native Find-Bar des Datei-Editors (NSTextView).
+        editMenu.addItem(.separator())
+        let findParent = editMenu.addItem(withTitle: L("Suchen"), action: nil, keyEquivalent: "")
+        let findMenu = NSMenu(title: L("Suchen"))
+        findParent.submenu = findMenu
+        func findItem(_ title: String, tag: Int, key: String, mask: NSEvent.ModifierFlags = .command) {
+            let it = findMenu.addItem(withTitle: title,
+                                      action: #selector(NSTextView.performFindPanelAction(_:)), keyEquivalent: key)
+            it.tag = tag                 // NSTextFinder.Action raw value
+            it.keyEquivalentModifierMask = mask
+            it.target = nil              // routed to the first responder (the focused text view)
+        }
+        findItem(L("Suchen…"), tag: 1, key: "f")                               // showFindInterface
+        findItem(L("Weitersuchen"), tag: 2, key: "g")                          // nextMatch
+        findItem(L("Vorheriges suchen"), tag: 3, key: "g", mask: [.command, .shift]) // previousMatch
+        findItem(L("Auswahl für Suche verwenden"), tag: 7, key: "e")           // setSearchString
+
         // Session-Menü
         let sessItem = NSMenuItem()
         main.addItem(sessItem)

@@ -174,3 +174,10 @@
 "Neues Projekt" = "新建项目";
 "Anlegen" = "创建";
 "Projektname:" = "项目名称：";
+
+/* Editor find */
+"Suchen" = "查找";
+"Suchen…" = "查找…";
+"Weitersuchen" = "查找下一个";
+"Vorheriges suchen" = "查找上一个";
+"Auswahl für Suche verwenden" = "用所选内容查找";
