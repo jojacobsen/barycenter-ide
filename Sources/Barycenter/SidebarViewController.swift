@@ -21,6 +21,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     private let toolStack = NSStackView()
     private var equalHeights: [NSLayoutConstraint] = []
+    private var widthConstraints: [NSLayoutConstraint] = []
     private(set) var activeTools: [Tool] = [.sessions]
 
     override func loadView() {
@@ -56,6 +57,8 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         activeTools = tools
         equalHeights.forEach { $0.isActive = false }
         equalHeights.removeAll()
+        widthConstraints.forEach { $0.isActive = false }
+        widthConstraints.removeAll()
         for v in toolStack.arrangedSubviews {
             toolStack.removeArrangedSubview(v)
             v.removeFromSuperview()
@@ -76,6 +79,9 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
             let view = toolView(for: t)
             view.setContentHuggingPriority(.defaultLow, for: .vertical)
             toolStack.addArrangedSubview(view)
+            let wc = view.widthAnchor.constraint(equalTo: toolStack.widthAnchor)
+            wc.isActive = true
+            widthConstraints.append(wc)
             toolViews.append(view)
         }
         if toolViews.count >= 2 {
@@ -85,6 +91,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
                 equalHeights.append(c)
             }
         }
+        if tools.contains(.sessions) { tableView.reloadData(); reloadSelection() }
         if tools.contains(.manager) { renderManager() }
         if tools.contains(.history) { historyView.refresh() }
     }
@@ -165,11 +172,15 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         sidebarNotes.autoresizingMask = [.width]
         sidebarNotes.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         sidebarNotes.textContainer?.widthTracksTextView = true
+        sidebarNotes.drawsBackground = false
         let notesScroll = NSScrollView()
         notesScroll.documentView = sidebarNotes
         notesScroll.hasVerticalScroller = true
         notesScroll.borderType = .noBorder
-        notesScroll.drawsBackground = false
+        notesScroll.drawsBackground = true
+        notesScroll.backgroundColor = NSColor(white: 1, alpha: 0.06)
+        notesScroll.wantsLayer = true
+        notesScroll.layer?.cornerRadius = 6
 
         [sep, title, notesScroll].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; section.addSubview($0) }
         NSLayoutConstraint.activate([
@@ -191,6 +202,8 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         sidebarNotesSection?.isHidden = !show
         notesShownConstraint?.isActive = show
         notesHiddenConstraint?.isActive = !show
+        sessionsView?.needsLayout = true
+        sessionsView?.layoutSubtreeIfNeeded()
     }
 
     @objc private func onSettingsChanged() { applySidebarNotesVisibility() }

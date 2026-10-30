@@ -32,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
         // Tool-Panel (zeigt das gewählte Werkzeug)
         sidebar = SidebarViewController()
-        toolItem = NSSplitViewItem(sidebarWithViewController: sidebar)
+        toolItem = NSSplitViewItem(viewController: sidebar)   // normale Spalte (nicht unter die Titelleiste) -> kein Versatz oben
         toolItem.minimumThickness = 260
         toolItem.maximumThickness = 480
         toolItem.canCollapse = true
