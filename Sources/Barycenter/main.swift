@@ -1,5 +1,6 @@
 import AppKit
 import UserNotifications
+import QuartzCore
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     private var window: NSWindow!
@@ -45,11 +46,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         // Rail: Werkzeuge einzeln an/aus. Beide aktiv -> Panel teilt sich 50/50. Keins aktiv -> Panel eingeklappt.
         rail.onChange = { [weak self] tools in
             guard let self, let item = self.toolItem else { return }
+            func animate(_ body: () -> Void) {
+                NSAnimationContext.runAnimationGroup { ctx in
+                    ctx.duration = 0.22
+                    ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    ctx.allowsImplicitAnimation = true
+                    body()
+                }
+            }
             if tools.isEmpty {
-                item.animator().isCollapsed = true
+                animate { item.animator().isCollapsed = true }
             } else {
-                item.animator().isCollapsed = false
-                self.sidebar.showTools(tools)
+                self.sidebar.showTools(tools)              // Inhalt zuerst bereitstellen -> kein Pop-in
+                animate { item.animator().isCollapsed = false }
             }
         }
 

@@ -148,3 +148,6 @@
 
 /* Notifications */
 "Session braucht dich" = "セッションが対応を必要としています";
+
+"NOTIZEN" = "メモ";
+"Notizen in der Seitenleiste" = "サイドバーにメモ";

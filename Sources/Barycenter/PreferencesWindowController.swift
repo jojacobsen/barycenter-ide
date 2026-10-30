@@ -7,6 +7,7 @@ final class PreferencesWindowController: NSWindowController {
     private let sizeField  = NSTextField()
     private let sizeStepper = NSStepper()
     private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    private let notesCheckbox = NSButton(checkboxWithTitle: L("Notizen in der Seitenleiste"), target: nil, action: nil)
 
     /// Sprach-Codes passend zu den Einträgen des Sprach-Popups.
     /// `nil` = „System" (kein Override). Reihenfolge muss zu `languageItemTitles` passen.
@@ -15,7 +16,7 @@ final class PreferencesWindowController: NSWindowController {
 
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 210),
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 300),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
@@ -60,6 +61,9 @@ final class PreferencesWindowController: NSWindowController {
         languagePopup.target = self
         languagePopup.action = #selector(languageChanged)
 
+        notesCheckbox.target = self
+        notesCheckbox.action = #selector(notesToggled)
+
         let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
         note.lineBreakMode = .byWordWrapping
         note.maximumNumberOfLines = 2
@@ -81,6 +85,7 @@ final class PreferencesWindowController: NSWindowController {
             [NSGridCell.emptyContentView, note],
             [label(L("Sprache:")), languagePopup],
             [NSGridCell.emptyContentView, restartNote],
+            [NSGridCell.emptyContentView, notesCheckbox],
         ])
         grid.rowAlignment = .firstBaseline
         grid.column(at: 0).xPlacement = .trailing
@@ -118,6 +123,12 @@ final class PreferencesWindowController: NSWindowController {
         let current = (UserDefaults.standard.array(forKey: "AppleLanguages") as? [String])?.first
         let idx = current.flatMap { code in languageCodes.firstIndex { $0 == code } } ?? 0
         languagePopup.selectItem(at: idx)
+
+        notesCheckbox.state = s.showSidebarNotes ? .on : .off
+    }
+
+    @objc private func notesToggled() {
+        AppSettings.shared.showSidebarNotes = (notesCheckbox.state == .on)
     }
 
     // MARK: Actions

@@ -30,6 +30,12 @@ final class AppSettings {
         set { d.set(Double(newValue), forKey: Keys.fontSize); changed() }
     }
 
+    /// Notizen-Bereich unten in der Seitenleiste ein-/ausblenden.
+    var showSidebarNotes: Bool {
+        get { d.bool(forKey: "showSidebarNotes") }
+        set { d.set(newValue, forKey: "showSidebarNotes"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
     var theme: Theme { Theme.named(themeName) }
 
     /// Auf ein einzelnes Terminal anwenden (z.B. beim Erzeugen einer Session).

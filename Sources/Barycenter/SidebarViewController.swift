@@ -2,9 +2,15 @@ import AppKit
 
 /// Tool-Panel neben der Rail: zeigt entweder die Session-Liste oder den Verwalter
 /// (volle Höhe), je nach Auswahl in der Activity-Rail.
-final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
+final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSTextViewDelegate {
     private let tableView = NSTableView()
     private var updatingSelection = false
+
+    // Optionaler Notizen-Bereich unten in der Sessions-Ansicht (per Einstellung).
+    private let sidebarNotes = NSTextView()
+    private var sidebarNotesSection: NSView!
+    private var notesShownConstraint: NSLayoutConstraint!
+    private var notesHiddenConstraint: NSLayoutConstraint!
 
     private var sessionsView: NSView!
     private var managerView: NSView!
@@ -40,6 +46,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         NotificationCenter.default.addObserver(self, selector: #selector(reload), name: .sessionsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(reloadSelection), name: .selectionChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(reload), name: .agentsUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onSettingsChanged), name: .settingsChanged, object: nil)
 
         showTools([.sessions])
     }
@@ -118,17 +125,80 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         scroll.drawsBackground = false
         scroll.translatesAutoresizingMaskIntoConstraints = false
 
+        // Notizen-Bereich (optional, per Einstellung)
+        let section = buildSidebarNotesSection()
+        sidebarNotesSection = section
+
         v.addSubview(header)
         v.addSubview(scroll)
+        v.addSubview(section)
+        notesShownConstraint = scroll.bottomAnchor.constraint(equalTo: section.topAnchor, constant: -8)
+        notesHiddenConstraint = scroll.bottomAnchor.constraint(equalTo: v.bottomAnchor)
         NSLayoutConstraint.activate([
             header.topAnchor.constraint(equalTo: v.topAnchor, constant: 12),
             header.leadingAnchor.constraint(equalTo: v.leadingAnchor, constant: 14),
             scroll.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 8),
             scroll.leadingAnchor.constraint(equalTo: v.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: v.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: v.bottomAnchor),
+            section.leadingAnchor.constraint(equalTo: v.leadingAnchor),
+            section.trailingAnchor.constraint(equalTo: v.trailingAnchor),
+            section.bottomAnchor.constraint(equalTo: v.bottomAnchor),
+            section.heightAnchor.constraint(equalToConstant: 180),
         ])
+        applySidebarNotesVisibility()
         return v
+    }
+
+    private func buildSidebarNotesSection() -> NSView {
+        let section = NSView()
+        let sep = NSBox(); sep.boxType = .separator
+        let title = NSTextField(labelWithString: L("NOTIZEN"))
+        title.font = .systemFont(ofSize: 11, weight: .semibold)
+        title.textColor = .secondaryLabelColor
+
+        sidebarNotes.isRichText = false
+        sidebarNotes.font = .systemFont(ofSize: 12)
+        sidebarNotes.delegate = self
+        sidebarNotes.string = UserDefaults.standard.string(forKey: "sidebarNotes") ?? ""
+        sidebarNotes.textContainerInset = NSSize(width: 4, height: 4)
+        sidebarNotes.isVerticallyResizable = true
+        sidebarNotes.autoresizingMask = [.width]
+        sidebarNotes.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        sidebarNotes.textContainer?.widthTracksTextView = true
+        let notesScroll = NSScrollView()
+        notesScroll.documentView = sidebarNotes
+        notesScroll.hasVerticalScroller = true
+        notesScroll.borderType = .noBorder
+        notesScroll.drawsBackground = false
+
+        [sep, title, notesScroll].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; section.addSubview($0) }
+        NSLayoutConstraint.activate([
+            sep.topAnchor.constraint(equalTo: section.topAnchor),
+            sep.leadingAnchor.constraint(equalTo: section.leadingAnchor),
+            sep.trailingAnchor.constraint(equalTo: section.trailingAnchor),
+            title.topAnchor.constraint(equalTo: sep.bottomAnchor, constant: 8),
+            title.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 14),
+            notesScroll.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 6),
+            notesScroll.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 6),
+            notesScroll.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -6),
+            notesScroll.bottomAnchor.constraint(equalTo: section.bottomAnchor, constant: -6),
+        ])
+        return section
+    }
+
+    private func applySidebarNotesVisibility() {
+        let show = AppSettings.shared.showSidebarNotes
+        sidebarNotesSection?.isHidden = !show
+        notesShownConstraint?.isActive = show
+        notesHiddenConstraint?.isActive = !show
+    }
+
+    @objc private func onSettingsChanged() { applySidebarNotesVisibility() }
+
+    func textDidChange(_ notification: Notification) {
+        if (notification.object as? NSTextView) === sidebarNotes {
+            UserDefaults.standard.set(sidebarNotes.string, forKey: "sidebarNotes")
+        }
     }
 
     // MARK: Verwalter-Ansicht (volle Höhe)
