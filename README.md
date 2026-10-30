@@ -63,6 +63,27 @@ open Barycenter.app
 - The **Handler** drives the app through a local Unix-domain socket; `baryctl`
   (auto-generated at runtime) is the thin client it calls from its shell tool.
 
+## Releases (signed DMG)
+
+To produce a distributable, **Developer ID–signed and Apple-notarized** `Barycenter.dmg`:
+
+```bash
+./release.sh
+```
+
+One-time prerequisites: a *Developer ID Application* certificate in your login
+keychain and a `notarytool` credential profile:
+
+```bash
+xcrun notarytool store-credentials "barycenter-notary" \
+  --apple-id "<apple-id>" --team-id "<TEAM_ID>"
+```
+
+`release.sh` re-signs the app with Hardened Runtime (+ a JIT entitlement for
+JavaScriptCore/WebKit), builds the DMG via `hdiutil`, notarizes and staples it.
+
+> ⚠️ Early-stage / work in progress — expect rough edges.
+
 ## License
 
 [MIT](LICENSE). Third-party components and their licenses are listed in

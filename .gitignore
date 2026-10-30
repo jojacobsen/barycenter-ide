@@ -12,3 +12,7 @@ DerivedData/
 
 # macOS
 .DS_Store
+
+# DMG / release artifacts
+*.dmg
+build/
