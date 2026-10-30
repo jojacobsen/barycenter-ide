@@ -22,6 +22,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private let fileLabel = NSTextField(labelWithString: L("— keine Datei —"))
     private let saveButton = NSButton(title: L("Speichern"), target: nil, action: nil)
     private let editorScroll = NSScrollView()
+    private var lineNumberRuler: LineNumberRulerView?
     private let editorArea = NSView()
     private let modeToggle = NSSegmentedControl(labels: [L("Editor"), L("Vorschau")], trackingMode: .selectOne, target: nil, action: nil)
     private lazy var preview = MarkdownPreviewView(frame: .zero)
@@ -103,6 +104,14 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         editorScroll.borderType = .noBorder
         editorScroll.translatesAutoresizingMaskIntoConstraints = false
 
+        // Zeilennummern-Leiste (optional, per Einstellung).
+        let ruler = LineNumberRulerView(textView: editor)
+        ruler.applyTheme(dark: true)
+        editorScroll.verticalRulerView = ruler
+        editorScroll.hasVerticalRuler = true
+        editorScroll.rulersVisible = AppSettings.shared.showEditorLineNumbers
+        lineNumberRuler = ruler
+
         modeToggle.selectedSegment = 0
         modeToggle.controlSize = .small
         modeToggle.target = self
@@ -153,6 +162,14 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
 
         showEditorMode()
         reloadDir()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(onSettingsChanged),
+                                               name: .settingsChanged, object: nil)
+    }
+
+    @objc private func onSettingsChanged() {
+        editorScroll.rulersVisible = AppSettings.shared.showEditorLineNumbers
+        lineNumberRuler?.redraw()
     }
 
     // MARK: Editor/Vorschau-Umschalter
@@ -308,6 +325,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private func show(_ text: String, editable: Bool) {
         editor.string = text
         editor.isEditable = editable
+        lineNumberRuler?.redraw()   // programmatische Textänderung sendet kein didChange
     }
 
     func textDidChange(_ notification: Notification) {

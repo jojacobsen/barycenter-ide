@@ -8,6 +8,7 @@ final class PreferencesWindowController: NSWindowController {
     private let sizeStepper = NSStepper()
     private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let notesCheckbox = NSButton(checkboxWithTitle: L("Notizen in der Seitenleiste"), target: nil, action: nil)
+    private let lineNumbersCheckbox = NSButton(checkboxWithTitle: L("Zeilennummern im Editor"), target: nil, action: nil)
 
     /// Sprach-Codes passend zu den Einträgen des Sprach-Popups.
     /// `nil` = „System" (kein Override). Reihenfolge muss zu `languageItemTitles` passen.
@@ -16,7 +17,7 @@ final class PreferencesWindowController: NSWindowController {
 
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 300),
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 340),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
@@ -64,6 +65,9 @@ final class PreferencesWindowController: NSWindowController {
         notesCheckbox.target = self
         notesCheckbox.action = #selector(notesToggled)
 
+        lineNumbersCheckbox.target = self
+        lineNumbersCheckbox.action = #selector(lineNumbersToggled)
+
         let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
         note.lineBreakMode = .byWordWrapping
         note.maximumNumberOfLines = 2
@@ -86,6 +90,7 @@ final class PreferencesWindowController: NSWindowController {
             [label(L("Sprache:")), languagePopup],
             [NSGridCell.emptyContentView, restartNote],
             [NSGridCell.emptyContentView, notesCheckbox],
+            [NSGridCell.emptyContentView, lineNumbersCheckbox],
         ])
         grid.rowAlignment = .firstBaseline
         grid.column(at: 0).xPlacement = .trailing
@@ -125,10 +130,15 @@ final class PreferencesWindowController: NSWindowController {
         languagePopup.selectItem(at: idx)
 
         notesCheckbox.state = s.showSidebarNotes ? .on : .off
+        lineNumbersCheckbox.state = s.showEditorLineNumbers ? .on : .off
     }
 
     @objc private func notesToggled() {
         AppSettings.shared.showSidebarNotes = (notesCheckbox.state == .on)
+    }
+
+    @objc private func lineNumbersToggled() {
+        AppSettings.shared.showEditorLineNumbers = (lineNumbersCheckbox.state == .on)
     }
 
     // MARK: Actions

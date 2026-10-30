@@ -71,13 +71,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         window.title = "Barycenter"
         window.delegate = self
         window.contentViewController = split
-        window.setFrameAutosaveName("BarycenterMainWindow")
+        window.minSize = NSSize(width: 900, height: 520)   // nie auf die Werkzeugleiste zusammenfallen
+        // Hinweis: KEIN setFrameAutosaveName — ein früher gespeicherter Mini-Frame hat das
+        // Fenster beim Start zusammenfallen lassen. Wir öffnen immer in sinnvoller Größe.
+        UserDefaults.standard.removeObject(forKey: "NSWindow Frame BarycenterMainWindow")
+        window.setContentSize(NSSize(width: 1200, height: 760))
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
-        // Beim Start: Layout-Auswahl (zuletzt genutztes vorgewählt) — oder Neue-Session-Dialog, wenn es keine Layouts gibt.
-        DispatchQueue.main.async { self.presentLayoutChooser(atLaunch: true) }
+        // NSSplitViewController zwingt dem Fenster beim Anzeigen seine Fitting-Size auf.
+        // Darum die Zielgröße NACH dem Anzeigen erneut setzen und zentrieren.
+        DispatchQueue.main.async {
+            self.window.setContentSize(NSSize(width: 1200, height: 760))
+            self.window.center()
+            // Beim Start: Layout-Auswahl (zuletzt genutztes vorgewählt) — oder Neue-Session-Dialog.
+            self.presentLayoutChooser(atLaunch: true)
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }

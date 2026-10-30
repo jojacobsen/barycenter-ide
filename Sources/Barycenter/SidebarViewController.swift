@@ -8,9 +8,20 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     // Optionaler Notizen-Bereich unten in der Sessions-Ansicht (per Einstellung).
     private let sidebarNotes = NSTextView()
+    private let sidebarNotesScroll = NSScrollView()
+    private let notesToggleButton = NSButton()
     private var sidebarNotesSection: NSView!
     private var notesShownConstraint: NSLayoutConstraint!
     private var notesHiddenConstraint: NSLayoutConstraint!
+    private var notesExpandedHeight: NSLayoutConstraint!
+    private var notesCollapsedHeight: NSLayoutConstraint!
+
+    /// Notizen auf-/zugeklappt (persistiert). Der Toggle selbst ist nur verfügbar,
+    /// wenn das Feature in den Einstellungen aktiviert ist (showSidebarNotes).
+    private var notesExpanded: Bool {
+        get { UserDefaults.standard.bool(forKey: "sidebarNotesExpanded") }
+        set { UserDefaults.standard.set(newValue, forKey: "sidebarNotesExpanded") }
+    }
 
     private var sessionsView: NSView!
     private var managerView: NSView!
@@ -36,11 +47,16 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         toolStack.spacing = 0
         toolStack.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(toolStack)
+        // Mindesthöhe: verhindert, dass die Fitting-Size der Sidebar (und damit das
+        // ganze Fenster via NSSplitViewController) auf die Werkzeugleiste zusammenfällt.
+        let minHeight = container.heightAnchor.constraint(greaterThanOrEqualToConstant: 480)
+        minHeight.priority = .required
         NSLayoutConstraint.activate([
             toolStack.topAnchor.constraint(equalTo: container.topAnchor),
             toolStack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             toolStack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             toolStack.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            minHeight,
         ])
         self.view = container
 
@@ -141,16 +157,20 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         v.addSubview(section)
         notesShownConstraint = scroll.bottomAnchor.constraint(equalTo: section.topAnchor, constant: -8)
         notesHiddenConstraint = scroll.bottomAnchor.constraint(equalTo: v.bottomAnchor)
+        // Liste behält Mindesthöhe (über der Notiz-Höhe): bei engem Panel + offenen Notizen
+        // schrumpfen die Notizen, nicht die Liste.
+        let listMinHeight = scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
+        listMinHeight.priority = .init(600)
         NSLayoutConstraint.activate([
             header.topAnchor.constraint(equalTo: v.topAnchor, constant: 12),
             header.leadingAnchor.constraint(equalTo: v.leadingAnchor, constant: 14),
             scroll.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 8),
             scroll.leadingAnchor.constraint(equalTo: v.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: v.trailingAnchor),
+            listMinHeight,
             section.leadingAnchor.constraint(equalTo: v.leadingAnchor),
             section.trailingAnchor.constraint(equalTo: v.trailingAnchor),
             section.bottomAnchor.constraint(equalTo: v.bottomAnchor),
-            section.heightAnchor.constraint(equalToConstant: 180),
         ])
         applySidebarNotesVisibility()
         return v
@@ -158,10 +178,18 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     private func buildSidebarNotesSection() -> NSView {
         let section = NSView()
+        section.translatesAutoresizingMaskIntoConstraints = false   // sonst fixiert der 0×0-Startframe die Höhe auf 0
         let sep = NSBox(); sep.boxType = .separator
-        let title = NSTextField(labelWithString: L("NOTIZEN"))
-        title.font = .systemFont(ofSize: 11, weight: .semibold)
-        title.textColor = .secondaryLabelColor
+
+        // Klickbarer Header = Toggle zum Auf-/Zuklappen der Notizen.
+        notesToggleButton.isBordered = false
+        notesToggleButton.bezelStyle = .regularSquare
+        notesToggleButton.setButtonType(.momentaryChange)
+        notesToggleButton.alignment = .left
+        notesToggleButton.focusRingType = .none
+        notesToggleButton.contentTintColor = .secondaryLabelColor
+        notesToggleButton.target = self
+        notesToggleButton.action = #selector(toggleNotes)
 
         sidebarNotes.isRichText = false
         sidebarNotes.font = .systemFont(ofSize: 12)
@@ -173,37 +201,80 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         sidebarNotes.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         sidebarNotes.textContainer?.widthTracksTextView = true
         sidebarNotes.drawsBackground = false
-        let notesScroll = NSScrollView()
-        notesScroll.documentView = sidebarNotes
-        notesScroll.hasVerticalScroller = true
-        notesScroll.borderType = .noBorder
-        notesScroll.drawsBackground = true
-        notesScroll.backgroundColor = NSColor(white: 1, alpha: 0.06)
-        notesScroll.wantsLayer = true
-        notesScroll.layer?.cornerRadius = 6
+        sidebarNotesScroll.documentView = sidebarNotes
+        sidebarNotesScroll.hasVerticalScroller = true
+        sidebarNotesScroll.borderType = .noBorder
+        sidebarNotesScroll.drawsBackground = true
+        sidebarNotesScroll.backgroundColor = NSColor(white: 1, alpha: 0.08)
+        sidebarNotesScroll.wantsLayer = true
+        sidebarNotesScroll.layer?.cornerRadius = 6
+        sidebarNotesScroll.layer?.borderWidth = 1
+        sidebarNotesScroll.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
 
-        [sep, title, notesScroll].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; section.addSubview($0) }
+        [sep, notesToggleButton, sidebarNotesScroll].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false; section.addSubview($0)
+        }
+        let boxBottom = sidebarNotesScroll.bottomAnchor.constraint(equalTo: section.bottomAnchor, constant: -8)
+        boxBottom.priority = .init(500)   // bricht sauber, wenn eingeklappt (Box versteckt)
         NSLayoutConstraint.activate([
             sep.topAnchor.constraint(equalTo: section.topAnchor),
             sep.leadingAnchor.constraint(equalTo: section.leadingAnchor),
             sep.trailingAnchor.constraint(equalTo: section.trailingAnchor),
-            title.topAnchor.constraint(equalTo: sep.bottomAnchor, constant: 8),
-            title.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 14),
-            notesScroll.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 6),
-            notesScroll.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 6),
-            notesScroll.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -6),
-            notesScroll.bottomAnchor.constraint(equalTo: section.bottomAnchor, constant: -6),
+            notesToggleButton.topAnchor.constraint(equalTo: sep.bottomAnchor, constant: 4),
+            notesToggleButton.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 10),
+            notesToggleButton.trailingAnchor.constraint(lessThanOrEqualTo: section.trailingAnchor, constant: -10),
+            sidebarNotesScroll.topAnchor.constraint(equalTo: notesToggleButton.bottomAnchor, constant: 6),
+            sidebarNotesScroll.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 6),
+            sidebarNotesScroll.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -6),
+            boxBottom,
         ])
+        // Zwei Höhen: eingeklappt = nur der Toggle-Header; ausgeklappt = Header + Box.
+        notesCollapsedHeight = section.heightAnchor.constraint(equalToConstant: 34)
+        notesCollapsedHeight.priority = .init(500)
+        notesExpandedHeight = section.heightAnchor.constraint(equalToConstant: 214)
+        notesExpandedHeight.priority = .init(500)
         return section
     }
 
+    /// Feature an/aus (Einstellung) steuert, ob der Toggle überhaupt da ist.
     private func applySidebarNotesVisibility() {
-        let show = AppSettings.shared.showSidebarNotes
-        sidebarNotesSection?.isHidden = !show
-        notesShownConstraint?.isActive = show
-        notesHiddenConstraint?.isActive = !show
+        let featureOn = AppSettings.shared.showSidebarNotes
+        sidebarNotesSection?.isHidden = !featureOn
+        notesShownConstraint?.isActive = featureOn
+        notesHiddenConstraint?.isActive = !featureOn
+        if featureOn {
+            applyNotesExpansion()
+        } else {
+            notesExpandedHeight?.isActive = false
+            notesCollapsedHeight?.isActive = false
+        }
         sessionsView?.needsLayout = true
         sessionsView?.layoutSubtreeIfNeeded()
+    }
+
+    /// Auf-/zugeklappten Zustand auf Höhe, Box-Sichtbarkeit und Chevron anwenden.
+    private func applyNotesExpansion() {
+        let expanded = notesExpanded
+        notesExpandedHeight?.isActive = expanded
+        notesCollapsedHeight?.isActive = !expanded
+        sidebarNotesScroll.isHidden = !expanded
+        let chevron = expanded ? "▾" : "▸"
+        notesToggleButton.attributedTitle = NSAttributedString(
+            string: "\(chevron)  " + L("NOTIZEN"),
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
+                .foregroundColor: NSColor.secondaryLabelColor,
+            ])
+    }
+
+    @objc private func toggleNotes() {
+        notesExpanded.toggle()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.18
+            ctx.allowsImplicitAnimation = true
+            applyNotesExpansion()
+            sessionsView?.layoutSubtreeIfNeeded()
+        }
     }
 
     @objc private func onSettingsChanged() { applySidebarNotesVisibility() }
@@ -378,3 +449,39 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         SessionManager.shared.requestClose(SessionManager.shared.workerSessions[row].id, window: view.window)
     }
 }
+
+#if DEBUG
+// MARK: - Test-Hooks (nur Layout-Regressionstests; greifen auf private Member zu)
+extension SidebarViewController {
+    /// Höhe des Session-Listen-Scrollbereichs nach dem Layout. > 0 ⇒ Liste sichtbar.
+    var test_sessionsListHeight: CGFloat { tableView.enclosingScrollView?.frame.height ?? 0 }
+
+    /// Notizen-Toggle verfügbar (Section sichtbar mit echter Höhe)?
+    var test_notesSectionVisible: Bool {
+        guard let s = sidebarNotesSection else { return false }
+        return !s.isHidden && s.frame.height > 1
+    }
+
+    /// Notiz-Textbox tatsächlich aufgeklappt und sichtbar?
+    var test_notesBoxVisible: Bool {
+        !sidebarNotesScroll.isHidden && sidebarNotesScroll.frame.height > 1
+    }
+
+    /// Notizen auf-/zuklappen (Test-Zugang) und Layout neu anwenden.
+    func test_setNotesExpanded(_ expanded: Bool) {
+        notesExpanded = expanded
+        applyNotesExpansion()
+    }
+
+    /// Breiten aller echten Werkzeug-Ansichten (ohne die 1px-Trennlinien).
+    var test_toolViewWidths: [CGFloat] {
+        toolStack.arrangedSubviews.filter { $0.frame.height > 2 }.map { $0.frame.width }
+    }
+
+    /// Breite des Werkzeug-Stacks (Soll-Breite jeder Werkzeug-Ansicht).
+    var test_panelWidth: CGFloat { toolStack.frame.width }
+
+    /// Aktive Werkzeuge einstellen (Test-Zugang zur internen API).
+    func test_showTools(_ tools: [Tool]) { showTools(tools) }
+}
+#endif

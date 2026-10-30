@@ -36,6 +36,12 @@ final class AppSettings {
         set { d.set(newValue, forKey: "showSidebarNotes"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
     }
 
+    /// Zeilennummern im Datei-Editor anzeigen (Standard: an).
+    var showEditorLineNumbers: Bool {
+        get { d.object(forKey: "showEditorLineNumbers") == nil ? true : d.bool(forKey: "showEditorLineNumbers") }
+        set { d.set(newValue, forKey: "showEditorLineNumbers"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
     var theme: Theme { Theme.named(themeName) }
 
     /// Auf ein einzelnes Terminal anwenden (z.B. beim Erzeugen einer Session).

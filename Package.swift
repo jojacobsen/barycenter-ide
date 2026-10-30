@@ -20,5 +20,9 @@ let package = Package(
                 .copy("Resources/github-markdown-dark.min.css"),
             ]
         ),
+        .testTarget(
+            name: "BarycenterTests",
+            dependencies: ["Barycenter"]
+        ),
     ]
 )
