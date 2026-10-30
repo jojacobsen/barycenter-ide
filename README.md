@@ -1,16 +1,30 @@
+<div align="center">
+
+<img src="docs/icon.png" width="160" alt="Barycenter app icon" />
+
 # Barycenter
 
 **Native macOS mission control for many parallel AI coding agents and terminal sessions.**
 
-Barycenter is the control layer *above* your coding agents: run a fleet of
-**Claude Code**, Codex, Gemini CLI, Aider (or any CLI) sessions side by side,
-see at a glance what each is doing, and get pulled in the moment one needs you —
-with an optional AI **Handler** that spawns and steers sessions for you.
+Run a fleet of **Claude Code**, Codex, Gemini CLI, Aider (or any CLI) side by side —
+see what each is doing at a glance, and get pulled in the moment one needs you.
 
-> Not a classic editor-first IDE — it's orchestration-first. Agents do the work;
-> the built-in editor/diff/files are there for you to peek in and intervene.
+[![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-black)](#requirements)
+[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-native%20arm64-black)](#requirements)
+[![Swift](https://img.shields.io/badge/Swift-AppKit-orange)](#build--run)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-early%20WIP-yellow)](#)
 
-<!-- ![screenshot](docs/screenshot.png) -->
+[Features](#features) · [Build from source](#build--run) · [Releases](#releases-signed-dmg)
+
+<!-- <img src="docs/screenshot.png" width="820" alt="Barycenter" /> -->
+
+</div>
+
+---
+
+> Orchestration-first, not editor-first: the agents do the work; the built-in
+> editor / diff / files are there for you to peek in and intervene.
 
 ## Features
 

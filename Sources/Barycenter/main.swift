@@ -4,6 +4,7 @@ import UserNotifications
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private var window: NSWindow!
     private var prefsController: PreferencesWindowController?
+    private var aboutController: AboutWindowController?
     private var sidebar: SidebarViewController!
     private var toolItem: NSSplitViewItem!
 
@@ -65,13 +66,89 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
-        // Beim Start keine Auto-Session, sondern den „Neue Session"-Dialog öffnen.
-        DispatchQueue.main.async {
+        // Beim Start: Layout-Auswahl (zuletzt genutztes vorgewählt) — oder Neue-Session-Dialog, wenn es keine Layouts gibt.
+        DispatchQueue.main.async { self.presentLayoutChooser(atLaunch: true) }
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+    // Beenden-Abfrage, wenn noch Sessions laufen; danach aktuelles Layout automatisch sichern.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let running = SessionManager.shared.sessions.contains { $0.status == .running }
+        if running {
+            let alert = NSAlert()
+            alert.messageText = "Barycenter beenden?"
+            alert.informativeText = "Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Beenden")
+            alert.addButton(withTitle: "Abbrechen")
+            if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
+        }
+        // Zuletzt genutztes Layout aktuell halten, damit es beim nächsten Start geladen werden kann.
+        if let n = SessionManager.shared.currentLayoutName {
+            SessionManager.shared.saveCurrentLayout(name: n)
+        }
+        return .terminateNow
+    }
+
+    // MARK: - Layouts
+
+    private func presentLayoutChooser(atLaunch: Bool) {
+        let layouts = LayoutStore.all()
+        if layouts.isEmpty {
+            NotificationCenter.default.post(name: .newSessionRequested, object: nil)
+            return
+        }
+        let alert = NSAlert()
+        alert.messageText = "Layout laden"
+        alert.informativeText = atLaunch
+            ? "Welches Layout möchtest du öffnen? (oder leer starten)"
+            : "Welches Layout laden? Die aktuellen Sessions werden ersetzt."
+        let popup = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 260, height: 26))
+        popup.addItems(withTitles: layouts.map { $0.name })
+        if let last = LayoutStore.lastName, popup.itemTitles.contains(last) { popup.selectItem(withTitle: last) }
+        alert.accessoryView = popup
+        alert.addButton(withTitle: "Laden")
+        if atLaunch { alert.addButton(withTitle: "Neu (leer)") }
+        alert.addButton(withTitle: "Abbrechen")
+
+        let resp = alert.runModal()
+        if resp == .alertFirstButtonReturn {
+            if let layout = layouts.first(where: { $0.name == popup.titleOfSelectedItem }) {
+                SessionManager.shared.applyLayout(layout)
+            }
+        } else if atLaunch, resp == .alertSecondButtonReturn {
             NotificationCenter.default.post(name: .newSessionRequested, object: nil)
         }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+    @objc private func saveLayout() {
+        if let n = SessionManager.shared.currentLayoutName { SessionManager.shared.saveCurrentLayout(name: n) }
+        else { saveLayoutAs() }
+    }
+    @objc private func saveLayoutAs() {
+        let alert = NSAlert()
+        alert.messageText = "Layout speichern unter…"
+        alert.informativeText = "Name des Layouts:"
+        let tf = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+        tf.stringValue = SessionManager.shared.currentLayoutName ?? "Mein Layout"
+        alert.accessoryView = tf
+        alert.addButton(withTitle: "Speichern")
+        alert.addButton(withTitle: "Abbrechen")
+        if alert.runModal() == .alertFirstButtonReturn {
+            let name = tf.stringValue.trimmingCharacters(in: .whitespaces)
+            if !name.isEmpty { SessionManager.shared.saveCurrentLayout(name: name) }
+        }
+    }
+    @objc private func loadLayout() { presentLayoutChooser(atLaunch: false) }
+
+    @objc private func showAbout() {
+        if aboutController == nil { aboutController = AboutWindowController() }
+        aboutController?.showWindow(nil)
+        aboutController?.window?.center()
+        aboutController?.window?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
 
     // Banner auch zeigen, wenn Barycenter im Vordergrund ist.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
@@ -90,6 +167,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         main.addItem(appItem)
         let appMenu = NSMenu()
         appItem.submenu = appMenu
+        add(appMenu, "Über Barycenter", #selector(showAbout), "")
+        appMenu.addItem(.separator())
         add(appMenu, "Einstellungen…", #selector(openPreferences), ",")
         appMenu.addItem(.separator())
         let quit = appMenu.addItem(withTitle: "Barycenter beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -113,6 +192,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         add(sessMenu, "Neue Session", #selector(newSession), "t")
         add(sessMenu, "KI-Verwalter starten", #selector(startManager), "m")
         add(sessMenu, "Session schließen", #selector(closeSession), "w")
+
+        // Layout-Menü
+        let layoutItem = NSMenuItem()
+        main.addItem(layoutItem)
+        let layoutMenu = NSMenu(title: "Layout")
+        layoutItem.submenu = layoutMenu
+        add(layoutMenu, "Layout speichern", #selector(saveLayout), "")
+        add(layoutMenu, "Layout speichern unter…", #selector(saveLayoutAs), "")
+        add(layoutMenu, "Layout laden…", #selector(loadLayout), "")
 
         // Ansicht-Menü
         let viewItem = NSMenuItem()

@@ -13,7 +13,7 @@ final class PreferencesWindowController: NSWindowController {
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
-        window.title = "Einstellungen"
+        window.title = "Terminal-Einstellungen"
         self.init(window: window)
         buildUI()
         loadValues()
@@ -50,7 +50,10 @@ final class PreferencesWindowController: NSWindowController {
         sizeRow.orientation = .horizontal
         sizeRow.spacing = 4
 
-        let note = NSTextField(labelWithString: "Gilt sofort für alle Sessions.")
+        let note = NSTextField(labelWithString: "Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort.")
+        note.lineBreakMode = .byWordWrapping
+        note.maximumNumberOfLines = 2
+        note.preferredMaxLayoutWidth = 340
         note.font = .systemFont(ofSize: 11)
         note.textColor = .secondaryLabelColor
 

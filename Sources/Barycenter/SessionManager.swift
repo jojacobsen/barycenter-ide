@@ -62,6 +62,48 @@ final class SessionManager {
                           cwd: home, launchCommand: nil, profileName: "Shell")
     }
 
+    // MARK: - Layouts (welche Projekte/Sessions mit welchen Einstellungen laufen)
+
+    var currentLayoutName: String? {
+        get { UserDefaults.standard.string(forKey: "currentLayoutName") }
+        set { UserDefaults.standard.set(newValue, forKey: "currentLayoutName") }
+    }
+
+    /// Specs der aktuellen Worker-Sessions (ohne Manager).
+    func currentSpecs() -> [SessionSpec] {
+        workerSessions.map {
+            SessionSpec(title: $0.title, cwd: $0.cwd, launchCommand: $0.launchCommand,
+                        profileName: $0.profileName, remoteControl: $0.remoteControl)
+        }
+    }
+
+    func clearWorkers() {
+        for s in workerSessions { remove(s.id) }
+    }
+
+    private func spawn(from spec: SessionSpec) {
+        var cwd = spec.cwd
+        if !FileManager.default.fileExists(atPath: cwd) {
+            cwd = FileManager.default.homeDirectoryForCurrentUser.path
+        }
+        addSession(title: spec.title, cwd: cwd, launchCommand: spec.launchCommand,
+                   profileName: spec.profileName, remoteControl: spec.remoteControl)
+    }
+
+    /// Ersetzt die aktuellen Worker-Sessions durch die des Layouts.
+    func applyLayout(_ layout: Layout) {
+        clearWorkers()
+        for spec in layout.sessions { spawn(from: spec) }
+        currentLayoutName = layout.name
+        LayoutStore.lastName = layout.name
+    }
+
+    func saveCurrentLayout(name: String) {
+        LayoutStore.save(Layout(name: name, sessions: currentSpecs()))
+        currentLayoutName = name
+        LayoutStore.lastName = name
+    }
+
     /// Startet den KI-Verwalter (oder fokussiert ihn, falls er schon läuft).
     func spawnManager() {
         if let existing = sessions.first(where: { $0.isManager }) {
