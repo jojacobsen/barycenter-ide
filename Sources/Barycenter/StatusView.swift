@@ -27,39 +27,39 @@ final class SessionStatusView: NSView {
     func refresh(for session: Session) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        row("Profil", session.profileName)
-        row("Ordner", session.cwd)
-        row("Gestartet", Self.df.string(from: session.startedAt))
+        row(L("Profil"), session.profileName)
+        row(L("Ordner"), session.cwd)
+        row(L("Gestartet"), Self.df.string(from: session.startedAt))
         switch session.status {
-        case .running:   row("Zustand", "läuft")
-        case .attention: row("Zustand", "braucht dich")
-        case .done:      row("Zustand", "beendet")
-        case .idle:      row("Zustand", "wartet")
+        case .running:   row(L("Zustand"), L("läuft"))
+        case .attention: row(L("Zustand"), L("braucht dich"))
+        case .done:      row(L("Zustand"), L("beendet"))
+        case .idle:      row(L("Zustand"), L("wartet"))
         }
 
-        if session.remoteControl { row("Remote Control", "aktiv") }
+        if session.remoteControl { row(L("Remote Control"), L("aktiv")) }
 
         if session.launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: session.pid) {
-            row("Live-Status", a.status + (a.waitingFor.map { " — \($0)" } ?? ""))
+            row(L("Live-Status"), a.status + (a.waitingFor.map { " — \($0)" } ?? ""))
         }
 
         if session.launchCommand == "claude" {
             if let j = session.readStatusJSON() {
-                if let m = (j["model"] as? [String: Any])?["display_name"] as? String { row("Modell", m) }
+                if let m = (j["model"] as? [String: Any])?["display_name"] as? String { row(L("Modell"), m) }
                 if let cost = (j["cost"] as? [String: Any])?["total_cost_usd"] as? Double {
-                    row("Kosten", String(format: "$%.4f", cost))
+                    row(L("Kosten"), String(format: "$%.4f", cost))
                 }
                 if let over = j["exceeds_200k_tokens"] as? Bool {
-                    row("Context", over ? "⚠︎ über 200k Tokens" : "ok")
+                    row(L("Context"), over ? L("⚠︎ über 200k Tokens") : L("ok"))
                 }
             } else {
-                row("Modell/Kosten", "— (sammelt Daten …)")
+                row(L("Modell/Kosten"), L("— (sammelt Daten …)"))
             }
         } else if let cmd = session.launchCommand {
-            row("Befehl", cmd)
+            row(L("Befehl"), cmd)
         }
 
-        note("Zusammenfassung & Roadmap: folgt")
+        note(L("Zusammenfassung & Roadmap: folgt"))
     }
 
     private func row(_ label: String, _ value: String) {

@@ -19,11 +19,11 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private let table = NSTableView()
     private let codeStorage: CodeAttributedString
     private let editor: NSTextView
-    private let fileLabel = NSTextField(labelWithString: "— keine Datei —")
-    private let saveButton = NSButton(title: "Speichern", target: nil, action: nil)
+    private let fileLabel = NSTextField(labelWithString: L("— keine Datei —"))
+    private let saveButton = NSButton(title: L("Speichern"), target: nil, action: nil)
     private let editorScroll = NSScrollView()
     private let editorArea = NSView()
-    private let modeToggle = NSSegmentedControl(labels: ["Editor", "Vorschau"], trackingMode: .selectOne, target: nil, action: nil)
+    private let modeToggle = NSSegmentedControl(labels: [L("Editor"), L("Vorschau")], trackingMode: .selectOne, target: nil, action: nil)
     private lazy var preview = MarkdownPreviewView(frame: .zero)
     private var isMarkdown = false
 
@@ -44,7 +44,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
 
         super.init(frame: .zero)
 
-        searchField.placeholderString = "Dateien suchen (rekursiv)…"
+        searchField.placeholderString = L("Dateien suchen (rekursiv)…")
         searchField.controlSize = .small
         searchField.sendsSearchStringImmediately = false
         searchField.delegate = self
@@ -244,7 +244,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
             DispatchQueue.main.async {
                 self.searchHits = hits.sorted()
                 self.searching = true
-                self.pathLabel.stringValue = "🔎 \(hits.count) Treffer für „\(q)\""
+                self.pathLabel.stringValue = String(format: L("🔎 %d Treffer für „%@\""), hits.count, q)
                 self.table.reloadData()
             }
         }
@@ -287,13 +287,13 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         guard let data = FileManager.default.contents(atPath: path) else { return }
         suppressDirty = true
         if data.count > 2_000_000 {
-            loadedFile = nil; codeStorage.language = nil; show("(Datei zu groß zum Anzeigen)", editable: false)
+            loadedFile = nil; codeStorage.language = nil; show(L("(Datei zu groß zum Anzeigen)"), editable: false)
         } else if let text = String(data: data, encoding: .utf8) {
             loadedFile = path
             codeStorage.language = Self.language(for: path)
             show(text, editable: true)
         } else {
-            loadedFile = nil; codeStorage.language = nil; show("(Binärdatei – nicht darstellbar)", editable: false)
+            loadedFile = nil; codeStorage.language = nil; show(L("(Binärdatei – nicht darstellbar)"), editable: false)
         }
         let ext = (path as NSString).pathExtension.lowercased()
         isMarkdown = (loadedFile != nil) && (ext == "md" || ext == "markdown")
@@ -318,11 +318,11 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private func updateFileBar() {
         if let f = loadedFile {
             let name = (f as NSString).lastPathComponent
-            fileLabel.stringValue = dirty ? "● \(name)  — ungesicherte Änderungen" : name
+            fileLabel.stringValue = dirty ? String(format: L("● %@  — ungesicherte Änderungen"), name) : name
             fileLabel.textColor = dirty ? .systemOrange : .labelColor
             saveButton.isEnabled = dirty
         } else {
-            fileLabel.stringValue = "— keine Datei —"
+            fileLabel.stringValue = L("— keine Datei —")
             fileLabel.textColor = .secondaryLabelColor
             saveButton.isEnabled = false
         }
@@ -337,7 +337,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
             dirty = false
             updateFileBar()
         } catch {
-            fileLabel.stringValue = "⚠︎ Fehler beim Speichern"
+            fileLabel.stringValue = L("⚠︎ Fehler beim Speichern")
             fileLabel.textColor = .systemRed
         }
     }
@@ -346,12 +346,12 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private func confirmDiscardIfNeeded(_ proceed: @escaping () -> Void) {
         guard dirty, loadedFile != nil, let win = window else { proceed(); return }
         let alert = NSAlert()
-        alert.messageText = "Ungespeicherte Änderungen"
-        alert.informativeText = "Die Änderungen an \((loadedFile! as NSString).lastPathComponent) sind nicht gespeichert."
+        alert.messageText = L("Ungespeicherte Änderungen")
+        alert.informativeText = String(format: L("Die Änderungen an %@ sind nicht gespeichert."), (loadedFile! as NSString).lastPathComponent)
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Speichern")
-        alert.addButton(withTitle: "Verwerfen")
-        alert.addButton(withTitle: "Abbrechen")
+        alert.addButton(withTitle: L("Speichern"))
+        alert.addButton(withTitle: L("Verwerfen"))
+        alert.addButton(withTitle: L("Abbrechen"))
         alert.beginSheetModal(for: win) { resp in
             switch resp {
             case .alertFirstButtonReturn:  self.doSave(); proceed()

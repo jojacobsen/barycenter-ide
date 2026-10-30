@@ -6,6 +6,12 @@ final class PreferencesWindowController: NSWindowController {
     private let fontPopup  = NSPopUpButton(frame: .zero, pullsDown: false)
     private let sizeField  = NSTextField()
     private let sizeStepper = NSStepper()
+    private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
+
+    /// Sprach-Codes passend zu den Einträgen des Sprach-Popups.
+    /// `nil` = „System" (kein Override). Reihenfolge muss zu `languageItemTitles` passen.
+    private let languageCodes: [String?] = [nil, "de", "en", "es", "fr", "it", "ja", "zh-Hans"]
+    private let languageItemTitles = [L("System"), "Deutsch", "English", "Español", "Français", "Italiano", "日本語", "简体中文"]
 
     convenience init() {
         let window = NSWindow(
@@ -13,7 +19,7 @@ final class PreferencesWindowController: NSWindowController {
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
-        window.title = "Terminal-Einstellungen"
+        window.title = L("Terminal-Einstellungen")
         self.init(window: window)
         buildUI()
         loadValues()
@@ -50,18 +56,31 @@ final class PreferencesWindowController: NSWindowController {
         sizeRow.orientation = .horizontal
         sizeRow.spacing = 4
 
-        let note = NSTextField(labelWithString: "Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort.")
+        languagePopup.addItems(withTitles: languageItemTitles)
+        languagePopup.target = self
+        languagePopup.action = #selector(languageChanged)
+
+        let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
         note.lineBreakMode = .byWordWrapping
         note.maximumNumberOfLines = 2
         note.preferredMaxLayoutWidth = 340
         note.font = .systemFont(ofSize: 11)
         note.textColor = .secondaryLabelColor
 
+        let restartNote = NSTextField(labelWithString: L("Neustart erforderlich, um die Sprache zu übernehmen."))
+        restartNote.lineBreakMode = .byWordWrapping
+        restartNote.maximumNumberOfLines = 2
+        restartNote.preferredMaxLayoutWidth = 340
+        restartNote.font = .systemFont(ofSize: 11)
+        restartNote.textColor = .secondaryLabelColor
+
         let grid = NSGridView(views: [
-            [label("Theme:"),  themePopup],
-            [label("Schrift:"), fontPopup],
-            [label("Größe:"),   sizeRow],
+            [label(L("Theme:")),  themePopup],
+            [label(L("Schrift:")), fontPopup],
+            [label(L("Größe:")),   sizeRow],
             [NSGridCell.emptyContentView, note],
+            [label(L("Sprache:")), languagePopup],
+            [NSGridCell.emptyContentView, restartNote],
         ])
         grid.rowAlignment = .firstBaseline
         grid.column(at: 0).xPlacement = .trailing
@@ -94,6 +113,11 @@ final class PreferencesWindowController: NSWindowController {
         }
         sizeStepper.doubleValue = Double(s.fontSize)
         sizeField.stringValue = "\(Int(s.fontSize))"
+
+        // Aktuell aktiven Sprach-Override vorwählen (erster Eintrag der AppleLanguages-Liste).
+        let current = (UserDefaults.standard.array(forKey: "AppleLanguages") as? [String])?.first
+        let idx = current.flatMap { code in languageCodes.firstIndex { $0 == code } } ?? 0
+        languagePopup.selectItem(at: idx)
     }
 
     // MARK: Actions
@@ -114,5 +138,13 @@ final class PreferencesWindowController: NSWindowController {
         sizeStepper.doubleValue = Double(v)
         sizeField.stringValue = "\(v)"
         AppSettings.shared.fontSize = CGFloat(v)
+    }
+    @objc private func languageChanged() {
+        let idx = languagePopup.indexOfSelectedItem
+        if let code = languageCodes[idx] {
+            UserDefaults.standard.set([code], forKey: "AppleLanguages")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")   // „System": kein Override
+        }
     }
 }

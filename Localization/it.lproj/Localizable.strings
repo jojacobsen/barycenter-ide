@@ -1,0 +1,150 @@
+/* Barycenter — Italian localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "Uscire da Barycenter?";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "Le sessioni in esecuzione verranno terminate e le note non salvate andranno perse.";
+"Beenden" = "Esci";
+"Abbrechen" = "Annulla";
+"Layout laden" = "Carica layout";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "Quale layout vuoi aprire? (oppure parti da vuoto)";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "Quale layout caricare? Le sessioni attuali verranno sostituite.";
+"Laden" = "Carica";
+"Neu (leer)" = "Nuovo (vuoto)";
+"Layout speichern unter…" = "Salva layout come…";
+"Name des Layouts:" = "Nome del layout:";
+"Mein Layout" = "Il mio layout";
+"Speichern" = "Salva";
+
+/* Main menu */
+"Über Barycenter" = "Informazioni su Barycenter";
+"Einstellungen…" = "Impostazioni…";
+"Barycenter beenden" = "Esci da Barycenter";
+"Bearbeiten" = "Modifica";
+"Ausschneiden" = "Taglia";
+"Kopieren" = "Copia";
+"Einfügen" = "Incolla";
+"Alles auswählen" = "Seleziona tutto";
+"Session" = "Sessione";
+"Neue Session" = "Nuova sessione";
+"KI-Verwalter starten" = "Avvia gestore IA";
+"Session schließen" = "Chiudi sessione";
+"Layout" = "Layout";
+"Layout speichern" = "Salva layout";
+"Layout laden…" = "Carica layout…";
+"Ansicht" = "Vista";
+"Grid" = "Griglia";
+"Fokus" = "Focus";
+
+/* Content view / tiles */
+"Terminal" = "Terminale";
+"Status" = "Stato";
+"Notizen" = "Note";
+"Diff" = "Diff";
+"Dateien" = "File";
+"▦ Grid" = "▦ Griglia";
+"◻ Fokus" = "◻ Focus";
+"Seite %d/%d" = "Pagina %d/%d";
+"＋ Neue Session" = "＋ Nuova sessione";
+
+/* Sidebar */
+"SESSIONS" = "SESSIONI";
+"LEITSTELLE" = "CENTRO DI CONTROLLO";
+"＋ KI-Verwalter starten" = "＋ Avvia gestore IA";
+"Dein Leitstand-Agent" = "Il tuo agente del centro di controllo";
+
+/* Activity rail */
+"Sessions" = "Sessioni";
+"Verwalter" = "Gestore";
+"Verlauf" = "Cronologia";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "Controllo remoto (controllabile da un altro dispositivo)";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "Worktree Git dedicato (branch) – solo per repository Git";
+"z. B. htop" = "es. htop";
+"Wählen…" = "Scegli…";
+"Starten" = "Avvia";
+"Profil:" = "Profilo:";
+"Befehl:" = "Comando:";
+"Ordner:" = "Cartella:";
+"Name:" = "Nome:";
+"Wählen" = "Scegli";
+"Custom Command…" = "Comando personalizzato…";
+
+/* Status view */
+"Profil" = "Profilo";
+"Ordner" = "Cartella";
+"Gestartet" = "Avviato";
+"Zustand" = "Stato";
+"läuft" = "in esecuzione";
+"braucht dich" = "ti serve";
+"beendet" = "terminato";
+"wartet" = "in attesa";
+"Remote Control" = "Controllo remoto";
+"aktiv" = "attivo";
+"Live-Status" = "Stato in tempo reale";
+"Modell" = "Modello";
+"Kosten" = "Costo";
+"Context" = "Contesto";
+"⚠︎ über 200k Tokens" = "⚠︎ oltre 200k token";
+"ok" = "ok";
+"Modell/Kosten" = "Modello/Costo";
+"— (sammelt Daten …)" = "— (raccolta dati …)";
+"Befehl" = "Comando";
+"Zusammenfassung & Roadmap: folgt" = "Riepilogo e roadmap: in arrivo";
+
+/* Session badges */
+"Manager" = "Gestore";
+"arbeitet" = "al lavoro";
+"bereit" = "pronto";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "Chiudere la sessione %@?";
+"Der laufende Prozess wird beendet." = "Il processo in esecuzione verrà terminato.";
+"Die Notizen dieser Session gehen verloren." = "Le note di questa sessione andranno perse.";
+"Ist alles gespeichert?" = "È tutto salvato?";
+"Schließen" = "Chiudi";
+"KI-Verwalter" = "Gestore IA";
+
+/* Preferences */
+"Terminal-Einstellungen" = "Impostazioni del terminale";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Tema e carattere si applicano ai terminali (console) di tutte le sessioni, non all'interfaccia dell'app. Ha effetto immediato.";
+"Theme:" = "Tema:";
+"Schrift:" = "Carattere:";
+"Größe:" = "Dimensione:";
+"Sprache:" = "Lingua:";
+"System" = "Sistema";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "È necessario riavviare per applicare la lingua.";
+
+/* About window */
+"Version %@" = "Versione %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "Centro di controllo per molti agenti di programmazione IA e sessioni di terminale in parallelo.";
+
+/* History view */
+"VERLAUF" = "CRONOLOGIA";
+"Lade …" = "Caricamento …";
+"Keine Git-Repos unter den Sessions." = "Nessun repository Git tra le sessioni.";
+"(keine Commits)" = "(nessun commit)";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ Aggiorna";
+"Kein Git-Repo in diesem Ordner." = "Nessun repository Git in questa cartella.";
+"Änderungen (git diff)" = "Modifiche (git diff)";
+"(sauber)" = "(pulito)";
+"(keine uncommitteten Änderungen)" = "(nessuna modifica non confermata)";
+
+/* Files view */
+"— keine Datei —" = "— nessun file —";
+"Editor" = "Editor";
+"Vorschau" = "Anteprima";
+"Dateien suchen (rekursiv)…" = "Cerca file (ricorsivo)…";
+"🔎 %d Treffer für „%@\"" = "🔎 %d risultati per «%@»";
+"(Datei zu groß zum Anzeigen)" = "(file troppo grande da visualizzare)";
+"(Binärdatei – nicht darstellbar)" = "(file binario – non visualizzabile)";
+"● %@  — ungesicherte Änderungen" = "● %@  — modifiche non salvate";
+"⚠︎ Fehler beim Speichern" = "⚠︎ Errore durante il salvataggio";
+"Ungespeicherte Änderungen" = "Modifiche non salvate";
+"Die Änderungen an %@ sind nicht gespeichert." = "Le modifiche a %@ non sono salvate.";
+"Verwerfen" = "Ignora";
+
+/* Notifications */
+"Session braucht dich" = "La sessione ti serve";

@@ -9,7 +9,7 @@ final class HistoryView: NSView {
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
 
-        let title = NSTextField(labelWithString: "VERLAUF")
+        let title = NSTextField(labelWithString: L("VERLAUF"))
         title.font = .systemFont(ofSize: 11, weight: .semibold)
         title.textColor = .systemTeal
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +47,7 @@ final class HistoryView: NSView {
     required init?(coder: NSCoder) { fatalError() }
 
     @objc func refresh() {
-        setPlain("Lade …")
+        setPlain(L("Lade …"))
         let cwds = Array(Set(SessionManager.shared.sessions.map { $0.cwd }))
         DispatchQueue.global(qos: .userInitiated).async {
             var repos: [String: String] = [:]   // topLevel -> log
@@ -66,14 +66,14 @@ final class HistoryView: NSView {
 
     private func render(_ repos: [String: String]) {
         guard !repos.isEmpty else {
-            setPlain("Keine Git-Repos unter den Sessions."); return
+            setPlain(L("Keine Git-Repos unter den Sessions.")); return
         }
         let out = NSMutableAttributedString()
         for (top, log) in repos.sorted(by: { $0.key < $1.key }) {
             let name = (top as NSString).lastPathComponent
             out.append(NSAttributedString(string: "▸ \(name)\n", attributes: [
                 .foregroundColor: NSColor.systemTeal, .font: NSFont.boldSystemFont(ofSize: 11)]))
-            out.append(NSAttributedString(string: (log.isEmpty ? "(keine Commits)" : log) + "\n\n", attributes: [
+            out.append(NSAttributedString(string: (log.isEmpty ? L("(keine Commits)") : log) + "\n\n", attributes: [
                 .foregroundColor: NSColor.labelColor, .font: Self.mono]))
         }
         textView.textStorage?.setAttributedString(out)

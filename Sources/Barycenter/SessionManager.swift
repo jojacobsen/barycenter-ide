@@ -111,8 +111,8 @@ final class SessionManager {
         }
         let promptPath = writeManagerPrompt()
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        addSession(title: "KI-Verwalter", cwd: home, launchCommand: "claude",
-                   profileName: "Manager", isManager: true,
+        addSession(title: L("KI-Verwalter"), cwd: home, launchCommand: "claude",
+                   profileName: L("Manager"), isManager: true,
                    extraArgs: ["--append-system-prompt-file", promptPath])
     }
 
@@ -152,14 +152,14 @@ final class SessionManager {
         guard needsConfirm else { remove(id); return }
 
         let alert = NSAlert()
-        alert.messageText = "Session \(s.title) schließen?"
-        var info = "Der laufende Prozess wird beendet."
-        if !s.notes.isEmpty { info += " Die Notizen dieser Session gehen verloren." }
-        info += " Ist alles gespeichert?"
+        alert.messageText = String(format: L("Session %@ schließen?"), s.title)
+        var info = L("Der laufende Prozess wird beendet.")
+        if !s.notes.isEmpty { info += " " + L("Die Notizen dieser Session gehen verloren.") }
+        info += " " + L("Ist alles gespeichert?")
         alert.informativeText = info
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Schließen")
-        alert.addButton(withTitle: "Abbrechen")
+        alert.addButton(withTitle: L("Schließen"))
+        alert.addButton(withTitle: L("Abbrechen"))
 
         if let win = window ?? NSApp.keyWindow {
             alert.beginSheetModal(for: win) { [weak self] resp in

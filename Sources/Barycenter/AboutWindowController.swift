@@ -5,7 +5,7 @@ final class AboutWindowController: NSWindowController {
     convenience init() {
         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 320),
                          styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        w.title = "Über Barycenter"
+        w.title = L("Über Barycenter")
         self.init(window: w)
         buildUI()
     }
@@ -21,12 +21,12 @@ final class AboutWindowController: NSWindowController {
         name.font = .systemFont(ofSize: 24, weight: .bold)
         name.alignment = .center
 
-        let version = NSTextField(labelWithString: "Version \(Self.version)")
+        let version = NSTextField(labelWithString: String(format: L("Version %@"), Self.version))
         version.font = .systemFont(ofSize: 11)
         version.textColor = .secondaryLabelColor
         version.alignment = .center
 
-        let tagline = NSTextField(labelWithString: "Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions.")
+        let tagline = NSTextField(labelWithString: L("Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions."))
         tagline.font = .systemFont(ofSize: 12)
         tagline.alignment = .center
         tagline.lineBreakMode = .byWordWrapping

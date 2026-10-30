@@ -1,0 +1,150 @@
+/* Barycenter — Simplified Chinese localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "退出 Barycenter？";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "正在运行的会话将被终止，未保存的笔记将丢失。";
+"Beenden" = "退出";
+"Abbrechen" = "取消";
+"Layout laden" = "加载布局";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "你想打开哪个布局？（或以空白启动）";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "加载哪个布局？当前会话将被替换。";
+"Laden" = "加载";
+"Neu (leer)" = "新建（空白）";
+"Layout speichern unter…" = "将布局另存为…";
+"Name des Layouts:" = "布局名称：";
+"Mein Layout" = "我的布局";
+"Speichern" = "保存";
+
+/* Main menu */
+"Über Barycenter" = "关于 Barycenter";
+"Einstellungen…" = "设置…";
+"Barycenter beenden" = "退出 Barycenter";
+"Bearbeiten" = "编辑";
+"Ausschneiden" = "剪切";
+"Kopieren" = "拷贝";
+"Einfügen" = "粘贴";
+"Alles auswählen" = "全选";
+"Session" = "会话";
+"Neue Session" = "新建会话";
+"KI-Verwalter starten" = "启动 AI 管理器";
+"Session schließen" = "关闭会话";
+"Layout" = "布局";
+"Layout speichern" = "保存布局";
+"Layout laden…" = "加载布局…";
+"Ansicht" = "显示";
+"Grid" = "网格";
+"Fokus" = "聚焦";
+
+/* Content view / tiles */
+"Terminal" = "终端";
+"Status" = "状态";
+"Notizen" = "笔记";
+"Diff" = "差异";
+"Dateien" = "文件";
+"▦ Grid" = "▦ 网格";
+"◻ Fokus" = "◻ 聚焦";
+"Seite %d/%d" = "第 %d/%d 页";
+"＋ Neue Session" = "＋ 新建会话";
+
+/* Sidebar */
+"SESSIONS" = "会话";
+"LEITSTELLE" = "控制中心";
+"＋ KI-Verwalter starten" = "＋ 启动 AI 管理器";
+"Dein Leitstand-Agent" = "你的控制中心代理";
+
+/* Activity rail */
+"Sessions" = "会话";
+"Verwalter" = "管理器";
+"Verlauf" = "历史";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "远程控制（可从其他设备操控）";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "独立的 Git 工作树（分支）– 仅限 Git 仓库";
+"z. B. htop" = "例如 htop";
+"Wählen…" = "选择…";
+"Starten" = "启动";
+"Profil:" = "配置：";
+"Befehl:" = "命令：";
+"Ordner:" = "文件夹：";
+"Name:" = "名称：";
+"Wählen" = "选择";
+"Custom Command…" = "自定义命令…";
+
+/* Status view */
+"Profil" = "配置";
+"Ordner" = "文件夹";
+"Gestartet" = "已启动";
+"Zustand" = "状态";
+"läuft" = "运行中";
+"braucht dich" = "需要你";
+"beendet" = "已结束";
+"wartet" = "等待中";
+"Remote Control" = "远程控制";
+"aktiv" = "已启用";
+"Live-Status" = "实时状态";
+"Modell" = "模型";
+"Kosten" = "费用";
+"Context" = "上下文";
+"⚠︎ über 200k Tokens" = "⚠︎ 超过 20 万 tokens";
+"ok" = "ok";
+"Modell/Kosten" = "模型/费用";
+"— (sammelt Daten …)" = "—（正在收集数据 …）";
+"Befehl" = "命令";
+"Zusammenfassung & Roadmap: folgt" = "摘要与路线图：即将推出";
+
+/* Session badges */
+"Manager" = "管理器";
+"arbeitet" = "工作中";
+"bereit" = "就绪";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "关闭会话 %@？";
+"Der laufende Prozess wird beendet." = "正在运行的进程将被终止。";
+"Die Notizen dieser Session gehen verloren." = "此会话的笔记将丢失。";
+"Ist alles gespeichert?" = "一切都已保存了吗？";
+"Schließen" = "关闭";
+"KI-Verwalter" = "AI 管理器";
+
+/* Preferences */
+"Terminal-Einstellungen" = "终端设置";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "主题/字体适用于所有会话的终端（控制台），而非应用界面。立即生效。";
+"Theme:" = "主题：";
+"Schrift:" = "字体：";
+"Größe:" = "大小：";
+"Sprache:" = "语言：";
+"System" = "系统";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "需要重新启动才能应用语言。";
+
+/* About window */
+"Version %@" = "版本 %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "用于管理众多并行 AI 编程代理和终端会话的指挥中心。";
+
+/* History view */
+"VERLAUF" = "历史";
+"Lade …" = "加载中 …";
+"Keine Git-Repos unter den Sessions." = "会话中没有 Git 仓库。";
+"(keine Commits)" = "（无提交）";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ 刷新";
+"Kein Git-Repo in diesem Ordner." = "此文件夹中没有 Git 仓库。";
+"Änderungen (git diff)" = "更改（git diff）";
+"(sauber)" = "（干净）";
+"(keine uncommitteten Änderungen)" = "（无未提交的更改）";
+
+/* Files view */
+"— keine Datei —" = "— 无文件 —";
+"Editor" = "编辑器";
+"Vorschau" = "预览";
+"Dateien suchen (rekursiv)…" = "搜索文件（递归）…";
+"🔎 %d Treffer für „%@\"" = "🔎 “%@” 的 %d 个匹配结果";
+"(Datei zu groß zum Anzeigen)" = "（文件过大，无法显示）";
+"(Binärdatei – nicht darstellbar)" = "（二进制文件 – 无法显示）";
+"● %@  — ungesicherte Änderungen" = "● %@  — 未保存的更改";
+"⚠︎ Fehler beim Speichern" = "⚠︎ 保存时出错";
+"Ungespeicherte Änderungen" = "未保存的更改";
+"Die Änderungen an %@ sind nicht gespeichert." = "对 %@ 的更改尚未保存。";
+"Verwerfen" = "放弃";
+
+/* Notifications */
+"Session braucht dich" = "会话需要你";

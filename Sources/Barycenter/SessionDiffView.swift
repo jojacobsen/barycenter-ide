@@ -25,7 +25,7 @@ final class SessionDiffView: NSView {
         scroll.drawsBackground = false
         scroll.translatesAutoresizingMaskIntoConstraints = false
 
-        let refreshButton = NSButton(title: "↻ Aktualisieren", target: self, action: #selector(refresh))
+        let refreshButton = NSButton(title: L("↻ Aktualisieren"), target: self, action: #selector(refresh))
         refreshButton.bezelStyle = .rounded
         refreshButton.controlSize = .small
         refreshButton.translatesAutoresizingMaskIntoConstraints = false
@@ -45,10 +45,10 @@ final class SessionDiffView: NSView {
 
     @objc func refresh() {
         let cwd = session.cwd
-        setPlain("Lade …")
+        setPlain(L("Lade …"))
         DispatchQueue.global(qos: .userInitiated).async {
             guard Git.isRepo(cwd) else {
-                DispatchQueue.main.async { self.setPlain("Kein Git-Repo in diesem Ordner.") }
+                DispatchQueue.main.async { self.setPlain(L("Kein Git-Repo in diesem Ordner.")) }
                 return
             }
             let status = Git.run(["status", "--short", "--branch"], cwd: cwd)
@@ -64,11 +64,11 @@ final class SessionDiffView: NSView {
 
     private func render(status: String, diff: String) {
         let out = NSMutableAttributedString()
-        out.append(colored("● Status\n", .systemPurple, bold: true))
-        out.append(colorizeStatus(status.isEmpty ? "(sauber)\n" : status))
-        out.append(colored("\n● Änderungen (git diff)\n", .systemPurple, bold: true))
+        out.append(colored("● \(L("Status"))\n", .systemPurple, bold: true))
+        out.append(colorizeStatus(status.isEmpty ? L("(sauber)") + "\n" : status))
+        out.append(colored("\n● \(L("Änderungen (git diff)"))\n", .systemPurple, bold: true))
         if diff.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            out.append(colored("(keine uncommitteten Änderungen)\n", .secondaryLabelColor))
+            out.append(colored(L("(keine uncommitteten Änderungen)") + "\n", .secondaryLabelColor))
         } else {
             out.append(colorizeDiff(diff))
         }

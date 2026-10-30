@@ -1,0 +1,150 @@
+/* Barycenter — Japanese localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "Barycenter を終了しますか？";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "実行中のセッションは終了し、保存していないメモは失われます。";
+"Beenden" = "終了";
+"Abbrechen" = "キャンセル";
+"Layout laden" = "レイアウトを読み込む";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "どのレイアウトを開きますか？（または空の状態で開始）";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "どのレイアウトを読み込みますか？現在のセッションは置き換えられます。";
+"Laden" = "読み込む";
+"Neu (leer)" = "新規（空）";
+"Layout speichern unter…" = "別名でレイアウトを保存…";
+"Name des Layouts:" = "レイアウト名：";
+"Mein Layout" = "マイレイアウト";
+"Speichern" = "保存";
+
+/* Main menu */
+"Über Barycenter" = "Barycenter について";
+"Einstellungen…" = "設定…";
+"Barycenter beenden" = "Barycenter を終了";
+"Bearbeiten" = "編集";
+"Ausschneiden" = "カット";
+"Kopieren" = "コピー";
+"Einfügen" = "ペースト";
+"Alles auswählen" = "すべてを選択";
+"Session" = "セッション";
+"Neue Session" = "新規セッション";
+"KI-Verwalter starten" = "AI マネージャーを起動";
+"Session schließen" = "セッションを閉じる";
+"Layout" = "レイアウト";
+"Layout speichern" = "レイアウトを保存";
+"Layout laden…" = "レイアウトを読み込む…";
+"Ansicht" = "表示";
+"Grid" = "グリッド";
+"Fokus" = "フォーカス";
+
+/* Content view / tiles */
+"Terminal" = "ターミナル";
+"Status" = "ステータス";
+"Notizen" = "メモ";
+"Diff" = "差分";
+"Dateien" = "ファイル";
+"▦ Grid" = "▦ グリッド";
+"◻ Fokus" = "◻ フォーカス";
+"Seite %d/%d" = "ページ %d/%d";
+"＋ Neue Session" = "＋ 新規セッション";
+
+/* Sidebar */
+"SESSIONS" = "セッション";
+"LEITSTELLE" = "コントロールセンター";
+"＋ KI-Verwalter starten" = "＋ AI マネージャーを起動";
+"Dein Leitstand-Agent" = "あなたのコントロールセンター・エージェント";
+
+/* Activity rail */
+"Sessions" = "セッション";
+"Verwalter" = "マネージャー";
+"Verlauf" = "履歴";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "リモートコントロール（別のデバイスから操作可能）";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "専用の Git ワークツリー（ブランチ）– Git リポジトリのみ";
+"z. B. htop" = "例：htop";
+"Wählen…" = "選択…";
+"Starten" = "開始";
+"Profil:" = "プロファイル：";
+"Befehl:" = "コマンド：";
+"Ordner:" = "フォルダ：";
+"Name:" = "名前：";
+"Wählen" = "選択";
+"Custom Command…" = "カスタムコマンド…";
+
+/* Status view */
+"Profil" = "プロファイル";
+"Ordner" = "フォルダ";
+"Gestartet" = "開始";
+"Zustand" = "状態";
+"läuft" = "実行中";
+"braucht dich" = "対応が必要";
+"beendet" = "終了";
+"wartet" = "待機中";
+"Remote Control" = "リモートコントロール";
+"aktiv" = "有効";
+"Live-Status" = "ライブステータス";
+"Modell" = "モデル";
+"Kosten" = "コスト";
+"Context" = "コンテキスト";
+"⚠︎ über 200k Tokens" = "⚠︎ 20万トークン超過";
+"ok" = "ok";
+"Modell/Kosten" = "モデル／コスト";
+"— (sammelt Daten …)" = "—（データ収集中 …）";
+"Befehl" = "コマンド";
+"Zusammenfassung & Roadmap: folgt" = "概要とロードマップ：近日公開";
+
+/* Session badges */
+"Manager" = "マネージャー";
+"arbeitet" = "作業中";
+"bereit" = "準備完了";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "セッション %@ を閉じますか？";
+"Der laufende Prozess wird beendet." = "実行中のプロセスは終了します。";
+"Die Notizen dieser Session gehen verloren." = "このセッションのメモは失われます。";
+"Ist alles gespeichert?" = "すべて保存されていますか？";
+"Schließen" = "閉じる";
+"KI-Verwalter" = "AI マネージャー";
+
+/* Preferences */
+"Terminal-Einstellungen" = "ターミナル設定";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "テーマ／フォントはすべてのセッションのターミナル（コンソール）に適用され、アプリの画面には適用されません。すぐに反映されます。";
+"Theme:" = "テーマ：";
+"Schrift:" = "フォント：";
+"Größe:" = "サイズ：";
+"Sprache:" = "言語：";
+"System" = "システム";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "言語を適用するには再起動が必要です。";
+
+/* About window */
+"Version %@" = "バージョン %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "多数の並列 AI コーディングエージェントとターミナルセッションのためのミッションコントロール。";
+
+/* History view */
+"VERLAUF" = "履歴";
+"Lade …" = "読み込み中 …";
+"Keine Git-Repos unter den Sessions." = "セッションの中に Git リポジトリがありません。";
+"(keine Commits)" = "（コミットなし）";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ 更新";
+"Kein Git-Repo in diesem Ordner." = "このフォルダに Git リポジトリがありません。";
+"Änderungen (git diff)" = "変更（git diff）";
+"(sauber)" = "（クリーン）";
+"(keine uncommitteten Änderungen)" = "（未コミットの変更なし）";
+
+/* Files view */
+"— keine Datei —" = "— ファイルなし —";
+"Editor" = "エディタ";
+"Vorschau" = "プレビュー";
+"Dateien suchen (rekursiv)…" = "ファイルを検索（再帰的）…";
+"🔎 %d Treffer für „%@\"" = "🔎 「%@」の検索結果 %d 件";
+"(Datei zu groß zum Anzeigen)" = "（ファイルが大きすぎて表示できません）";
+"(Binärdatei – nicht darstellbar)" = "（バイナリファイル – 表示できません）";
+"● %@  — ungesicherte Änderungen" = "● %@  — 未保存の変更";
+"⚠︎ Fehler beim Speichern" = "⚠︎ 保存中にエラーが発生しました";
+"Ungespeicherte Änderungen" = "未保存の変更";
+"Die Änderungen an %@ sind nicht gespeichert." = "%@ への変更は保存されていません。";
+"Verwerfen" = "破棄";
+
+/* Notifications */
+"Session braucht dich" = "セッションが対応を必要としています";

@@ -6,9 +6,9 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
     private let customField  = NSTextField()
     private let folderLabel  = NSTextField(labelWithString: "")
     private let nameField    = NSTextField()
-    private let rcCheckbox   = NSButton(checkboxWithTitle: "Remote Control (von anderem Gerät steuerbar)",
+    private let rcCheckbox   = NSButton(checkboxWithTitle: L("Remote Control (von anderem Gerät steuerbar)"),
                                         target: nil, action: nil)
-    private let worktreeCheckbox = NSButton(checkboxWithTitle: "Eigener Git-Worktree (Branch) – nur bei Git-Repo",
+    private let worktreeCheckbox = NSButton(checkboxWithTitle: L("Eigener Git-Worktree (Branch) – nur bei Git-Repo"),
                                             target: nil, action: nil)
     private var grid: NSGridView!
 
@@ -20,7 +20,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         profilePopup.target = self
         profilePopup.action = #selector(profileChanged)
 
-        customField.placeholderString = "z. B. htop"
+        customField.placeholderString = L("z. B. htop")
         customField.delegate = self
         customField.translatesAutoresizingMaskIntoConstraints = false
         customField.widthAnchor.constraint(equalToConstant: 260).isActive = true
@@ -29,7 +29,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         folderLabel.lineBreakMode = .byTruncatingMiddle
         folderLabel.translatesAutoresizingMaskIntoConstraints = false
         folderLabel.widthAnchor.constraint(equalToConstant: 190).isActive = true
-        let chooseButton = NSButton(title: "Wählen…", target: self, action: #selector(chooseFolder))
+        let chooseButton = NSButton(title: L("Wählen…"), target: self, action: #selector(chooseFolder))
         chooseButton.bezelStyle = .rounded
         let folderRow = NSStackView(views: [folderLabel, chooseButton])
         folderRow.orientation = .horizontal
@@ -39,10 +39,10 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         nameField.translatesAutoresizingMaskIntoConstraints = false
         nameField.widthAnchor.constraint(equalToConstant: 260).isActive = true
 
-        let cancelButton = NSButton(title: "Abbrechen", target: self, action: #selector(cancel))
+        let cancelButton = NSButton(title: L("Abbrechen"), target: self, action: #selector(cancel))
         cancelButton.bezelStyle = .rounded
         cancelButton.keyEquivalent = "\u{1b}"
-        let startButton = NSButton(title: "Starten", target: self, action: #selector(start))
+        let startButton = NSButton(title: L("Starten"), target: self, action: #selector(start))
         startButton.bezelStyle = .rounded
         startButton.keyEquivalent = "\r"
         let buttonRow = NSStackView(views: [cancelButton, startButton])
@@ -50,11 +50,11 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         buttonRow.spacing = 10
 
         grid = NSGridView(views: [
-            [label("Profil:"), profilePopup],
-            [label("Befehl:"), customField],
+            [label(L("Profil:")), profilePopup],
+            [label(L("Befehl:")), customField],
             [NSGridCell.emptyContentView, rcCheckbox],
-            [label("Ordner:"), folderRow],
-            [label("Name:"),   nameField],
+            [label(L("Ordner:")), folderRow],
+            [label(L("Name:")),   nameField],
             [NSGridCell.emptyContentView, worktreeCheckbox],
             [NSGridCell.emptyContentView, buttonRow],
         ])
@@ -104,7 +104,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.directoryURL = folderURL
-        panel.prompt = "Wählen"
+        panel.prompt = L("Wählen")
         if panel.runModal() == .OK, let url = panel.url {
             folderURL = url
             folderLabel.stringValue = url.path

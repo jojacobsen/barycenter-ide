@@ -105,20 +105,20 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     /// Color-coded Labels für die Sidebar: Live-Status (+ Grund) und ggf. RC-Badge.
     func statusBadges() -> [SessionBadge] {
         var out: [SessionBadge] = []
-        if isManager { out.append(SessionBadge(text: "Manager", color: .systemPurple)) }
+        if isManager { out.append(SessionBadge(text: L("Manager"), color: .systemPurple)) }
         if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
             switch a.status {
-            case "busy":    out.append(SessionBadge(text: "arbeitet", color: .systemGreen))
-            case "waiting": out.append(SessionBadge(text: "wartet" + (a.waitingFor.map { ": \($0)" } ?? ""), color: .systemRed))
-            case "idle":    out.append(SessionBadge(text: "bereit", color: .systemGray))
+            case "busy":    out.append(SessionBadge(text: L("arbeitet"), color: .systemGreen))
+            case "waiting": out.append(SessionBadge(text: L("wartet") + (a.waitingFor.map { ": \($0)" } ?? ""), color: .systemRed))
+            case "idle":    out.append(SessionBadge(text: L("bereit"), color: .systemGray))
             default:        out.append(SessionBadge(text: a.status, color: .systemGray))
             }
         } else {
             switch status {
-            case .running:   out.append(SessionBadge(text: "läuft", color: .systemGreen))
-            case .attention: out.append(SessionBadge(text: "braucht dich", color: .systemRed))
-            case .done:      out.append(SessionBadge(text: "beendet", color: .systemGray))
-            case .idle:      out.append(SessionBadge(text: "wartet", color: .systemYellow))
+            case .running:   out.append(SessionBadge(text: L("läuft"), color: .systemGreen))
+            case .attention: out.append(SessionBadge(text: L("braucht dich"), color: .systemRed))
+            case .done:      out.append(SessionBadge(text: L("beendet"), color: .systemGray))
+            case .idle:      out.append(SessionBadge(text: L("wartet"), color: .systemYellow))
             }
         }
         if remoteControl { out.append(SessionBadge(text: "RC", color: .systemBlue)) }

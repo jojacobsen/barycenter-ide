@@ -32,10 +32,10 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     private var selected = false
 
     private let contentContainer = NSView()
-    private let pageControl = NSSegmentedControl(labels: ["Terminal", "Status", "Notizen", "Diff", "Dateien"],
+    private let pageControl = NSSegmentedControl(labels: [L("Terminal"), L("Status"), L("Notizen"), L("Diff"), L("Dateien")],
                                                  trackingMode: .selectOne, target: nil, action: nil)
     private let pagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
-    private static let pageTitles = ["Terminal", "Status", "Notizen", "Diff", "Dateien"]
+    private static let pageTitles = [L("Terminal"), L("Status"), L("Notizen"), L("Diff"), L("Dateien")]
     private let statusView = SessionStatusView(frame: .zero)
     private let notesScroll = NSScrollView()
     private let notesTextView = NSTextView()
@@ -66,7 +66,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         closeButton.font = .systemFont(ofSize: 13)
         closeButton.contentTintColor = .secondaryLabelColor
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
-        closeButton.toolTip = "Session schließen"
+        closeButton.toolTip = L("Session schließen")
 
         let headerStack = NSStackView(views: [dot, name, closeButton])
         headerStack.orientation = .horizontal
@@ -252,7 +252,7 @@ final class ContentViewController: NSViewController {
     override func loadView() {
         let root = NSView()
 
-        segmented = NSSegmentedControl(labels: ["▦ Grid", "◻ Fokus"],
+        segmented = NSSegmentedControl(labels: [L("▦ Grid"), L("◻ Fokus")],
                                        trackingMode: .selectOne,
                                        target: self, action: #selector(modeChanged))
         segmented.selectedSegment = 0
@@ -262,11 +262,11 @@ final class ContentViewController: NSViewController {
         nextButton = NSButton(title: "›", target: self, action: #selector(nextPage))
         nextButton.bezelStyle = .rounded
 
-        pageLabel = NSTextField(labelWithString: "Seite 1/1")
+        pageLabel = NSTextField(labelWithString: String(format: L("Seite %d/%d"), 1, 1))
         pageLabel.font = .systemFont(ofSize: 11)
         pageLabel.textColor = .secondaryLabelColor
 
-        let addButton = NSButton(title: "＋ Neue Session", target: self, action: #selector(addSession))
+        let addButton = NSButton(title: L("＋ Neue Session"), target: self, action: #selector(addSession))
         addButton.bezelStyle = .rounded
         addButton.keyEquivalent = "t"
         addButton.keyEquivalentModifierMask = .command
@@ -359,7 +359,7 @@ final class ContentViewController: NSViewController {
     private func updateTopBar() {
         let mgr = SessionManager.shared
         segmented.selectedSegment = (mgr.viewMode == .grid) ? 0 : 1
-        pageLabel.stringValue = "Seite \(mgr.page + 1)/\(mgr.pageCount)"
+        pageLabel.stringValue = String(format: L("Seite %d/%d"), mgr.page + 1, mgr.pageCount)
         let showPaging = mgr.pageCount > 1 && mgr.viewMode == .grid
         prevButton.isHidden = !showPaging
         nextButton.isHidden = !showPaging

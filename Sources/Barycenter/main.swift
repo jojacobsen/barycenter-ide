@@ -77,11 +77,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         let running = SessionManager.shared.sessions.contains { $0.status == .running }
         if running {
             let alert = NSAlert()
-            alert.messageText = "Barycenter beenden?"
-            alert.informativeText = "Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren."
+            alert.messageText = L("Barycenter beenden?")
+            alert.informativeText = L("Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren.")
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "Beenden")
-            alert.addButton(withTitle: "Abbrechen")
+            alert.addButton(withTitle: L("Beenden"))
+            alert.addButton(withTitle: L("Abbrechen"))
             if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
         }
         // Zuletzt genutztes Layout aktuell halten, damit es beim nächsten Start geladen werden kann.
@@ -100,17 +100,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             return
         }
         let alert = NSAlert()
-        alert.messageText = "Layout laden"
+        alert.messageText = L("Layout laden")
         alert.informativeText = atLaunch
-            ? "Welches Layout möchtest du öffnen? (oder leer starten)"
-            : "Welches Layout laden? Die aktuellen Sessions werden ersetzt."
+            ? L("Welches Layout möchtest du öffnen? (oder leer starten)")
+            : L("Welches Layout laden? Die aktuellen Sessions werden ersetzt.")
         let popup = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 260, height: 26))
         popup.addItems(withTitles: layouts.map { $0.name })
         if let last = LayoutStore.lastName, popup.itemTitles.contains(last) { popup.selectItem(withTitle: last) }
         alert.accessoryView = popup
-        alert.addButton(withTitle: "Laden")
-        if atLaunch { alert.addButton(withTitle: "Neu (leer)") }
-        alert.addButton(withTitle: "Abbrechen")
+        alert.addButton(withTitle: L("Laden"))
+        if atLaunch { alert.addButton(withTitle: L("Neu (leer)")) }
+        alert.addButton(withTitle: L("Abbrechen"))
 
         let resp = alert.runModal()
         if resp == .alertFirstButtonReturn {
@@ -128,13 +128,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
     @objc private func saveLayoutAs() {
         let alert = NSAlert()
-        alert.messageText = "Layout speichern unter…"
-        alert.informativeText = "Name des Layouts:"
+        alert.messageText = L("Layout speichern unter…")
+        alert.informativeText = L("Name des Layouts:")
         let tf = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
-        tf.stringValue = SessionManager.shared.currentLayoutName ?? "Mein Layout"
+        tf.stringValue = SessionManager.shared.currentLayoutName ?? L("Mein Layout")
         alert.accessoryView = tf
-        alert.addButton(withTitle: "Speichern")
-        alert.addButton(withTitle: "Abbrechen")
+        alert.addButton(withTitle: L("Speichern"))
+        alert.addButton(withTitle: L("Abbrechen"))
         if alert.runModal() == .alertFirstButtonReturn {
             let name = tf.stringValue.trimmingCharacters(in: .whitespaces)
             if !name.isEmpty { SessionManager.shared.saveCurrentLayout(name: name) }
@@ -167,48 +167,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         main.addItem(appItem)
         let appMenu = NSMenu()
         appItem.submenu = appMenu
-        add(appMenu, "Über Barycenter", #selector(showAbout), "")
+        add(appMenu, L("Über Barycenter"), #selector(showAbout), "")
         appMenu.addItem(.separator())
-        add(appMenu, "Einstellungen…", #selector(openPreferences), ",")
+        add(appMenu, L("Einstellungen…"), #selector(openPreferences), ",")
         appMenu.addItem(.separator())
-        let quit = appMenu.addItem(withTitle: "Barycenter beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quit = appMenu.addItem(withTitle: L("Barycenter beenden"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         quit.target = NSApp
 
         // Bearbeiten-Menü: verdrahtet Cmd+X/C/V/A für Terminals, Notizen & Editoren.
         let editItem = NSMenuItem()
         main.addItem(editItem)
-        let editMenu = NSMenu(title: "Bearbeiten")
+        let editMenu = NSMenu(title: L("Bearbeiten"))
         editItem.submenu = editMenu
-        editMenu.addItem(withTitle: "Ausschneiden", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        editMenu.addItem(withTitle: "Kopieren", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editMenu.addItem(withTitle: "Einfügen", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        editMenu.addItem(withTitle: "Alles auswählen", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(withTitle: L("Ausschneiden"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: L("Kopieren"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: L("Einfügen"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: L("Alles auswählen"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
 
         // Session-Menü
         let sessItem = NSMenuItem()
         main.addItem(sessItem)
-        let sessMenu = NSMenu(title: "Session")
+        let sessMenu = NSMenu(title: L("Session"))
         sessItem.submenu = sessMenu
-        add(sessMenu, "Neue Session", #selector(newSession), "t")
-        add(sessMenu, "KI-Verwalter starten", #selector(startManager), "m")
-        add(sessMenu, "Session schließen", #selector(closeSession), "w")
+        add(sessMenu, L("Neue Session"), #selector(newSession), "t")
+        add(sessMenu, L("KI-Verwalter starten"), #selector(startManager), "m")
+        add(sessMenu, L("Session schließen"), #selector(closeSession), "w")
 
         // Layout-Menü
         let layoutItem = NSMenuItem()
         main.addItem(layoutItem)
-        let layoutMenu = NSMenu(title: "Layout")
+        let layoutMenu = NSMenu(title: L("Layout"))
         layoutItem.submenu = layoutMenu
-        add(layoutMenu, "Layout speichern", #selector(saveLayout), "")
-        add(layoutMenu, "Layout speichern unter…", #selector(saveLayoutAs), "")
-        add(layoutMenu, "Layout laden…", #selector(loadLayout), "")
+        add(layoutMenu, L("Layout speichern"), #selector(saveLayout), "")
+        add(layoutMenu, L("Layout speichern unter…"), #selector(saveLayoutAs), "")
+        add(layoutMenu, L("Layout laden…"), #selector(loadLayout), "")
 
         // Ansicht-Menü
         let viewItem = NSMenuItem()
         main.addItem(viewItem)
-        let viewMenu = NSMenu(title: "Ansicht")
+        let viewMenu = NSMenu(title: L("Ansicht"))
         viewItem.submenu = viewMenu
-        add(viewMenu, "Grid", #selector(showGrid), "1")
-        add(viewMenu, "Fokus", #selector(showFocus), "2")
+        add(viewMenu, L("Grid"), #selector(showGrid), "1")
+        add(viewMenu, L("Fokus"), #selector(showFocus), "2")
 
         return main
     }

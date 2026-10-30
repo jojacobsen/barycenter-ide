@@ -1,0 +1,150 @@
+/* Barycenter — English localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "Quit Barycenter?";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "Running sessions will be terminated and unsaved notes will be lost.";
+"Beenden" = "Quit";
+"Abbrechen" = "Cancel";
+"Layout laden" = "Load Layout";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "Which layout would you like to open? (or start empty)";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "Which layout to load? The current sessions will be replaced.";
+"Laden" = "Load";
+"Neu (leer)" = "New (empty)";
+"Layout speichern unter…" = "Save Layout As…";
+"Name des Layouts:" = "Layout name:";
+"Mein Layout" = "My Layout";
+"Speichern" = "Save";
+
+/* Main menu */
+"Über Barycenter" = "About Barycenter";
+"Einstellungen…" = "Settings…";
+"Barycenter beenden" = "Quit Barycenter";
+"Bearbeiten" = "Edit";
+"Ausschneiden" = "Cut";
+"Kopieren" = "Copy";
+"Einfügen" = "Paste";
+"Alles auswählen" = "Select All";
+"Session" = "Session";
+"Neue Session" = "New Session";
+"KI-Verwalter starten" = "Start AI Manager";
+"Session schließen" = "Close Session";
+"Layout" = "Layout";
+"Layout speichern" = "Save Layout";
+"Layout laden…" = "Load Layout…";
+"Ansicht" = "View";
+"Grid" = "Grid";
+"Fokus" = "Focus";
+
+/* Content view / tiles */
+"Terminal" = "Terminal";
+"Status" = "Status";
+"Notizen" = "Notes";
+"Diff" = "Diff";
+"Dateien" = "Files";
+"▦ Grid" = "▦ Grid";
+"◻ Fokus" = "◻ Focus";
+"Seite %d/%d" = "Page %d/%d";
+"＋ Neue Session" = "＋ New Session";
+
+/* Sidebar */
+"SESSIONS" = "SESSIONS";
+"LEITSTELLE" = "CONTROL CENTER";
+"＋ KI-Verwalter starten" = "＋ Start AI Manager";
+"Dein Leitstand-Agent" = "Your control-center agent";
+
+/* Activity rail */
+"Sessions" = "Sessions";
+"Verwalter" = "Manager";
+"Verlauf" = "History";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "Remote Control (controllable from another device)";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "Dedicated Git worktree (branch) – only for Git repos";
+"z. B. htop" = "e.g. htop";
+"Wählen…" = "Choose…";
+"Starten" = "Start";
+"Profil:" = "Profile:";
+"Befehl:" = "Command:";
+"Ordner:" = "Folder:";
+"Name:" = "Name:";
+"Wählen" = "Choose";
+"Custom Command…" = "Custom Command…";
+
+/* Status view */
+"Profil" = "Profile";
+"Ordner" = "Folder";
+"Gestartet" = "Started";
+"Zustand" = "State";
+"läuft" = "running";
+"braucht dich" = "needs you";
+"beendet" = "finished";
+"wartet" = "waiting";
+"Remote Control" = "Remote Control";
+"aktiv" = "active";
+"Live-Status" = "Live status";
+"Modell" = "Model";
+"Kosten" = "Cost";
+"Context" = "Context";
+"⚠︎ über 200k Tokens" = "⚠︎ over 200k tokens";
+"ok" = "ok";
+"Modell/Kosten" = "Model/Cost";
+"— (sammelt Daten …)" = "— (collecting data …)";
+"Befehl" = "Command";
+"Zusammenfassung & Roadmap: folgt" = "Summary & roadmap: coming soon";
+
+/* Session badges */
+"Manager" = "Manager";
+"arbeitet" = "working";
+"bereit" = "ready";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "Close session %@?";
+"Der laufende Prozess wird beendet." = "The running process will be terminated.";
+"Die Notizen dieser Session gehen verloren." = "This session's notes will be lost.";
+"Ist alles gespeichert?" = "Is everything saved?";
+"Schließen" = "Close";
+"KI-Verwalter" = "AI Manager";
+
+/* Preferences */
+"Terminal-Einstellungen" = "Terminal Settings";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Theme/font apply to the terminals (console) of all sessions — not to the app interface. Takes effect immediately.";
+"Theme:" = "Theme:";
+"Schrift:" = "Font:";
+"Größe:" = "Size:";
+"Sprache:" = "Language:";
+"System" = "System";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "Restart required to apply the language.";
+
+/* About window */
+"Version %@" = "Version %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "Mission control for many parallel AI coding agents and terminal sessions.";
+
+/* History view */
+"VERLAUF" = "HISTORY";
+"Lade …" = "Loading …";
+"Keine Git-Repos unter den Sessions." = "No Git repos among the sessions.";
+"(keine Commits)" = "(no commits)";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ Refresh";
+"Kein Git-Repo in diesem Ordner." = "No Git repo in this folder.";
+"Änderungen (git diff)" = "Changes (git diff)";
+"(sauber)" = "(clean)";
+"(keine uncommitteten Änderungen)" = "(no uncommitted changes)";
+
+/* Files view */
+"— keine Datei —" = "— no file —";
+"Editor" = "Editor";
+"Vorschau" = "Preview";
+"Dateien suchen (rekursiv)…" = "Search files (recursive)…";
+"🔎 %d Treffer für „%@\"" = "🔎 %d matches for “%@”";
+"(Datei zu groß zum Anzeigen)" = "(file too large to display)";
+"(Binärdatei – nicht darstellbar)" = "(binary file – cannot be displayed)";
+"● %@  — ungesicherte Änderungen" = "● %@  — unsaved changes";
+"⚠︎ Fehler beim Speichern" = "⚠︎ Error while saving";
+"Ungespeicherte Änderungen" = "Unsaved Changes";
+"Die Änderungen an %@ sind nicht gespeichert." = "The changes to %@ are not saved.";
+"Verwerfen" = "Discard";
+
+/* Notifications */
+"Session braucht dich" = "Session needs you";

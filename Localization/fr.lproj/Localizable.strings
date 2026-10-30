@@ -1,0 +1,150 @@
+/* Barycenter — French localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "Quitter Barycenter ?";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "Les sessions en cours seront arrêtées et les notes non enregistrées seront perdues.";
+"Beenden" = "Quitter";
+"Abbrechen" = "Annuler";
+"Layout laden" = "Charger la disposition";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "Quelle disposition voulez-vous ouvrir ? (ou démarrer à vide)";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "Quelle disposition charger ? Les sessions actuelles seront remplacées.";
+"Laden" = "Charger";
+"Neu (leer)" = "Nouvelle (vide)";
+"Layout speichern unter…" = "Enregistrer la disposition sous…";
+"Name des Layouts:" = "Nom de la disposition :";
+"Mein Layout" = "Ma disposition";
+"Speichern" = "Enregistrer";
+
+/* Main menu */
+"Über Barycenter" = "À propos de Barycenter";
+"Einstellungen…" = "Réglages…";
+"Barycenter beenden" = "Quitter Barycenter";
+"Bearbeiten" = "Édition";
+"Ausschneiden" = "Couper";
+"Kopieren" = "Copier";
+"Einfügen" = "Coller";
+"Alles auswählen" = "Tout sélectionner";
+"Session" = "Session";
+"Neue Session" = "Nouvelle session";
+"KI-Verwalter starten" = "Démarrer le gestionnaire IA";
+"Session schließen" = "Fermer la session";
+"Layout" = "Disposition";
+"Layout speichern" = "Enregistrer la disposition";
+"Layout laden…" = "Charger la disposition…";
+"Ansicht" = "Présentation";
+"Grid" = "Grille";
+"Fokus" = "Focus";
+
+/* Content view / tiles */
+"Terminal" = "Terminal";
+"Status" = "Statut";
+"Notizen" = "Notes";
+"Diff" = "Diff";
+"Dateien" = "Fichiers";
+"▦ Grid" = "▦ Grille";
+"◻ Fokus" = "◻ Focus";
+"Seite %d/%d" = "Page %d/%d";
+"＋ Neue Session" = "＋ Nouvelle session";
+
+/* Sidebar */
+"SESSIONS" = "SESSIONS";
+"LEITSTELLE" = "CENTRE DE CONTRÔLE";
+"＋ KI-Verwalter starten" = "＋ Démarrer le gestionnaire IA";
+"Dein Leitstand-Agent" = "Votre agent de centre de contrôle";
+
+/* Activity rail */
+"Sessions" = "Sessions";
+"Verwalter" = "Gestionnaire";
+"Verlauf" = "Historique";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "Contrôle à distance (pilotable depuis un autre appareil)";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "Worktree Git dédié (branche) – uniquement pour les dépôts Git";
+"z. B. htop" = "p. ex. htop";
+"Wählen…" = "Choisir…";
+"Starten" = "Démarrer";
+"Profil:" = "Profil :";
+"Befehl:" = "Commande :";
+"Ordner:" = "Dossier :";
+"Name:" = "Nom :";
+"Wählen" = "Choisir";
+"Custom Command…" = "Commande personnalisée…";
+
+/* Status view */
+"Profil" = "Profil";
+"Ordner" = "Dossier";
+"Gestartet" = "Démarré";
+"Zustand" = "État";
+"läuft" = "en cours";
+"braucht dich" = "a besoin de vous";
+"beendet" = "terminé";
+"wartet" = "en attente";
+"Remote Control" = "Contrôle à distance";
+"aktiv" = "actif";
+"Live-Status" = "Statut en direct";
+"Modell" = "Modèle";
+"Kosten" = "Coût";
+"Context" = "Contexte";
+"⚠︎ über 200k Tokens" = "⚠︎ plus de 200k jetons";
+"ok" = "ok";
+"Modell/Kosten" = "Modèle/Coût";
+"— (sammelt Daten …)" = "— (collecte des données …)";
+"Befehl" = "Commande";
+"Zusammenfassung & Roadmap: folgt" = "Résumé et feuille de route : à venir";
+
+/* Session badges */
+"Manager" = "Gestionnaire";
+"arbeitet" = "travaille";
+"bereit" = "prêt";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "Fermer la session %@ ?";
+"Der laufende Prozess wird beendet." = "Le processus en cours sera arrêté.";
+"Die Notizen dieser Session gehen verloren." = "Les notes de cette session seront perdues.";
+"Ist alles gespeichert?" = "Tout est-il enregistré ?";
+"Schließen" = "Fermer";
+"KI-Verwalter" = "Gestionnaire IA";
+
+/* Preferences */
+"Terminal-Einstellungen" = "Réglages du terminal";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Le thème et la police s'appliquent aux terminaux (console) de toutes les sessions, pas à l'interface de l'app. Effet immédiat.";
+"Theme:" = "Thème :";
+"Schrift:" = "Police :";
+"Größe:" = "Taille :";
+"Sprache:" = "Langue :";
+"System" = "Système";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "Un redémarrage est nécessaire pour appliquer la langue.";
+
+/* About window */
+"Version %@" = "Version %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "Centre de contrôle pour de nombreux agents de codage IA et sessions de terminal en parallèle.";
+
+/* History view */
+"VERLAUF" = "HISTORIQUE";
+"Lade …" = "Chargement …";
+"Keine Git-Repos unter den Sessions." = "Aucun dépôt Git parmi les sessions.";
+"(keine Commits)" = "(aucun commit)";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ Actualiser";
+"Kein Git-Repo in diesem Ordner." = "Aucun dépôt Git dans ce dossier.";
+"Änderungen (git diff)" = "Modifications (git diff)";
+"(sauber)" = "(propre)";
+"(keine uncommitteten Änderungen)" = "(aucune modification non validée)";
+
+/* Files view */
+"— keine Datei —" = "— aucun fichier —";
+"Editor" = "Éditeur";
+"Vorschau" = "Aperçu";
+"Dateien suchen (rekursiv)…" = "Rechercher des fichiers (récursif)…";
+"🔎 %d Treffer für „%@\"" = "🔎 %d résultats pour « %@ »";
+"(Datei zu groß zum Anzeigen)" = "(fichier trop volumineux à afficher)";
+"(Binärdatei – nicht darstellbar)" = "(fichier binaire – impossible à afficher)";
+"● %@  — ungesicherte Änderungen" = "● %@  — modifications non enregistrées";
+"⚠︎ Fehler beim Speichern" = "⚠︎ Erreur lors de l'enregistrement";
+"Ungespeicherte Änderungen" = "Modifications non enregistrées";
+"Die Änderungen an %@ sind nicht gespeichert." = "Les modifications de %@ ne sont pas enregistrées.";
+"Verwerfen" = "Ignorer";
+
+/* Notifications */
+"Session braucht dich" = "La session a besoin de vous";

@@ -6,9 +6,9 @@ enum Tool: CaseIterable {
 
     var title: String {
         switch self {
-        case .sessions: return "Sessions"
-        case .manager:  return "Verwalter"
-        case .history:  return "Verlauf"
+        case .sessions: return L("Sessions")
+        case .manager:  return L("Verwalter")
+        case .history:  return L("Verlauf")
         }
     }
     var symbol: String {

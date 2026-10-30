@@ -14,7 +14,7 @@ enum Notifier {
     static func attention(sessionTitle: String) {
         guard isBundled else { return }
         let content = UNMutableNotificationContent()
-        content.title = "Session braucht dich"
+        content.title = L("Session braucht dich")
         content.body = sessionTitle
         content.sound = nil   // Ton spielen wir selbst (Ping) -> kein Doppelton
         let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)

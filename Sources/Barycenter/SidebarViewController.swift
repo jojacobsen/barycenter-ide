@@ -94,7 +94,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     private func buildSessionsView() -> NSView {
         let v = NSView()
-        let header = NSTextField(labelWithString: "SESSIONS")
+        let header = NSTextField(labelWithString: L("SESSIONS"))
         header.font = .systemFont(ofSize: 11, weight: .semibold)
         header.textColor = .secondaryLabelColor
         header.translatesAutoresizingMaskIntoConstraints = false
@@ -107,7 +107,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         tableView.addTableColumn(NSTableColumn(identifier: .init("session")))
 
         let menu = NSMenu()
-        let closeItem = NSMenuItem(title: "Session schließen", action: #selector(closeClickedRow), keyEquivalent: "")
+        let closeItem = NSMenuItem(title: L("Session schließen"), action: #selector(closeClickedRow), keyEquivalent: "")
         closeItem.target = self
         menu.addItem(closeItem)
         tableView.menu = menu
@@ -135,7 +135,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     private func buildManagerView() -> NSView {
         let v = NSView()
-        let label = NSTextField(labelWithString: "LEITSTELLE")
+        let label = NSTextField(labelWithString: L("LEITSTELLE"))
         label.font = .systemFont(ofSize: 11, weight: .semibold)
         label.textColor = .systemPurple
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -191,10 +191,10 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
 
     private func buildManagerPlaceholder() -> NSView {
         let v = NSView()
-        let btn = NSButton(title: "＋ KI-Verwalter starten", target: self, action: #selector(startManager))
+        let btn = NSButton(title: L("＋ KI-Verwalter starten"), target: self, action: #selector(startManager))
         btn.bezelStyle = .rounded
         btn.translatesAutoresizingMaskIntoConstraints = false
-        let hint = NSTextField(labelWithString: "Dein Leitstand-Agent")
+        let hint = NSTextField(labelWithString: L("Dein Leitstand-Agent"))
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = .secondaryLabelColor
         hint.alignment = .center

@@ -1,0 +1,150 @@
+/* Barycenter — Spanish localization. Keys are the original German UI strings. */
+
+/* Menu / quit / launch dialogs */
+"Barycenter beenden?" = "¿Salir de Barycenter?";
+"Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren." = "Se cerrarán las sesiones en ejecución y se perderán las notas sin guardar.";
+"Beenden" = "Salir";
+"Abbrechen" = "Cancelar";
+"Layout laden" = "Cargar diseño";
+"Welches Layout möchtest du öffnen? (oder leer starten)" = "¿Qué diseño quieres abrir? (o empezar vacío)";
+"Welches Layout laden? Die aktuellen Sessions werden ersetzt." = "¿Qué diseño cargar? Las sesiones actuales se reemplazarán.";
+"Laden" = "Cargar";
+"Neu (leer)" = "Nuevo (vacío)";
+"Layout speichern unter…" = "Guardar diseño como…";
+"Name des Layouts:" = "Nombre del diseño:";
+"Mein Layout" = "Mi diseño";
+"Speichern" = "Guardar";
+
+/* Main menu */
+"Über Barycenter" = "Acerca de Barycenter";
+"Einstellungen…" = "Ajustes…";
+"Barycenter beenden" = "Salir de Barycenter";
+"Bearbeiten" = "Editar";
+"Ausschneiden" = "Cortar";
+"Kopieren" = "Copiar";
+"Einfügen" = "Pegar";
+"Alles auswählen" = "Seleccionar todo";
+"Session" = "Sesión";
+"Neue Session" = "Nueva sesión";
+"KI-Verwalter starten" = "Iniciar gestor de IA";
+"Session schließen" = "Cerrar sesión";
+"Layout" = "Diseño";
+"Layout speichern" = "Guardar diseño";
+"Layout laden…" = "Cargar diseño…";
+"Ansicht" = "Visualización";
+"Grid" = "Cuadrícula";
+"Fokus" = "Enfoque";
+
+/* Content view / tiles */
+"Terminal" = "Terminal";
+"Status" = "Estado";
+"Notizen" = "Notas";
+"Diff" = "Diff";
+"Dateien" = "Archivos";
+"▦ Grid" = "▦ Cuadrícula";
+"◻ Fokus" = "◻ Enfoque";
+"Seite %d/%d" = "Página %d/%d";
+"＋ Neue Session" = "＋ Nueva sesión";
+
+/* Sidebar */
+"SESSIONS" = "SESIONES";
+"LEITSTELLE" = "CENTRO DE CONTROL";
+"＋ KI-Verwalter starten" = "＋ Iniciar gestor de IA";
+"Dein Leitstand-Agent" = "Tu agente del centro de control";
+
+/* Activity rail */
+"Sessions" = "Sesiones";
+"Verwalter" = "Gestor";
+"Verlauf" = "Historial";
+
+/* New session sheet */
+"Remote Control (von anderem Gerät steuerbar)" = "Control remoto (controlable desde otro dispositivo)";
+"Eigener Git-Worktree (Branch) – nur bei Git-Repo" = "Worktree de Git propio (rama) – solo en repos de Git";
+"z. B. htop" = "p. ej. htop";
+"Wählen…" = "Elegir…";
+"Starten" = "Iniciar";
+"Profil:" = "Perfil:";
+"Befehl:" = "Comando:";
+"Ordner:" = "Carpeta:";
+"Name:" = "Nombre:";
+"Wählen" = "Elegir";
+"Custom Command…" = "Comando personalizado…";
+
+/* Status view */
+"Profil" = "Perfil";
+"Ordner" = "Carpeta";
+"Gestartet" = "Iniciado";
+"Zustand" = "Estado";
+"läuft" = "en ejecución";
+"braucht dich" = "te necesita";
+"beendet" = "finalizado";
+"wartet" = "esperando";
+"Remote Control" = "Control remoto";
+"aktiv" = "activo";
+"Live-Status" = "Estado en vivo";
+"Modell" = "Modelo";
+"Kosten" = "Coste";
+"Context" = "Contexto";
+"⚠︎ über 200k Tokens" = "⚠︎ más de 200k tokens";
+"ok" = "ok";
+"Modell/Kosten" = "Modelo/Coste";
+"— (sammelt Daten …)" = "— (recopilando datos …)";
+"Befehl" = "Comando";
+"Zusammenfassung & Roadmap: folgt" = "Resumen y hoja de ruta: próximamente";
+
+/* Session badges */
+"Manager" = "Gestor";
+"arbeitet" = "trabajando";
+"bereit" = "listo";
+
+/* Close session confirmation */
+"Session %@ schließen?" = "¿Cerrar la sesión %@?";
+"Der laufende Prozess wird beendet." = "El proceso en ejecución se cerrará.";
+"Die Notizen dieser Session gehen verloren." = "Se perderán las notas de esta sesión.";
+"Ist alles gespeichert?" = "¿Está todo guardado?";
+"Schließen" = "Cerrar";
+"KI-Verwalter" = "Gestor de IA";
+
+/* Preferences */
+"Terminal-Einstellungen" = "Ajustes del terminal";
+"Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "El tema y la fuente se aplican a los terminales (consola) de todas las sesiones, no a la interfaz de la app. Surte efecto de inmediato.";
+"Theme:" = "Tema:";
+"Schrift:" = "Fuente:";
+"Größe:" = "Tamaño:";
+"Sprache:" = "Idioma:";
+"System" = "Sistema";
+"Neustart erforderlich, um die Sprache zu übernehmen." = "Es necesario reiniciar para aplicar el idioma.";
+
+/* About window */
+"Version %@" = "Versión %@";
+"Mission Control für viele parallele AI-Coding-Agenten und Terminal-Sessions." = "Centro de control para muchos agentes de programación con IA y sesiones de terminal en paralelo.";
+
+/* History view */
+"VERLAUF" = "HISTORIAL";
+"Lade …" = "Cargando …";
+"Keine Git-Repos unter den Sessions." = "No hay repos de Git entre las sesiones.";
+"(keine Commits)" = "(sin commits)";
+
+/* Diff view */
+"↻ Aktualisieren" = "↻ Actualizar";
+"Kein Git-Repo in diesem Ordner." = "No hay repo de Git en esta carpeta.";
+"Änderungen (git diff)" = "Cambios (git diff)";
+"(sauber)" = "(limpio)";
+"(keine uncommitteten Änderungen)" = "(sin cambios sin confirmar)";
+
+/* Files view */
+"— keine Datei —" = "— ningún archivo —";
+"Editor" = "Editor";
+"Vorschau" = "Vista previa";
+"Dateien suchen (rekursiv)…" = "Buscar archivos (recursivo)…";
+"🔎 %d Treffer für „%@\"" = "🔎 %d resultados para «%@»";
+"(Datei zu groß zum Anzeigen)" = "(archivo demasiado grande para mostrar)";
+"(Binärdatei – nicht darstellbar)" = "(archivo binario: no se puede mostrar)";
+"● %@  — ungesicherte Änderungen" = "● %@  — cambios sin guardar";
+"⚠︎ Fehler beim Speichern" = "⚠︎ Error al guardar";
+"Ungespeicherte Änderungen" = "Cambios sin guardar";
+"Die Änderungen an %@ sind nicht gespeichert." = "Los cambios en %@ no están guardados.";
+"Verwerfen" = "Descartar";
+
+/* Notifications */
+"Session braucht dich" = "La sesión te necesita";

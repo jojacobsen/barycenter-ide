@@ -6,7 +6,7 @@ struct Profile {
     let name: String
     let command: String?
 
-    static let customName = "Custom Command…"
+    static let customName = L("Custom Command…")
 
     static let builtins: [Profile] = [
         Profile(name: "Claude Code",    command: "claude"),
