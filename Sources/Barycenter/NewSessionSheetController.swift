@@ -2,6 +2,7 @@ import AppKit
 
 /// Sheet zum Starten einer neuen Session: Profil wählen, Ordner wählen, benennen.
 final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
+    private let projectPopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let profilePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let customField  = NSTextField()
     private let folderLabel  = NSTextField(labelWithString: "")
@@ -14,8 +15,18 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
 
     private var folderURL = FileManager.default.homeDirectoryForCurrentUser
     private var nameEdited = false
+    private var recentProjects: [RecentProject] = []
 
     override func loadView() {
+        // Quick project picker: recently used folders (scanned + Claude history).
+        recentProjects = ProjectScanner.recent()
+        projectPopup.addItem(withTitle: L("Ordner unten wählen…"))
+        for p in recentProjects {
+            projectPopup.addItem(withTitle: "\(p.name)   ·   \(shortRelTime(p.lastActive))")
+        }
+        projectPopup.target = self
+        projectPopup.action = #selector(projectChosen)
+
         profilePopup.addItems(withTitles: Profile.builtins.map { $0.name } + [Profile.customName])
         profilePopup.target = self
         profilePopup.action = #selector(profileChanged)
@@ -50,6 +61,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         buttonRow.spacing = 10
 
         grid = NSGridView(views: [
+            [label(L("Projekt:")), projectPopup],
             [label(L("Profil:")), profilePopup],
             [label(L("Befehl:")), customField],
             [NSGridCell.emptyContentView, rcCheckbox],
@@ -63,8 +75,8 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         grid.rowSpacing = 14
         grid.columnSpacing = 10
         grid.translatesAutoresizingMaskIntoConstraints = false
-        grid.row(at: 1).isHidden = true                 // „Befehl" nur bei Custom
-        grid.row(at: 2).isHidden = !isClaudeSelected()   // „Remote Control" nur bei Claude Code
+        grid.row(at: 2).isHidden = true                 // "Befehl" only for Custom
+        grid.row(at: 3).isHidden = !isClaudeSelected()   // "Remote Control" only for Claude Code
 
         let root = NSView()
         root.addSubview(grid)
@@ -75,7 +87,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
             grid.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -22),
         ])
         self.view = root
-        preferredContentSize = NSSize(width: 460, height: 240)
+        preferredContentSize = NSSize(width: 460, height: 268)
 
         updateName()
     }
@@ -93,9 +105,30 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
     }
 
     @objc private func profileChanged() {
-        grid.row(at: 1).isHidden = (profilePopup.titleOfSelectedItem != Profile.customName)
-        grid.row(at: 2).isHidden = !isClaudeSelected()
+        grid.row(at: 2).isHidden = (profilePopup.titleOfSelectedItem != Profile.customName)
+        grid.row(at: 3).isHidden = !isClaudeSelected()
         updateName()
+    }
+
+    /// A recent project was picked: fill the folder and pre-select the profile the
+    /// way it was last started (or Claude Code if it has Claude history, else Shell).
+    @objc private func projectChosen() {
+        let idx = projectPopup.indexOfSelectedItem - 1   // first item is the manual placeholder
+        guard idx >= 0, idx < recentProjects.count else { return }
+        let project = recentProjects[idx]
+        folderURL = URL(fileURLWithPath: project.path)
+        folderLabel.stringValue = project.path
+
+        if let last = LaunchMemory.last(for: project.path) {
+            if profilePopup.itemTitles.contains(last.profileName) {
+                profilePopup.selectItem(withTitle: last.profileName)
+            }
+            if last.profileName == Profile.customName { customField.stringValue = last.launchCommand ?? "" }
+            rcCheckbox.state = last.remoteControl ? .on : .off
+        } else if project.hasClaudeHistory, profilePopup.itemTitles.contains("Claude Code") {
+            profilePopup.selectItem(withTitle: "Claude Code")
+        }
+        profileChanged()   // reflect profile-dependent rows + refresh the suggested name
     }
 
     @objc private func chooseFolder() {

@@ -162,3 +162,7 @@
 "z. B. claude" = "例如 claude";
 "Der Verwalter steuert Barycenter (Sessions starten/senden/fokussieren) über seine Shell." = "管理器通过其 shell 控制 Barycenter（启动/发送/聚焦会话）。";
 "Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)." = "请阅读文件 %@ —— 它说明了你作为 Barycenter 管理器的职责以及控制命令（baryctl）。";
+
+/* Project picker */
+"Projekt:" = "项目：";
+"Ordner unten wählen…" = "在下方选择文件夹…";

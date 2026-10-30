@@ -162,3 +162,7 @@
 "z. B. claude" = "es. claude";
 "Der Verwalter steuert Barycenter (Sessions starten/senden/fokussieren) über seine Shell." = "Il gestore controlla Barycenter (avviare/inviare/mettere a fuoco sessioni) tramite la sua shell.";
 "Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)." = "Leggi il file %@ — descrive il tuo ruolo di gestore di Barycenter e i comandi di controllo (baryctl).";
+
+/* Project picker */
+"Projekt:" = "Progetto:";
+"Ordner unten wählen…" = "Scegli una cartella sotto…";

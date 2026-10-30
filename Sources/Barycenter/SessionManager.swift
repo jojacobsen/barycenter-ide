@@ -52,6 +52,9 @@ final class SessionManager {
         if !isManager {
             selectedID = s.id
             page = (workerSessions.count - 1) / pageSize   // auf die Seite der neuen Session springen
+            // Remember how this project was launched, to pre-fill the next New Session.
+            LaunchMemory.remember(cwd: cwd, profileName: profileName,
+                                  launchCommand: launchCommand, remoteControl: remoteControl)
         }
         post(.sessionsChanged)
         return s
