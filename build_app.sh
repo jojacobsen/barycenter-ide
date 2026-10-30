@@ -14,6 +14,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Barycenter"
 cp Barycenter-Info.plist "$APP/Contents/Info.plist"
+[ -f AppIcon.icns ] && cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 # SwiftPM-Resource-Bundles (Highlightr: highlight.js + Themes, SwiftTerm) mitnehmen
 for b in .build/release/*.bundle; do
