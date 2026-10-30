@@ -58,7 +58,7 @@ final class ControlServer {
         var result: [String: Any] = ["ok": false, "error": "bad request"]
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let cmd = obj["cmd"] as? String {
-            if cmd == "list" {
+            if cmd == "list" || cmd == "read" {
                 // Lesend: synchron, da wir die Daten zurückgeben.
                 DispatchQueue.main.sync { result = BarycenterControl.execute(cmd: cmd, args: obj) }
             } else {
@@ -145,6 +145,13 @@ enum BarycenterControl {
             guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
             s.terminalView.send(txt: ((args["text"] as? String) ?? "") + "\r")
             return ["ok": true]
+
+        case "read":
+            guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
+            // --lines kommt als Zahl oder (über baryctl) als String an.
+            let lines = (args["lines"] as? Int) ?? (args["lines"] as? String).flatMap { Int($0) } ?? 200
+            return ["ok": true, "id": s.id.uuidString, "title": s.title,
+                    "text": s.terminalText(maxLines: lines)]
 
         case "focus":
             guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }

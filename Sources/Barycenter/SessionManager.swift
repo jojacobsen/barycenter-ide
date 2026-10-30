@@ -162,6 +162,9 @@ final class SessionManager {
               -> startet eine neue Session (bei --prompt wird der Auftrag nach dem Hochfahren abgeschickt).
           \(ctl) send --title <name> --text "<text>"
               -> schickt Text an eine Session (wird mit Enter abgeschickt). Alternativ --id <uuid>.
+          \(ctl) read --title <name> [--lines <n>]
+              -> liest den aktuellen Terminal-Inhalt (Scrollback) einer Session, die letzten <n>
+                 Zeilen (Standard 200). So siehst du, was eine Session gerade tut/fragt. Alternativ --id <uuid>.
           \(ctl) focus --title <name>     -> Session groß anzeigen.
           \(ctl) close --title <name>     -> Session schließen.
 

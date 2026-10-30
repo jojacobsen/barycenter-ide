@@ -95,6 +95,17 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
 
     func terminate() { terminalView.process?.terminate() }
 
+    /// Aktueller Terminal-Inhalt (Scrollback) als Text — die letzten `maxLines` Zeilen.
+    /// Liest direkt den SwiftTerm-Puffer; damit „sieht" der Verwalter, was eine Session tut.
+    func terminalText(maxLines: Int = 200) -> String {
+        let data = terminalView.getTerminal().getBufferAsData(kind: .active)
+        let full = String(data: data, encoding: .utf8) ?? ""
+        var lines = full.components(separatedBy: "\n")
+        while let last = lines.last, last.trimmingCharacters(in: .whitespaces).isEmpty { lines.removeLast() }
+        if maxLines > 0, lines.count > maxLines { lines = Array(lines.suffix(maxLines)) }
+        return lines.joined(separator: "\n")
+    }
+
     /// Aktuelles statusLine-JSON (Modell/Kosten/Context) lesen, falls vorhanden.
     func readStatusJSON() -> [String: Any]? {
         guard let p = statusFilePath, let data = FileManager.default.contents(atPath: p),
