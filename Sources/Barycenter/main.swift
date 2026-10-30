@@ -1,7 +1,7 @@
 import AppKit
 import UserNotifications
 
-final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     private var window: NSWindow!
     private var prefsController: PreferencesWindowController?
     private var aboutController: AboutWindowController?
@@ -60,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             defer: false
         )
         window.title = "Barycenter"
+        window.delegate = self
         window.contentViewController = split
         window.setFrameAutosaveName("BarycenterMainWindow")
         window.center()
@@ -89,6 +90,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             SessionManager.shared.saveCurrentLayout(name: n)
         }
         return .terminateNow
+    }
+
+    // Roter Fenster-Button: NICHT direkt schließen, sondern über die Beenden-Abfrage leiten.
+    // Bei „Abbrechen" bleibt das Fenster offen (wir geben false zurück).
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        NSApp.terminate(nil)
+        return false
     }
 
     // MARK: - Layouts
