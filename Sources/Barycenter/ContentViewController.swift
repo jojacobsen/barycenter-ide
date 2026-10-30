@@ -205,6 +205,12 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
             v = session.terminalView
         }
         v.translatesAutoresizingMaskIntoConstraints = false
+        // Inhalt darf die Kachel nie „aufblähen": sonst drückt z.B. der Terminal-View beim
+        // Schrumpfen (Fokus→Grid) die untere Leiste aus der Kachel. Er muss immer nachgeben.
+        v.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        v.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        v.setContentHuggingPriority(.defaultLow, for: .vertical)
+        v.setContentHuggingPriority(.defaultLow, for: .horizontal)
         contentContainer.addSubview(v)
         NSLayoutConstraint.activate([
             v.topAnchor.constraint(equalTo: contentContainer.topAnchor),
@@ -352,6 +358,18 @@ final class ContentViewController: NSViewController {
         container.subviews = ordered
         container.columns = columnsFor(desired.count)
         container.needsLayout = true
+        container.layoutSubtreeIfNeeded()   // setzt die neuen Kachel-Frames (Fokus→Grid: kleiner)
+
+        // Zweiter, synchroner Pass pro Kachel: container.layout() markiert die Kacheln erst
+        // WÄHREND seines eigenen Layouts als änderungsbedürftig — zu spät für denselben
+        // Durchlauf. Ohne diesen Pass behält eine wiederverwendete (vormals fokussierte) Kachel
+        // ihre zu breite Tab-Leiste (NSSegmentedControl rechnet die Segmentbreiten nicht neu),
+        // bis man das Fenster anfasst.
+        for tile in ordered {
+            tile.needsLayout = true
+            tile.layoutSubtreeIfNeeded()
+            tile.needsDisplay = true
+        }
 
         updateTopBar()
     }
