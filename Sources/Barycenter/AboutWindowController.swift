@@ -2,6 +2,10 @@ import AppKit
 
 /// „Über Barycenter"-Fenster (App-Icon, Version, Repo-Link, Lizenz).
 final class AboutWindowController: NSWindowController {
+    private let icon = NSImageView(image: NSApp.applicationIconImage ?? NSImage())
+    private var clickTimes: [TimeInterval] = []   // Easter Egg: schnelle Klicks aufs Icon
+    private var spinning = false
+
     convenience init() {
         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 320),
                          styleMask: [.titled, .closable], backing: .buffered, defer: false)
@@ -13,9 +17,10 @@ final class AboutWindowController: NSWindowController {
     private func buildUI() {
         guard let content = window?.contentView else { return }
 
-        let icon = NSImageView(image: NSApp.applicationIconImage ?? NSImage())
         icon.imageScaling = .scaleProportionallyUpOrDown
         icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.wantsLayer = true
+        icon.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(iconClicked)))
 
         let name = NSTextField(labelWithString: "Barycenter")
         name.font = .systemFont(ofSize: 24, weight: .bold)
@@ -64,6 +69,46 @@ final class AboutWindowController: NSWindowController {
 
     @objc private func openRepo() {
         if let u = URL(string: "https://github.com/jojacobsen/barycenter-ide") { NSWorkspace.shared.open(u) }
+    }
+
+    // MARK: - Easter Egg: schnell aufs Icon klicken → es dreht sich ein paar Sekunden.
+
+    @objc private func iconClicked() {
+        let now = ProcessInfo.processInfo.systemUptime
+        clickTimes.append(now)
+        clickTimes = clickTimes.filter { now - $0 <= 1.2 }   // nur Klicks der letzten 1,2 s zählen
+        if clickTimes.count >= 3 {
+            clickTimes.removeAll()
+            spinIcon()
+        }
+    }
+
+    private func spinIcon() {
+        guard !spinning, let layer = icon.layer else { return }
+        rotateAroundCenter(layer)
+        spinning = true
+        let anim = CABasicAnimation(keyPath: "transform.rotation.z")
+        anim.fromValue = 0
+        anim.toValue = CGFloat.pi * 2 * 3          // drei volle Umdrehungen
+        anim.duration = 2.6                        // „einige Sekunden"
+        anim.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        CATransaction.begin()
+        CATransaction.setCompletionBlock { [weak self] in self?.spinning = false }
+        layer.add(anim, forKey: "spin")
+        CATransaction.commit()
+    }
+
+    /// Verschiebt den Ankerpunkt in die Mitte (Position kompensiert), damit die
+    /// Rotation um den Icon-Mittelpunkt läuft statt um die Ecke.
+    private func rotateAroundCenter(_ layer: CALayer) {
+        let center = CGPoint(x: 0.5, y: 0.5)
+        let old = layer.anchorPoint
+        guard old != center else { return }
+        var pos = layer.position
+        pos.x += (center.x - old.x) * layer.bounds.width
+        pos.y += (center.y - old.y) * layer.bounds.height
+        layer.anchorPoint = center
+        layer.position = pos
     }
 
     private static var version: String {
