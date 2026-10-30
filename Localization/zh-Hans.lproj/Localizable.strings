@@ -166,3 +166,11 @@
 /* Project picker */
 "Projekt:" = "项目：";
 "Ordner unten wählen…" = "在下方选择文件夹…";
+
+/* New Session: project list + new project */
+"Zuletzt genutzte Projekte" = "最近的项目";
+"Neues Projekt…" = "新建项目…";
+"Anderer Ordner…" = "其他文件夹…";
+"Neues Projekt" = "新建项目";
+"Anlegen" = "创建";
+"Projektname:" = "项目名称：";

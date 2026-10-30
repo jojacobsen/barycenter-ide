@@ -166,3 +166,11 @@
 /* Project picker */
 "Projekt:" = "プロジェクト:";
 "Ordner unten wählen…" = "下でフォルダを選択…";
+
+/* New Session: project list + new project */
+"Zuletzt genutzte Projekte" = "最近のプロジェクト";
+"Neues Projekt…" = "新規プロジェクト…";
+"Anderer Ordner…" = "別のフォルダ…";
+"Neues Projekt" = "新規プロジェクト";
+"Anlegen" = "作成";
+"Projektname:" = "プロジェクト名:";

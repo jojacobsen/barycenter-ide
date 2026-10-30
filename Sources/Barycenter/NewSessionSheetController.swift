@@ -1,11 +1,14 @@
 import AppKit
 
-/// Sheet zum Starten einer neuen Session: Profil wählen, Ordner wählen, benennen.
-final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
-    private let projectPopup = NSPopUpButton(frame: .zero, pullsDown: false)
+/// Sheet for starting a new session. Left: a list of recently used projects
+/// (rich rows, like the session list). Right: the launch form. You can also pick
+/// any other folder or create a brand-new project folder on the fly.
+final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
+                                       NSTableViewDataSource, NSTableViewDelegate {
+    private let table = NSTableView()
     private let profilePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let customField  = NSTextField()
-    private let folderLabel  = NSTextField(labelWithString: "")
+    private let folderValue  = NSTextField(labelWithString: "")
     private let nameField    = NSTextField()
     private let rcCheckbox   = NSButton(checkboxWithTitle: L("Remote Control (von anderem Gerät steuerbar)"),
                                         target: nil, action: nil)
@@ -18,15 +21,155 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
     private var recentProjects: [RecentProject] = []
 
     override func loadView() {
-        // Quick project picker: recently used folders (scanned + Claude history).
         recentProjects = ProjectScanner.recent()
-        projectPopup.addItem(withTitle: L("Ordner unten wählen…"))
-        for p in recentProjects {
-            projectPopup.addItem(withTitle: "\(p.name)   ·   \(shortRelTime(p.lastActive))")
-        }
-        projectPopup.target = self
-        projectPopup.action = #selector(projectChosen)
 
+        let root = NSView()
+        let left = buildProjectList()
+        let right = buildForm()
+        left.translatesAutoresizingMaskIntoConstraints = false
+        right.translatesAutoresizingMaskIntoConstraints = false
+        root.addSubview(left)
+        root.addSubview(right)
+
+        NSLayoutConstraint.activate([
+            left.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 20),
+            left.topAnchor.constraint(equalTo: root.topAnchor, constant: 20),
+            left.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -20),
+            left.widthAnchor.constraint(equalToConstant: 268),
+
+            right.leadingAnchor.constraint(equalTo: left.trailingAnchor, constant: 20),
+            right.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -20),
+            right.topAnchor.constraint(equalTo: root.topAnchor, constant: 20),
+            right.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -20),
+        ])
+        self.view = root
+        preferredContentSize = NSSize(width: 680, height: 440)
+
+        // Preselect the most recent project so the form is immediately usable.
+        if !recentProjects.isEmpty {
+            table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+            applySelection(0)
+        } else {
+            folderValue.stringValue = folderURL.path
+            updateName()
+        }
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        view.window?.makeFirstResponder(table)   // arrow keys navigate the project list right away
+    }
+
+    // MARK: - Left: project list
+
+    private func buildProjectList() -> NSView {
+        let header = NSTextField(labelWithString: L("Zuletzt genutzte Projekte"))
+        header.font = .systemFont(ofSize: 11, weight: .semibold)
+        header.textColor = .secondaryLabelColor
+
+        table.headerView = nil
+        table.backgroundColor = .clear
+        table.rowHeight = 56
+        table.dataSource = self
+        table.delegate = self
+        table.addTableColumn(NSTableColumn(identifier: .init("project")))
+        table.doubleAction = #selector(start)      // double-click a project to start right away
+        table.target = self
+
+        let scroll = NSScrollView()
+        scroll.documentView = table
+        scroll.hasVerticalScroller = true
+        scroll.drawsBackground = true
+        scroll.backgroundColor = .textBackgroundColor
+        scroll.borderType = .bezelBorder
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+
+        let newButton = NSButton(title: L("Neues Projekt…"), target: self, action: #selector(newProject))
+        newButton.bezelStyle = .rounded
+        let otherButton = NSButton(title: L("Anderer Ordner…"), target: self, action: #selector(chooseFolder))
+        otherButton.bezelStyle = .rounded
+        let buttons = NSStackView(views: [newButton, otherButton])
+        buttons.orientation = .horizontal
+        buttons.distribution = .fillEqually
+        buttons.spacing = 8
+
+        let stack = NSStackView(views: [header, scroll, buttons])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.distribution = .fill          // let the list stretch to fill the height
+        stack.spacing = 8
+        stack.setHuggingPriority(.defaultLow, for: .horizontal)
+        scroll.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
+        buttons.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
+        return stack
+    }
+
+    func numberOfRows(in tableView: NSTableView) -> Int { recentProjects.count }
+
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        let p = recentProjects[row]
+        let cell = NSTableCellView()
+
+        let name = NSTextField(labelWithString: p.name)
+        name.font = .systemFont(ofSize: 13, weight: .medium)
+        name.lineBreakMode = .byTruncatingTail
+
+        let path = NSTextField(labelWithString: prettyPath(p.path))
+        path.font = .systemFont(ofSize: 10)
+        path.textColor = .secondaryLabelColor
+        path.lineBreakMode = .byTruncatingMiddle
+
+        let meta = NSTextField(labelWithString: p.hasClaudeHistory
+            ? "\(shortRelTime(p.lastActive))  ·  Claude"
+            : shortRelTime(p.lastActive))
+        meta.font = .systemFont(ofSize: 10)
+        meta.textColor = p.hasClaudeHistory ? .systemOrange : .tertiaryLabelColor
+
+        for v in [name, path, meta] {
+            v.translatesAutoresizingMaskIntoConstraints = false
+            cell.addSubview(v)
+            NSLayoutConstraint.activate([
+                v.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 8),
+                v.trailingAnchor.constraint(lessThanOrEqualTo: cell.trailingAnchor, constant: -8),
+            ])
+        }
+        NSLayoutConstraint.activate([
+            name.topAnchor.constraint(equalTo: cell.topAnchor, constant: 7),
+            path.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 2),
+            meta.topAnchor.constraint(equalTo: path.bottomAnchor, constant: 2),
+        ])
+        return cell
+    }
+
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        let row = table.selectedRow
+        guard row >= 0 else { return }
+        applySelection(row)
+    }
+
+    /// Fill folder + profile from the picked project (how it was last started,
+    /// else Claude Code if it has Claude history, else leave the current profile).
+    private func applySelection(_ row: Int) {
+        guard row >= 0, row < recentProjects.count else { return }
+        let project = recentProjects[row]
+        folderURL = URL(fileURLWithPath: project.path)
+        folderValue.stringValue = project.path
+
+        if let last = LaunchMemory.last(for: project.path) {
+            if profilePopup.itemTitles.contains(last.profileName) {
+                profilePopup.selectItem(withTitle: last.profileName)
+            }
+            if last.profileName == Profile.customName { customField.stringValue = last.launchCommand ?? "" }
+            rcCheckbox.state = last.remoteControl ? .on : .off
+        } else if project.hasClaudeHistory, profilePopup.itemTitles.contains("Claude Code") {
+            profilePopup.selectItem(withTitle: "Claude Code")
+        }
+        profileChanged()
+    }
+
+    // MARK: - Right: launch form
+
+    private func buildForm() -> NSView {
         profilePopup.addItems(withTitles: Profile.builtins.map { $0.name } + [Profile.customName])
         profilePopup.target = self
         profilePopup.action = #selector(profileChanged)
@@ -34,21 +177,33 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         customField.placeholderString = L("z. B. htop")
         customField.delegate = self
         customField.translatesAutoresizingMaskIntoConstraints = false
-        customField.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        customField.widthAnchor.constraint(equalToConstant: 240).isActive = true
 
-        folderLabel.stringValue = folderURL.path
-        folderLabel.lineBreakMode = .byTruncatingMiddle
-        folderLabel.translatesAutoresizingMaskIntoConstraints = false
-        folderLabel.widthAnchor.constraint(equalToConstant: 190).isActive = true
-        let chooseButton = NSButton(title: L("Wählen…"), target: self, action: #selector(chooseFolder))
-        chooseButton.bezelStyle = .rounded
-        let folderRow = NSStackView(views: [folderLabel, chooseButton])
-        folderRow.orientation = .horizontal
-        folderRow.spacing = 8
+        folderValue.font = .systemFont(ofSize: 12)
+        folderValue.textColor = .secondaryLabelColor
+        folderValue.lineBreakMode = .byTruncatingMiddle
+        folderValue.translatesAutoresizingMaskIntoConstraints = false
+        folderValue.widthAnchor.constraint(equalToConstant: 240).isActive = true
 
         nameField.delegate = self
         nameField.translatesAutoresizingMaskIntoConstraints = false
-        nameField.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        nameField.widthAnchor.constraint(equalToConstant: 240).isActive = true
+
+        grid = NSGridView(views: [
+            [label(L("Ordner:")), folderValue],
+            [label(L("Profil:")), profilePopup],
+            [label(L("Befehl:")), customField],
+            [NSGridCell.emptyContentView, rcCheckbox],
+            [label(L("Name:")),   nameField],
+            [NSGridCell.emptyContentView, worktreeCheckbox],
+        ])
+        grid.rowAlignment = .firstBaseline
+        grid.column(at: 0).xPlacement = .trailing
+        grid.rowSpacing = 14
+        grid.columnSpacing = 10
+        grid.translatesAutoresizingMaskIntoConstraints = false
+        grid.row(at: 2).isHidden = true                  // "Befehl" only for Custom
+        grid.row(at: 3).isHidden = !isClaudeSelected()    // "Remote Control" only for Claude Code
 
         let cancelButton = NSButton(title: L("Abbrechen"), target: self, action: #selector(cancel))
         cancelButton.bezelStyle = .rounded
@@ -60,36 +215,16 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         buttonRow.orientation = .horizontal
         buttonRow.spacing = 10
 
-        grid = NSGridView(views: [
-            [label(L("Projekt:")), projectPopup],
-            [label(L("Profil:")), profilePopup],
-            [label(L("Befehl:")), customField],
-            [NSGridCell.emptyContentView, rcCheckbox],
-            [label(L("Ordner:")), folderRow],
-            [label(L("Name:")),   nameField],
-            [NSGridCell.emptyContentView, worktreeCheckbox],
-            [NSGridCell.emptyContentView, buttonRow],
-        ])
-        grid.rowAlignment = .firstBaseline
-        grid.column(at: 0).xPlacement = .trailing
-        grid.rowSpacing = 14
-        grid.columnSpacing = 10
-        grid.translatesAutoresizingMaskIntoConstraints = false
-        grid.row(at: 2).isHidden = true                 // "Befehl" only for Custom
-        grid.row(at: 3).isHidden = !isClaudeSelected()   // "Remote Control" only for Claude Code
-
-        let root = NSView()
-        root.addSubview(grid)
+        let container = NSView()
+        for v in [grid, buttonRow] { v!.translatesAutoresizingMaskIntoConstraints = false; container.addSubview(v!) }
         NSLayoutConstraint.activate([
-            grid.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 24),
-            grid.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -24),
-            grid.topAnchor.constraint(equalTo: root.topAnchor, constant: 22),
-            grid.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -22),
+            grid.topAnchor.constraint(equalTo: container.topAnchor),
+            grid.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            grid.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor),
+            buttonRow.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            buttonRow.bottomAnchor.constraint(equalTo: container.bottomAnchor),
         ])
-        self.view = root
-        preferredContentSize = NSSize(width: 460, height: 268)
-
-        updateName()
+        return container
     }
 
     private func label(_ s: String) -> NSTextField {
@@ -98,7 +233,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         return l
     }
 
-    // MARK: Actions
+    // MARK: - Actions
 
     private func isClaudeSelected() -> Bool {
         Profile.builtins.first { $0.name == profilePopup.titleOfSelectedItem }?.command == "claude"
@@ -110,25 +245,28 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         updateName()
     }
 
-    /// A recent project was picked: fill the folder and pre-select the profile the
-    /// way it was last started (or Claude Code if it has Claude history, else Shell).
-    @objc private func projectChosen() {
-        let idx = projectPopup.indexOfSelectedItem - 1   // first item is the manual placeholder
-        guard idx >= 0, idx < recentProjects.count else { return }
-        let project = recentProjects[idx]
-        folderURL = URL(fileURLWithPath: project.path)
-        folderLabel.stringValue = project.path
-
-        if let last = LaunchMemory.last(for: project.path) {
-            if profilePopup.itemTitles.contains(last.profileName) {
-                profilePopup.selectItem(withTitle: last.profileName)
-            }
-            if last.profileName == Profile.customName { customField.stringValue = last.launchCommand ?? "" }
-            rcCheckbox.state = last.remoteControl ? .on : .off
-        } else if project.hasClaudeHistory, profilePopup.itemTitles.contains("Claude Code") {
-            profilePopup.selectItem(withTitle: "Claude Code")
+    /// Create a brand-new project folder (navigate to a parent, type the name).
+    @objc private func newProject() {
+        let panel = NSSavePanel()
+        panel.title = L("Neues Projekt")
+        panel.prompt = L("Anlegen")
+        panel.nameFieldLabel = L("Projektname:")
+        panel.canCreateDirectories = true
+        panel.directoryURL = ProjectScanner.roots().first
+            ?? FileManager.default.homeDirectoryForCurrentUser
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        } catch {
+            NSAlert(error: error).runModal()
+            return
         }
-        profileChanged()   // reflect profile-dependent rows + refresh the suggested name
+        table.deselectAll(nil)
+        folderURL = url
+        folderValue.stringValue = url.path
+        // A new project most commonly starts with an AI agent.
+        if profilePopup.itemTitles.contains("Claude Code") { profilePopup.selectItem(withTitle: "Claude Code") }
+        profileChanged()
     }
 
     @objc private func chooseFolder() {
@@ -139,8 +277,9 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         panel.directoryURL = folderURL
         panel.prompt = L("Wählen")
         if panel.runModal() == .OK, let url = panel.url {
+            table.deselectAll(nil)
             folderURL = url
-            folderLabel.stringValue = url.path
+            folderValue.stringValue = url.path
             updateName()
         }
     }
@@ -148,7 +287,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
     @objc private func cancel() { close() }
 
     private func close() {
-        // Korrekt über den Presenter schließen (sonst bleibt das Sheet intern „präsentiert").
+        // Dismiss through the presenter (otherwise the sheet stays "presented").
         (presentingViewController ?? self).dismiss(self)
     }
 
@@ -165,7 +304,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         let rc = isClaudeSelected() && rcCheckbox.state == .on
         let title = nameField.stringValue.isEmpty ? defaultName() : nameField.stringValue
 
-        // Optional: eigenen Git-Worktree anlegen und darin starten.
+        // Optionally create a dedicated git worktree and start inside it.
         var cwd = folderURL.path
         if worktreeCheckbox.state == .on, let wt = Git.makeWorktree(in: cwd, name: title) {
             cwd = wt
@@ -176,7 +315,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         close()
     }
 
-    // MARK: Namens-Vorschlag
+    // MARK: - Name suggestion
 
     private func defaultName() -> String {
         let base = folderURL.lastPathComponent
@@ -200,5 +339,11 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate {
         } else if tf == customField {
             updateName()
         }
+    }
+
+    /// Show paths relative to home with a leading "~" for readability.
+    private func prettyPath(_ path: String) -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return path.hasPrefix(home) ? "~" + path.dropFirst(home.count) : path
     }
 }

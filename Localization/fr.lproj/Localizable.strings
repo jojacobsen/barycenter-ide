@@ -166,3 +166,11 @@
 /* Project picker */
 "Projekt:" = "Projet :";
 "Ordner unten wählen…" = "Choisir un dossier ci-dessous…";
+
+/* New Session: project list + new project */
+"Zuletzt genutzte Projekte" = "Projets récents";
+"Neues Projekt…" = "Nouveau projet…";
+"Anderer Ordner…" = "Autre dossier…";
+"Neues Projekt" = "Nouveau projet";
+"Anlegen" = "Créer";
+"Projektname:" = "Nom du projet :";

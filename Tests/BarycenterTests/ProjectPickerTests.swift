@@ -40,6 +40,28 @@ final class ProjectPickerTests: XCTestCase {
         UserDefaults.standard.set(all, forKey: "launchMemory")
     }
 
+    /// The redesigned New Session sheet must build and lay out without crashing,
+    /// and its project list must match the scanner.
+    func testNewSessionSheetBuildsAndLaysOut() {
+        _ = NSApplication.shared
+        let vc = NewSessionSheetController()
+        _ = vc.view                                   // triggers loadView()
+        let host = NSView(frame: NSRect(x: 0, y: 0, width: 680, height: 440))
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        host.addSubview(vc.view)
+        NSLayoutConstraint.activate([
+            vc.view.leadingAnchor.constraint(equalTo: host.leadingAnchor),
+            vc.view.topAnchor.constraint(equalTo: host.topAnchor),
+            vc.view.widthAnchor.constraint(equalToConstant: 680),
+            vc.view.heightAnchor.constraint(equalToConstant: 440),
+        ])
+        host.layoutSubtreeIfNeeded()
+        if let table = vc.view.subviews.first(where: { $0 is NSStackView })?
+            .subviews.compactMap({ ($0 as? NSScrollView)?.documentView as? NSTableView }).first {
+            XCTAssertEqual(table.numberOfRows, ProjectScanner.recent().count)
+        }
+    }
+
     func testShortRelTime() {
         XCTAssertEqual(shortRelTime(.distantPast), "—")
         XCTAssertEqual(shortRelTime(Date()), "now")
