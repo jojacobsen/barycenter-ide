@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private var aboutController: AboutWindowController?
     private var sidebar: SidebarViewController!
     private var toolItem: NSSplitViewItem!
+    private var menuBar: MenuBarController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = buildMainMenu()
@@ -79,6 +80,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        // Menüleisten-Icon: Flotten-Zustand + Schnellzugriff, auch wenn das Fenster nicht vorn ist.
+        menuBar = MenuBarController()
+        menuBar.onShowWindow = { [weak self] in
+            self?.window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        menuBar.onNewSession = {
+            NotificationCenter.default.post(name: .newSessionRequested, object: nil)
+        }
 
         // NSSplitViewController zwingt dem Fenster beim Anzeigen seine Fitting-Size auf.
         // Darum die Zielgröße NACH dem Anzeigen erneut setzen und zentrieren.

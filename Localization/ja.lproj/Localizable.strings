@@ -152,3 +152,7 @@
 "NOTIZEN" = "メモ";
 "Notizen in der Seitenleiste" = "サイドバーにメモ";
 "Zeilennummern im Editor" = "エディタに行番号を表示";
+
+/* Menu bar */
+"Barycenter anzeigen" = "Barycenter を表示";
+"Keine aktiven Sessions" = "アクティブなセッションはありません";

@@ -152,3 +152,7 @@
 "NOTIZEN" = "NOTAS";
 "Notizen in der Seitenleiste" = "Notas en la barra lateral";
 "Zeilennummern im Editor" = "Números de línea en el editor";
+
+/* Menu bar */
+"Barycenter anzeigen" = "Mostrar Barycenter";
+"Keine aktiven Sessions" = "No hay sesiones activas";

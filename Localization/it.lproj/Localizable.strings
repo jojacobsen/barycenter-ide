@@ -152,3 +152,7 @@
 "NOTIZEN" = "NOTE";
 "Notizen in der Seitenleiste" = "Note nella barra laterale";
 "Zeilennummern im Editor" = "Numeri di riga nell'editor";
+
+/* Menu bar */
+"Barycenter anzeigen" = "Mostra Barycenter";
+"Keine aktiven Sessions" = "Nessuna sessione attiva";

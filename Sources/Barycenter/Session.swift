@@ -102,6 +102,46 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         return obj
     }
 
+    /// „Braucht dich"-Zustand für Dock & Menüleiste: Hook/Bell meldete attention,
+    /// oder Claude wartet live auf dich (Freigabe/Prompt).
+    var needsAttention: Bool {
+        if status == .attention { return true }
+        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
+            return a.status == "waiting"
+        }
+        return false
+    }
+
+    /// Statuspunkt-Farbe fürs Menüleisten-Menü (Live-Status bevorzugt).
+    var menuStatusColor: NSColor {
+        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
+            switch a.status {
+            case "busy":    return .systemGreen
+            case "waiting": return .systemRed
+            default:        return .systemGray
+            }
+        }
+        return status.color
+    }
+
+    /// Kurzer Statustext fürs Menüleisten-Menü.
+    var menuStatusText: String {
+        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
+            switch a.status {
+            case "busy":    return L("arbeitet")
+            case "waiting": return L("wartet") + (a.waitingFor.map { ": \($0)" } ?? "")
+            case "idle":    return L("bereit")
+            default:        return a.status
+            }
+        }
+        switch status {
+        case .running:   return L("läuft")
+        case .attention: return L("braucht dich")
+        case .done:      return L("beendet")
+        case .idle:      return L("wartet")
+        }
+    }
+
     /// Color-coded Labels für die Sidebar: Live-Status (+ Grund) und ggf. RC-Badge.
     func statusBadges() -> [SessionBadge] {
         var out: [SessionBadge] = []
