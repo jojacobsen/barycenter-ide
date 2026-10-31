@@ -1,14 +1,14 @@
 import AppKit
 
-/// Sheet zum Starten des KI-Verwalters: Ordner wählen und AI/Profil festlegen.
-/// Die Auswahl wird gemerkt (AppSettings) und beim nächsten Mal vorbelegt.
+/// Sheet for starting the AI manager: pick a folder and choose the AI/profile.
+/// The selection is remembered (AppSettings) and pre-filled next time.
 final class ManagerSheetController: NSViewController, NSTextFieldDelegate {
     private let aiPopup     = NSPopUpButton(frame: .zero, pullsDown: false)
     private let customField = NSTextField()
     private let folderLabel = NSTextField(labelWithString: "")
     private var grid: NSGridView!
 
-    /// AIs, die als Verwalter sinnvoll sind (Shell ausgenommen) + Custom.
+    /// AIs that make sense as a manager (Shell excluded) + Custom.
     private let aiProfiles: [Profile] = Profile.builtins.filter { $0.command != nil }
     private var folderURL: URL
 
@@ -71,7 +71,7 @@ final class ManagerSheetController: NSViewController, NSTextFieldDelegate {
         grid.rowSpacing = 14
         grid.columnSpacing = 10
         grid.translatesAutoresizingMaskIntoConstraints = false
-        grid.row(at: 1).isHidden = !isCustomSelected()   // „Befehl" nur bei Custom
+        grid.row(at: 1).isHidden = !isCustomSelected()   // "Command" only for Custom
 
         let root = NSView()
         root.addSubview(grid)
@@ -124,7 +124,7 @@ final class ManagerSheetController: NSViewController, NSTextFieldDelegate {
             launch = aiProfiles.first { $0.name == selected }?.command ?? "claude"
         }
 
-        // Auswahl merken.
+        // Remember the selection.
         let st = AppSettings.shared
         st.managerDir = folderURL.path
         st.managerProfile = selected

@@ -1,9 +1,9 @@
 import AppKit
 
-/// „Über Barycenter"-Fenster (App-Icon, Version, Repo-Link, Lizenz).
+/// "About Barycenter" window (app icon, version, repo link, license).
 final class AboutWindowController: NSWindowController {
     private let icon = NSImageView(image: NSApp.applicationIconImage ?? NSImage())
-    private var clickTimes: [TimeInterval] = []   // Easter Egg: schnelle Klicks aufs Icon
+    private var clickTimes: [TimeInterval] = []   // Easter egg: quick clicks on the icon
     private var spinning = false
 
     convenience init() {
@@ -71,12 +71,12 @@ final class AboutWindowController: NSWindowController {
         if let u = URL(string: "https://github.com/jojacobsen/barycenter-ide") { NSWorkspace.shared.open(u) }
     }
 
-    // MARK: - Easter Egg: schnell aufs Icon klicken → es dreht sich ein paar Sekunden.
+    // MARK: - Easter egg: quick clicks on the icon → it spins for a few seconds.
 
     @objc private func iconClicked() {
         let now = ProcessInfo.processInfo.systemUptime
         clickTimes.append(now)
-        clickTimes = clickTimes.filter { now - $0 <= 1.2 }   // nur Klicks der letzten 1,2 s zählen
+        clickTimes = clickTimes.filter { now - $0 <= 1.2 }   // only count clicks from the last 1.2 s
         if clickTimes.count >= 3 {
             clickTimes.removeAll()
             spinIcon()
@@ -89,8 +89,8 @@ final class AboutWindowController: NSWindowController {
         spinning = true
         let anim = CABasicAnimation(keyPath: "transform.rotation.z")
         anim.fromValue = 0
-        anim.toValue = CGFloat.pi * 2 * 3          // drei volle Umdrehungen
-        anim.duration = 2.6                        // „einige Sekunden"
+        anim.toValue = CGFloat.pi * 2 * 3          // three full turns
+        anim.duration = 2.6                        // "a few seconds"
         anim.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         CATransaction.begin()
         CATransaction.setCompletionBlock { [weak self] in self?.spinning = false }
@@ -98,8 +98,8 @@ final class AboutWindowController: NSWindowController {
         CATransaction.commit()
     }
 
-    /// Verschiebt den Ankerpunkt in die Mitte (Position kompensiert), damit die
-    /// Rotation um den Icon-Mittelpunkt läuft statt um die Ecke.
+    /// Moves the anchor point to the center (compensating the position) so the
+    /// rotation happens around the icon's center instead of its corner.
     private func rotateAroundCenter(_ layer: CALayer) {
         let center = CGPoint(x: 0.5, y: 0.5)
         let old = layer.anchorPoint

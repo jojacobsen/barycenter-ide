@@ -1,8 +1,8 @@
 import AppKit
 import UserNotifications
 
-/// macOS-Banner-Notifications. Funktioniert nur, wenn Barycenter als .app-Bundle
-/// läuft (Bundle-Identität vorhanden) — als nacktes Dev-Binary wird still übersprungen.
+/// macOS banner notifications. Only works when Barycenter runs as a .app bundle
+/// (bundle identity present) — as a bare dev binary it is silently skipped.
 enum Notifier {
     static var isBundled: Bool { Bundle.main.bundleIdentifier != nil }
 
@@ -16,7 +16,7 @@ enum Notifier {
         let content = UNMutableNotificationContent()
         content.title = L("Session braucht dich")
         content.body = sessionTitle
-        content.sound = nil   // Ton spielen wir selbst (Ping) -> kein Doppelton
+        content.sound = nil   // we play the sound ourselves (Ping) -> no double tone
         let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(req)
     }

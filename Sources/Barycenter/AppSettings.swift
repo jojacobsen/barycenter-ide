@@ -5,8 +5,8 @@ extension Notification.Name {
     static let settingsChanged = Notification.Name("BarycenterSettingsChanged")
 }
 
-/// Persistente Nutzer-Vorlieben (UserDefaults). Jeder stellt sich Theme/Schrift selbst ein.
-/// Änderungen greifen sofort für alle bestehenden + neuen Sessions.
+/// Persistent user preferences (UserDefaults). Everyone sets their own theme/font.
+/// Changes apply immediately to all existing + new sessions.
 final class AppSettings {
     static let shared = AppSettings()
     private let d = UserDefaults.standard
@@ -30,31 +30,31 @@ final class AppSettings {
         set { d.set(Double(newValue), forKey: Keys.fontSize); changed() }
     }
 
-    /// Notizen-Bereich unten in der Seitenleiste ein-/ausblenden.
+    /// Show/hide the notes area at the bottom of the sidebar.
     var showSidebarNotes: Bool {
         get { d.bool(forKey: "showSidebarNotes") }
         set { d.set(newValue, forKey: "showSidebarNotes"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
     }
 
-    /// Zeilennummern im Datei-Editor anzeigen (Standard: an).
+    /// Show line numbers in the file editor (default: on).
     var showEditorLineNumbers: Bool {
         get { d.object(forKey: "showEditorLineNumbers") == nil ? true : d.bool(forKey: "showEditorLineNumbers") }
         set { d.set(newValue, forKey: "showEditorLineNumbers"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
     }
 
-    /// Ordner, in dem der KI-Verwalter startet (Standard: Home).
+    /// Folder the AI manager starts in (default: home).
     var managerDir: String {
         get { d.string(forKey: "managerDir") ?? FileManager.default.homeDirectoryForCurrentUser.path }
         set { d.set(newValue, forKey: "managerDir") }
     }
 
-    /// AI/Profil, mit dem der KI-Verwalter startet (Standard: Claude Code).
+    /// AI/profile the AI manager starts with (default: Claude Code).
     var managerProfile: String {
         get { d.string(forKey: "managerProfile") ?? "Claude Code" }
         set { d.set(newValue, forKey: "managerProfile") }
     }
 
-    /// Eigener Startbefehl für den Verwalter, falls Profil „Custom Command…" (sonst leer).
+    /// Custom launch command for the manager when profile is "Custom Command…" (otherwise empty).
     var managerCommand: String {
         get { d.string(forKey: "managerCommand") ?? "" }
         set { d.set(newValue, forKey: "managerCommand") }
@@ -62,12 +62,12 @@ final class AppSettings {
 
     var theme: Theme { Theme.named(themeName) }
 
-    /// Auf ein einzelnes Terminal anwenden (z.B. beim Erzeugen einer Session).
+    /// Apply to a single terminal (e.g. when creating a session).
     func apply(to tv: LocalProcessTerminalView) {
         theme.apply(to: tv, fontName: fontName, fontSize: fontSize)
     }
 
-    /// Auf alle laufenden Sessions anwenden.
+    /// Apply to all running sessions.
     func applyToAll() {
         for s in SessionManager.shared.sessions { apply(to: s.terminalView) }
     }

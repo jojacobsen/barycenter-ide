@@ -1,13 +1,13 @@
 import AppKit
 import Highlightr
 
-/// Session-Seite „Dateien": Mini-Dateibrowser (+ rekursive Namenssuche) des Session-Ordners
-/// + Text-Editor mit Syntax-Highlighting. Warnt bei ungespeicherten Änderungen.
+/// Session page "Files": mini file browser (+ recursive name search) of the session folder
+/// + text editor with syntax highlighting. Warns about unsaved changes.
 final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate, NSTextViewDelegate, NSSearchFieldDelegate {
     private let rootPath: String
     private var currentPath: String
     private var entries: [(name: String, isDir: Bool)] = []
-    private var searchHits: [String] = []     // absolute Pfade bei aktiver Suche
+    private var searchHits: [String] = []     // absolute paths while a search is active
     private var searching = false
     private var loadedFile: String?
     private var dirty = false
@@ -106,7 +106,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         editorScroll.borderType = .noBorder
         editorScroll.translatesAutoresizingMaskIntoConstraints = false
 
-        // Zeilennummern-Leiste (optional, per Einstellung).
+        // Line-number ruler (optional, per setting).
         let ruler = LineNumberRulerView(textView: editor)
         ruler.applyTheme(dark: true)
         editorScroll.verticalRulerView = ruler
@@ -174,7 +174,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         lineNumberRuler?.redraw()
     }
 
-    // MARK: Editor/Vorschau-Umschalter
+    // MARK: Editor/preview toggle
 
     @objc private func modeChanged() {
         modeToggle.selectedSegment == 1 ? showPreview() : showEditorMode()
@@ -207,7 +207,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
 
     func reload() { if !searching { reloadDir() } }
 
-    // MARK: Verzeichnis / Suche
+    // MARK: Directory / search
 
     private func reloadDir() {
         let fm = FileManager.default
@@ -223,7 +223,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         table.reloadData()
     }
 
-    // Live-Suche mit kleinem Debounce; leeres Feld schaltet sofort zurück zur Ordneransicht.
+    // Live search with a small debounce; an empty field switches back to the folder view immediately.
     func controlTextDidChange(_ obj: Notification) {
         guard (obj.object as? NSSearchField) === searchField else { return }
         searchWork?.cancel()
@@ -300,7 +300,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         }
     }
 
-    // MARK: Laden / Speichern / Dirty
+    // MARK: Loading / saving / dirty
 
     private func load(_ path: String) {
         guard let data = FileManager.default.contents(atPath: path) else { return }
@@ -327,7 +327,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
     private func show(_ text: String, editable: Bool) {
         editor.string = text
         editor.isEditable = editable
-        lineNumberRuler?.redraw()   // programmatische Textänderung sendet kein didChange
+        lineNumberRuler?.redraw()   // a programmatic text change doesn't send didChange
     }
 
     func textDidChange(_ notification: Notification) {
@@ -362,7 +362,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         }
     }
 
-    /// Fragt bei ungespeicherten Änderungen nach, bevor etwas anderes geladen wird.
+    /// Prompts about unsaved changes before loading something else.
     private func confirmDiscardIfNeeded(_ proceed: @escaping () -> Void) {
         guard dirty, loadedFile != nil, let win = window else { proceed(); return }
         let alert = NSAlert()
@@ -409,7 +409,7 @@ final class SessionFilesView: NSView, NSTableViewDataSource, NSTableViewDelegate
         return cell
     }
 
-    /// Dateiendung -> highlight.js-Sprache (nil = kein Highlighting).
+    /// File extension -> highlight.js language (nil = no highlighting).
     private static func language(for path: String) -> String? {
         let name = (path as NSString).lastPathComponent.lowercased()
         if name == ".env" || name.hasSuffix(".env") { return "ini" }

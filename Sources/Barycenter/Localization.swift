@@ -1,10 +1,9 @@
 import Foundation
 
-/// Winziger Lokalisierungs-Helfer. Die Schlüssel sind die deutschen Strings selbst,
-/// daher braucht Deutsch (Basissprache) keine Tabelle — fehlende Schlüssel fallen auf
-/// den Schlüssel zurück. Übersetzungen liegen in
-/// `Localization/<lang>.lproj/Localizable.strings` und werden von build_app.sh ins
-/// App-Bundle kopiert.
+/// Tiny localization helper. The keys are the German strings themselves, so German
+/// (the base language) needs no table — missing keys fall back to the key. Translations
+/// live in `Localization/<lang>.lproj/Localizable.strings` and are copied into the app
+/// bundle by build_app.sh.
 func L(_ key: String) -> String {
     NSLocalizedString(key, comment: "")
 }

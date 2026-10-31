@@ -1,12 +1,12 @@
 import AppKit
 import SwiftTerm
 
-/// Status einer Session. Farben steuern Sidebar-Punkt + Kachel-Rahmen.
+/// Status of a session. Colors drive the sidebar dot + tile border.
 enum SessionStatus {
-    case running    // arbeitet / läuft
-    case attention  // braucht dich (Hooks / Bell)
-    case done       // Prozess beendet
-    case idle       // wartet
+    case running    // working / running
+    case attention  // needs you (hooks / bell)
+    case done       // process finished
+    case idle       // waiting
 
     var color: NSColor {
         switch self {
@@ -18,20 +18,20 @@ enum SessionStatus {
     }
 }
 
-/// Ein color-coded Status-Label für Sidebar/Status-Seite.
+/// A color-coded status label for the sidebar/status page.
 struct SessionBadge { let text: String; let color: NSColor }
 
-/// Terminal-View, das den Bell (`\a`) abfängt — Heuristik für „braucht dich"
-/// bei Nicht-Claude-Sessions (Shells, andere Agents).
+/// Terminal view that intercepts the bell (`\a`) — a heuristic for "needs you"
+/// on non-Claude sessions (shells, other agents).
 final class BarycenterTerminalView: LocalProcessTerminalView {
     var onBell: (() -> Void)?
     override func bell(source: Terminal) {
-        // Kein super.bell -> Sound/Attention steuern wir zentral in SessionManager.
+        // No super.bell -> we handle sound/attention centrally in SessionManager.
         onBell?()
     }
 }
 
-/// Eine Session = ein Prozess in eigenem PTY. `launchCommand == nil` => Login-Shell.
+/// A session = one process in its own PTY. `launchCommand == nil` => login shell.
 final class Session: NSObject, LocalProcessTerminalViewDelegate {
     let id = UUID()
     var title: String
@@ -39,15 +39,15 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     let cwd: String
     let launchCommand: String?
     let profileName: String
-    let remoteControl: Bool           // Claude mit --remote-control gestartet?
-    let isManager: Bool               // der KI-Verwalter?
-    let extraArgs: [String]           // zusätzliche claude-Argumente (z.B. --append-system-prompt-file)
+    let remoteControl: Bool           // Claude started with --remote-control?
+    let isManager: Bool               // the AI manager?
+    let extraArgs: [String]           // extra claude arguments (e.g. --append-system-prompt-file)
     let startedAt = Date()
-    var notes = ""                    // Scratchpad, bleibt bis zum Schließen
-    var statusFilePath: String?       // Claude-statusLine-JSON (Modell/Kosten/Context)
+    var notes = ""                    // scratchpad, stays until closed
+    var statusFilePath: String?       // Claude statusLine JSON (model/cost/context)
     let terminalView: BarycenterTerminalView
 
-    /// PID des Kind-Prozesses (= Claude-PID dank exec) — für Matching mit `claude agents --json`.
+    /// PID of the child process (= Claude PID thanks to exec) — for matching with `claude agents --json`.
     var pid: Int32 { terminalView.process?.shellPid ?? 0 }
 
     init(title: String, cwd: String, launchCommand: String?, profileName: String,
@@ -62,16 +62,16 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         self.terminalView = BarycenterTerminalView(frame: NSRect(x: 0, y: 0, width: 720, height: 460))
         super.init()
         terminalView.processDelegate = self
-        AppSettings.shared.apply(to: terminalView)   // Theme + Schrift
+        AppSettings.shared.apply(to: terminalView)   // theme + font
         if isManager {
-            // Kompakte Schrift für den schmalen Leitstellen-Bereich -> mehr Spalten/Zeilen.
+            // Compact font for the narrow control-center area -> more columns/rows.
             terminalView.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
         }
 
         terminalView.onBell = { [weak self] in
             guard let self else { return }
             DispatchQueue.main.async {
-                // Nur melden, wenn die Session gerade NICHT betrachtet wird.
+                // Only report when the session is NOT currently being viewed.
                 if SessionManager.shared.selectedID != self.id {
                     SessionManager.shared.setStatus(.attention, for: self.id)
                 }
@@ -81,7 +81,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
 
     func start() {
         var inner = launchCommand
-        // Claude Code: per-Session Hooks + statusLine injizieren (ohne globale Config anzufassen).
+        // Claude Code: inject per-session hooks + statusLine (without touching the global config).
         if launchCommand == "claude", let path = AttentionCenter.shared.writeClaudeHookSettings(sessionID: id) {
             inner = "claude --settings \(shellQuote(path))"
             if remoteControl { inner! += " --remote-control" }
@@ -95,8 +95,8 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
 
     func terminate() { terminalView.process?.terminate() }
 
-    /// Aktueller Terminal-Inhalt (Scrollback) als Text — die letzten `maxLines` Zeilen.
-    /// Liest direkt den SwiftTerm-Puffer; damit „sieht" der Verwalter, was eine Session tut.
+    /// Current terminal content (scrollback) as text — the last `maxLines` lines.
+    /// Reads the SwiftTerm buffer directly; this lets the manager "see" what a session is doing.
     func terminalText(maxLines: Int = 200) -> String {
         let data = terminalView.getTerminal().getBufferAsData(kind: .active)
         let full = String(data: data, encoding: .utf8) ?? ""
@@ -106,15 +106,15 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         return lines.joined(separator: "\n")
     }
 
-    /// Aktuelles statusLine-JSON (Modell/Kosten/Context) lesen, falls vorhanden.
+    /// Read the current statusLine JSON (model/cost/context), if present.
     func readStatusJSON() -> [String: Any]? {
         guard let p = statusFilePath, let data = FileManager.default.contents(atPath: p),
               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
         return obj
     }
 
-    /// „Braucht dich"-Zustand für Dock & Menüleiste: Hook/Bell meldete attention,
-    /// oder Claude wartet live auf dich (Freigabe/Prompt).
+    /// "Needs you" state for the Dock & menu bar: a hook/bell reported attention,
+    /// or Claude is live-waiting on you (approval/prompt).
     var needsAttention: Bool {
         if status == .attention { return true }
         if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
@@ -123,7 +123,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         return false
     }
 
-    /// Statuspunkt-Farbe fürs Menüleisten-Menü (Live-Status bevorzugt).
+    /// Status-dot color for the menu-bar menu (live status preferred).
     var menuStatusColor: NSColor {
         if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
             switch a.status {
@@ -135,7 +135,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         return status.color
     }
 
-    /// Kurzer Statustext fürs Menüleisten-Menü.
+    /// Short status text for the menu-bar menu.
     var menuStatusText: String {
         if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
             switch a.status {
@@ -153,7 +153,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         }
     }
 
-    /// Color-coded Labels für die Sidebar: Live-Status (+ Grund) und ggf. RC-Badge.
+    /// Color-coded labels for the sidebar: live status (+ reason) and an optional RC badge.
     func statusBadges() -> [SessionBadge] {
         var out: [SessionBadge] = []
         if isManager { out.append(SessionBadge(text: L("Manager"), color: .systemPurple)) }

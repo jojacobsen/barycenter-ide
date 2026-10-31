@@ -4,16 +4,16 @@ extension Notification.Name {
     static let agentsUpdated = Notification.Name("BarycenterAgentsUpdated")
 }
 
-/// Live-Info einer Claude-Session aus `claude agents --json`.
+/// Live info for a Claude session from `claude agents --json`.
 struct AgentInfo {
     let status: String        // "busy" | "waiting" | "idle"
-    let waitingFor: String?   // z.B. "permission prompt"
+    let waitingFor: String?   // e.g. "permission prompt"
     let name: String?
     let sessionId: String?
 }
 
-/// Pollt periodisch `claude agents --json` und hält eine PID→AgentInfo-Map.
-/// Barycenter startet Claude per `exec`, daher ist die PID identisch -> exaktes Matching.
+/// Periodically polls `claude agents --json` and keeps a PID→AgentInfo map.
+/// Barycenter launches Claude via `exec`, so the PID is identical -> exact matching.
 final class AgentsMonitor {
     static let shared = AgentsMonitor()
 

@@ -1,10 +1,10 @@
 import Foundation
 
-/// Lokaler Event-Kanal für „Session braucht Aufmerksamkeit".
-/// Claude-Code-Sessions bekommen per `--settings` Hooks injiziert, die in eine
-/// Append-Datei schreiben (`<id> attention` / `<id> running`). Barycenter beobachtet
-/// die Datei und aktualisiert den Session-Status. Append-Datei statt FIFO, damit
-/// ein Hook niemals blockiert, falls Barycenter mal nicht lauscht.
+/// Local event channel for "session needs attention".
+/// Claude Code sessions get hooks injected via `--settings` that write to an
+/// append file (`<id> attention` / `<id> running`). Barycenter watches the file
+/// and updates the session status. Append file instead of FIFO, so a hook never
+/// blocks if Barycenter happens not to be listening.
 final class AttentionCenter {
     static let shared = AttentionCenter()
 
@@ -61,12 +61,12 @@ final class AttentionCenter {
         DispatchQueue.main.async { SessionManager.shared.setStatus(status, for: id) }
     }
 
-    /// Pfad der per-Session statusLine-JSON-Datei (Modell/Kosten/Context).
+    /// Path of the per-session statusLine JSON file (model/cost/context).
     func statusFilePath(for id: UUID) -> String {
         runtimeDir.appendingPathComponent("\(id.uuidString).status.json").path
     }
 
-    /// Schreibt per-Session-Hook-Settings (+ statusLine) für Claude Code und gibt den Dateipfad zurück.
+    /// Writes per-session hook settings (+ statusLine) for Claude Code and returns the file path.
     func writeClaudeHookSettings(sessionID: UUID) -> String? {
         let path = runtimeDir.appendingPathComponent("\(sessionID.uuidString).json")
         let events = shellQuote(eventsURL.path)
@@ -76,11 +76,11 @@ final class AttentionCenter {
         }
         let settings: [String: Any] = [
             "hooks": [
-                "Notification":     [hook("attention")],  // wartet auf dich / Freigabe
-                "Stop":             [hook("attention")],  // Zug fertig -> bereit für dich
-                "UserPromptSubmit": [hook("running")],     // du hast getippt -> arbeitet wieder
+                "Notification":     [hook("attention")],  // waiting for you / approval
+                "Stop":             [hook("attention")],  // turn done -> ready for you
+                "UserPromptSubmit": [hook("running")],     // you typed -> working again
             ],
-            // statusLine schreibt das Status-JSON in die Datei (stdout bleibt leer).
+            // statusLine writes the status JSON to the file (stdout stays empty).
             "statusLine": [
                 "type": "command",
                 "command": "cat > \(shellQuote(statusFilePath(for: sessionID)))",

@@ -1,7 +1,7 @@
 import AppKit
 import SwiftTerm
 
-// MARK: - Hex-Helfer
+// MARK: - Hex helpers
 
 func hexRGB(_ s: String) -> (UInt8, UInt8, UInt8) {
     var h = s.hasPrefix("#") ? String(s.dropFirst()) : s
@@ -12,7 +12,7 @@ func hexRGB(_ s: String) -> (UInt8, UInt8, UInt8) {
 
 func stColor(_ hex: String) -> SwiftTerm.Color {
     let (r, g, b) = hexRGB(hex)
-    // SwiftTerm nutzt 16-Bit-Kanäle (0..65535): 8-Bit * 257 skaliert exakt.
+    // SwiftTerm uses 16-bit channels (0..65535): 8-bit * 257 scales exactly.
     return SwiftTerm.Color(red: UInt16(r) * 257, green: UInt16(g) * 257, blue: UInt16(b) * 257)
 }
 
@@ -23,7 +23,7 @@ extension NSColor {
     }
 }
 
-/// Monospace-Font nach Name; behandelt „SF Mono" (PostScript-Name) gesondert, sonst Fallback.
+/// Monospace font by name; handles "SF Mono" (PostScript name) specially, otherwise a fallback.
 func makeMonoFont(_ name: String, _ size: CGFloat) -> NSFont {
     if name == "SF Mono" {
         return NSFont(name: "SFMono-Regular", size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
@@ -31,7 +31,7 @@ func makeMonoFont(_ name: String, _ size: CGFloat) -> NSFont {
     return NSFont(name: name, size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
 }
 
-/// Kandidaten-Monospace-Fonts, gefiltert auf tatsächlich installierte.
+/// Candidate monospace fonts, filtered to those actually installed.
 func availableMonoFonts() -> [String] {
     let candidates = ["SF Mono", "Menlo", "Monaco", "Courier New", "Andale Mono",
                       "PT Mono", "Fira Code", "JetBrains Mono", "Hack", "Cascadia Code", "Source Code Pro"]
@@ -43,14 +43,14 @@ func availableMonoFonts() -> [String] {
 
 // MARK: - Theme
 
-/// Farbschema für die eingebetteten Terminals. Farben als Hex gespeichert,
-/// damit Presets einfach les-/erweiterbar sind.
+/// Color scheme for the embedded terminals. Colors stored as hex,
+/// so presets are easy to read/extend.
 struct Theme {
     let name: String
     let background: String
     let foreground: String
     let cursor: String
-    let ansi: [String]   // 16 ANSI-Farben (0-7 normal, 8-15 hell)
+    let ansi: [String]   // 16 ANSI colors (0-7 normal, 8-15 bright)
 
     func apply(to tv: LocalProcessTerminalView, fontName: String, fontSize: CGFloat) {
         tv.installColors(ansi.map { stColor($0) })

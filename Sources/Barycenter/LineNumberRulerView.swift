@@ -1,7 +1,7 @@
 import AppKit
 
-/// Zeilennummern-Leiste links im Editor. Als Vertical-Ruler eines NSScrollView.
-/// Zeichnet die Nummer je Textzeile, folgt Scrollen und Inhaltsänderungen.
+/// Line-number gutter on the left of the editor. Acts as the vertical ruler of an NSScrollView.
+/// Draws the number for each text line, following scrolling and content changes.
 final class LineNumberRulerView: NSRulerView {
     private weak var textView: NSTextView?
     private let numberFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
@@ -14,7 +14,7 @@ final class LineNumberRulerView: NSRulerView {
         clientView = textView
         ruleThickness = 40
 
-        // Bei Scrollen und Inhaltsänderungen neu zeichnen.
+        // Redraw on scrolling and content changes.
         if let clip = textView.enclosingScrollView?.contentView {
             clip.postsBoundsChangedNotifications = true
             NotificationCenter.default.addObserver(self, selector: #selector(redraw),
@@ -29,7 +29,7 @@ final class LineNumberRulerView: NSRulerView {
 
     required init(coder: NSCoder) { fatalError("init(coder:) not implemented") }
 
-    /// Farbe an das Editor-Theme anpassen (helles/dunkles Theme).
+    /// Adapt the color to the editor theme (light/dark theme).
     func applyTheme(dark: Bool) {
         numberColor = dark ? .tertiaryLabelColor : .secondaryLabelColor
         backgroundColor = NSColor(white: dark ? 0 : 1, alpha: 0.18)
@@ -55,7 +55,7 @@ final class LineNumberRulerView: NSRulerView {
         let glyphRange = layoutManager.glyphRange(forBoundingRect: visible, in: container)
         let charRange = layoutManager.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
 
-        // Zeilennummer am Anfang des sichtbaren Bereichs (= Zeilenumbrüche davor + 1).
+        // Line number at the start of the visible range (= line breaks before it + 1).
         var lineNo = text.substring(to: charRange.location).components(separatedBy: "\n").count
 
         text.enumerateSubstrings(in: charRange, options: [.byLines, .substringNotRequired]) { _, lineRange, _, _ in

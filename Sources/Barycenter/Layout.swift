@@ -1,22 +1,22 @@
 import Foundation
 
-/// Spezifikation einer Session in einem Layout (genug, um sie neu zu starten).
+/// Specification of a session within a layout (enough to restart it).
 struct SessionSpec: Codable {
     var title: String
     var cwd: String
     var launchCommand: String?   // nil = Shell
     var profileName: String
     var remoteControl: Bool
-    // (Screen-/Fenster-Zuordnung kommt mit Mehrfenster-Support.)
+    // (Screen/window assignment comes with multi-window support.)
 }
 
-/// Ein benanntes Layout = welche Projekte/Sessions mit welchen Einstellungen laufen.
+/// A named layout = which projects/sessions run with which settings.
 struct Layout: Codable {
     var name: String
     var sessions: [SessionSpec]
 }
 
-/// Persistiert Layouts als JSON unter Application Support.
+/// Persists layouts as JSON under Application Support.
 enum LayoutStore {
     static var dir: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]

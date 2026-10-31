@@ -1,7 +1,7 @@
 import Foundation
 
-/// Ein Session-Profil = was beim Spawnen gestartet wird.
-/// `command == nil` => reine interaktive Login-Shell.
+/// A session profile = what gets started when spawning.
+/// `command == nil` => a plain interactive login shell.
 struct Profile {
     let name: String
     let command: String?
@@ -16,25 +16,25 @@ struct Profile {
         Profile(name: "Shell",          command: nil),
     ]
 
-    /// executable + args für SwiftTerm.
-    /// Agents werden über eine Login-/Interactive-Shell ge-exec't, damit PATH & rc
-    /// geladen sind (so findet die Shell `claude`, `codex`, … wie dein Terminal).
+    /// executable + args for SwiftTerm.
+    /// Agents are exec'd through a login/interactive shell so that PATH & rc
+    /// are loaded (so the shell finds `claude`, `codex`, … like your terminal does).
     static func launchSpec(command: String?) -> (String, [String]) {
         if let c = command, !c.trimmingCharacters(in: .whitespaces).isEmpty {
-            // Login-Shell (ohne -i: kein Logout-Rauschen) lädt PATH/rc, dann exec auf den Agent.
+            // Login shell (without -i: no logout noise) loads PATH/rc, then execs the agent.
             return ("/bin/zsh", ["-l", "-c", "exec " + c])
         }
         return ("/bin/zsh", ["-l"])
     }
 }
 
-/// Pfad/Arg für die Shell sicher quoten (einfache Anführungszeichen).
+/// Safely quote a path/arg for the shell (single quotes).
 func shellQuote(_ s: String) -> String {
     "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'"
 }
 
-/// Vollständige Umgebung des Barycenter-Prozesses an das Kind weiterreichen
-/// (inkl. PATH), plus Terminal-Variablen.
+/// Pass the full environment of the Barycenter process through to the child
+/// (incl. PATH), plus terminal variables.
 func childEnvironment() -> [String] {
     var env = ProcessInfo.processInfo.environment
     env["TERM"] = "xterm-256color"

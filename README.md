@@ -6,7 +6,7 @@
 
 **Native macOS mission control for many parallel AI coding agents and terminal sessions.**
 
-Run a fleet of **Claude Code**, Codex, Gemini CLI, Aider (or any CLI) side by side —
+Run a fleet of **Claude Code**, Codex, Gemini CLI, Aider (or any CLI) side by side;
 see what each is doing at a glance, and get pulled in the moment one needs you.
 
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-black)](#requirements)
@@ -29,21 +29,21 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 
 ## Features
 
-- **Grid & Focus** — all sessions at once, or one big; click a tile and type.
-- **Attention routing** — a session that needs you turns 🔴 with a sound, Dock
+- **Grid & Focus**: all sessions at once, or one big; click a tile and type.
+- **Attention routing**: a session that needs you turns 🔴 with a sound, Dock
   bounce and a macOS banner. For Claude Code this is driven by real **hooks**;
   others use a terminal-bell heuristic.
-- **Live status** — busy / waiting (+ reason) / idle, read from
+- **Live status**: busy / waiting (+ reason) / idle, read from
   `claude agents --json` and matched to sessions by PID.
-- **Spawn with profiles** — Claude Code · Codex · Gemini CLI · Aider · Shell ·
+- **Spawn with profiles**: Claude Code · Codex · Gemini CLI · Aider · Shell ·
   custom command, in any folder, optionally in its own **git worktree**.
 - **Per-session pages** (tab switcher per tile): **Terminal · Status**
-  (model / cost / context) **· Notes · Diff** (`git diff`) **· Files** —
+  (model / cost / context) **· Notes · Diff** (`git diff`) **· Files**:
   a mini file browser + editor with **syntax highlighting** and a rendered
   **Markdown preview**, plus recursive filename search.
-- **Handler** — an AI manager (itself a Claude session) that controls Barycenter
+- **Handler**: an AI manager (itself a Claude session) that controls Barycenter
   via a tiny local command (`baryctl`): list / spawn / send / focus / close.
-- **Activity rail** — toggle **Sessions**, **Handler** and **Verlauf** (cross-repo
+- **Activity rail**: toggle **Sessions**, **Handler** and **Verlauf** (cross-repo
   git history); two tools split the panel 50/50.
 - **Remote Control** toggle & badge for Claude sessions, themes, notes, and a
   dark, modern UI throughout.
@@ -81,7 +81,7 @@ open Barycenter.app
 ## Releases (signed DMG)
 
 Prebuilt, **Developer ID–signed and Apple-notarized** builds are on the
-[**Releases**](https://github.com/jojacobsen/barycenter-ide/releases/latest) page —
+[**Releases**](https://github.com/jojacobsen/barycenter-ide/releases/latest) page:
 download `Barycenter.dmg`, drag the app into Applications, and open it (no Gatekeeper
 warnings).
 
@@ -102,7 +102,7 @@ xcrun notarytool store-credentials "barycenter-notary" \
 `release.sh` re-signs the app with Hardened Runtime (+ a JIT entitlement for
 JavaScriptCore/WebKit), builds the DMG via `hdiutil`, notarizes and staples it.
 
-> ⚠️ Early-stage / work in progress — expect rough edges.
+> ⚠️ Early-stage / work in progress; expect rough edges.
 
 ## License
 

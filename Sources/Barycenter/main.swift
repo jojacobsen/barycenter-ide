@@ -12,28 +12,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = buildMainMenu()
-        AttentionCenter.shared.start()   // Attention-Event-Kanal für Hooks
-        AgentsMonitor.shared.start()     // Live-Status via `claude agents --json`
-        ControlServer.shared.start()     // Kontroll-Kanal für den KI-Verwalter
+        AttentionCenter.shared.start()   // attention event channel for hooks
+        AgentsMonitor.shared.start()     // live status via `claude agents --json`
+        ControlServer.shared.start()     // control channel for the AI manager
         if Notifier.isBundled {
             UNUserNotificationCenter.current().delegate = self
             Notifier.requestAuthorization()
         }
 
-        NSApp.appearance = NSAppearance(named: .darkAqua)   // dunkles, modernes Design
+        NSApp.appearance = NSAppearance(named: .darkAqua)   // dark, modern look
 
         let split = NSSplitViewController()
 
-        // Activity-Rail ganz links (Toggle Sessions / Verwalter, später erweiterbar)
+        // Activity rail on the far left (toggle Sessions / Manager, extensible later)
         let rail = ActivityRailViewController()
         let railItem = NSSplitViewItem(viewController: rail)
         railItem.minimumThickness = 84
         railItem.maximumThickness = 84
         railItem.canCollapse = false
 
-        // Tool-Panel (zeigt das gewählte Werkzeug)
+        // Tool panel (shows the selected tool)
         sidebar = SidebarViewController()
-        toolItem = NSSplitViewItem(viewController: sidebar)   // normale Spalte (nicht unter die Titelleiste) -> kein Versatz oben
+        toolItem = NSSplitViewItem(viewController: sidebar)   // normal column (not under the title bar) -> no offset at the top
         toolItem.minimumThickness = 260
         toolItem.maximumThickness = 480
         toolItem.canCollapse = true
@@ -44,7 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         split.addSplitViewItem(toolItem)
         split.addSplitViewItem(contentItem)
 
-        // Rail: Werkzeuge einzeln an/aus. Beide aktiv -> Panel teilt sich 50/50. Keins aktiv -> Panel eingeklappt.
+        // Rail: toggle tools individually. Both active -> panel splits 50/50. None active -> panel collapsed.
         rail.onChange = { [weak self] tools in
             guard let self, let item = self.toolItem else { return }
             func animate(_ body: () -> Void) {
@@ -58,7 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             if tools.isEmpty {
                 animate { item.animator().isCollapsed = true }
             } else {
-                self.sidebar.showTools(tools)              // Inhalt zuerst bereitstellen -> kein Pop-in
+                self.sidebar.showTools(tools)              // provide content first -> no pop-in
                 animate { item.animator().isCollapsed = false }
             }
         }
@@ -72,16 +72,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         window.title = "Barycenter"
         window.delegate = self
         window.contentViewController = split
-        window.minSize = NSSize(width: 900, height: 520)   // nie auf die Werkzeugleiste zusammenfallen
-        // Hinweis: KEIN setFrameAutosaveName — ein früher gespeicherter Mini-Frame hat das
-        // Fenster beim Start zusammenfallen lassen. Wir öffnen immer in sinnvoller Größe.
+        window.minSize = NSSize(width: 900, height: 520)   // never collapse down to the toolbar
+        // Note: NO setFrameAutosaveName — a previously saved mini frame made the
+        // window collapse at launch. We always open at a sensible size.
         UserDefaults.standard.removeObject(forKey: "NSWindow Frame BarycenterMainWindow")
         window.setContentSize(NSSize(width: 1200, height: 760))
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
-        // Menüleisten-Icon: Flotten-Zustand + Schnellzugriff, auch wenn das Fenster nicht vorn ist.
+        // Menu-bar icon: fleet state + quick access, even when the window is not in front.
         menuBar = MenuBarController()
         menuBar.onShowWindow = { [weak self] in
             self?.window.makeKeyAndOrderFront(nil)
@@ -91,19 +91,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             NotificationCenter.default.post(name: .newSessionRequested, object: nil)
         }
 
-        // NSSplitViewController zwingt dem Fenster beim Anzeigen seine Fitting-Size auf.
-        // Darum die Zielgröße NACH dem Anzeigen erneut setzen und zentrieren.
+        // NSSplitViewController forces its fitting size onto the window when shown.
+        // So set the target size again AFTER showing it, and re-center.
         DispatchQueue.main.async {
             self.window.setContentSize(NSSize(width: 1200, height: 760))
             self.window.center()
-            // Beim Start: Layout-Auswahl (zuletzt genutztes vorgewählt) — oder Neue-Session-Dialog.
+            // At launch: layout picker (last used preselected) — or the New Session dialog.
             self.presentLayoutChooser(atLaunch: true)
         }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
-    // Beenden-Abfrage, wenn noch Sessions laufen; danach aktuelles Layout automatisch sichern.
+    // Quit confirmation if sessions are still running; afterwards auto-save the current layout.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         let running = SessionManager.shared.sessions.contains { $0.status == .running }
         if running {
@@ -115,15 +115,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             alert.addButton(withTitle: L("Abbrechen"))
             if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
         }
-        // Zuletzt genutztes Layout aktuell halten, damit es beim nächsten Start geladen werden kann.
+        // Keep the last-used layout up to date so it can be loaded on the next launch.
         if let n = SessionManager.shared.currentLayoutName {
             SessionManager.shared.saveCurrentLayout(name: n)
         }
         return .terminateNow
     }
 
-    // Roter Fenster-Button: NICHT direkt schließen, sondern über die Beenden-Abfrage leiten.
-    // Bei „Abbrechen" bleibt das Fenster offen (wir geben false zurück).
+    // Red window button: do NOT close directly, but route through the quit confirmation.
+    // On "Cancel" the window stays open (we return false).
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         NSApp.terminate(nil)
         return false
@@ -188,19 +188,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    // Banner auch zeigen, wenn Barycenter im Vordergrund ist.
+    // Show the banner even when Barycenter is in the foreground.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .list])
     }
 
-    // MARK: - Hauptmenü
+    // MARK: - Main menu
 
     private func buildMainMenu() -> NSMenu {
         let main = NSMenu()
 
-        // App-Menü
+        // App menu
         let appItem = NSMenuItem()
         main.addItem(appItem)
         let appMenu = NSMenu()
@@ -212,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         let quit = appMenu.addItem(withTitle: L("Barycenter beenden"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         quit.target = NSApp
 
-        // Bearbeiten-Menü: verdrahtet Cmd+X/C/V/A für Terminals, Notizen & Editoren.
+        // Edit menu: wires up Cmd+X/C/V/A for terminals, notes & editors.
         let editItem = NSMenuItem()
         main.addItem(editItem)
         let editMenu = NSMenu(title: L("Bearbeiten"))
@@ -222,7 +222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         editMenu.addItem(withTitle: L("Einfügen"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: L("Alles auswählen"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
 
-        // Suchen-Untermenü: treibt die native Find-Bar des Datei-Editors (NSTextView).
+        // Find submenu: drives the native find bar of the file editor (NSTextView).
         editMenu.addItem(.separator())
         let findParent = editMenu.addItem(withTitle: L("Suchen"), action: nil, keyEquivalent: "")
         let findMenu = NSMenu(title: L("Suchen"))
@@ -239,7 +239,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         findItem(L("Vorheriges suchen"), tag: 3, key: "g", mask: [.command, .shift]) // previousMatch
         findItem(L("Auswahl für Suche verwenden"), tag: 7, key: "e")           // setSearchString
 
-        // Session-Menü
+        // Session menu
         let sessItem = NSMenuItem()
         main.addItem(sessItem)
         let sessMenu = NSMenu(title: L("Session"))
@@ -248,7 +248,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         add(sessMenu, L("KI-Verwalter starten"), #selector(startManager), "m")
         add(sessMenu, L("Session schließen"), #selector(closeSession), "w")
 
-        // Layout-Menü
+        // Layout menu
         let layoutItem = NSMenuItem()
         main.addItem(layoutItem)
         let layoutMenu = NSMenu(title: L("Layout"))
@@ -257,7 +257,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         add(layoutMenu, L("Layout speichern unter…"), #selector(saveLayoutAs), "")
         add(layoutMenu, L("Layout laden…"), #selector(loadLayout), "")
 
-        // Ansicht-Menü
+        // View menu
         let viewItem = NSMenuItem()
         main.addItem(viewItem)
         let viewMenu = NSMenu(title: L("Ansicht"))
@@ -275,7 +275,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         return item
     }
 
-    // MARK: - Menü-Aktionen
+    // MARK: - Menu actions
 
     @objc private func openPreferences() {
         if prefsController == nil { prefsController = PreferencesWindowController() }

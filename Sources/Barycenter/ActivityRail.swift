@@ -1,6 +1,6 @@
 import AppKit
 
-/// Werkzeuge in der linken Activity-Rail (erweiterbar).
+/// Tools in the left activity rail (extendable).
 enum Tool: CaseIterable {
     case sessions, manager, history
 
@@ -20,7 +20,7 @@ enum Tool: CaseIterable {
     }
 }
 
-/// Ein Rail-Knopf: Icon über Label, blaue abgerundete Markierung wenn aktiv.
+/// A rail button: icon above label, blue rounded highlight when active.
 final class RailButton: NSView {
     let tool: Tool
     var onClick: ((Tool) -> Void)?
@@ -74,7 +74,7 @@ final class RailButton: NSView {
     }
 }
 
-/// Schmale Leiste ganz links mit den Tool-Buttons.
+/// Narrow strip on the far left holding the tool buttons.
 final class ActivityRailViewController: NSViewController {
     var onChange: (([Tool]) -> Void)?
     private var active: Set<Tool> = [.sessions]

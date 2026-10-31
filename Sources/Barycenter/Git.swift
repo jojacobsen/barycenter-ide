@@ -1,6 +1,6 @@
 import Foundation
 
-/// Kleiner Git-Helfer (ruft /usr/bin/git auf).
+/// Small Git helper (invokes /usr/bin/git).
 enum Git {
     @discardableResult
     static func run(_ args: [String], cwd: String? = nil) -> String {
@@ -9,7 +9,7 @@ enum Git {
         p.arguments = (cwd.map { ["-C", $0] } ?? []) + args
         let out = Pipe()
         p.standardOutput = out
-        p.standardError = FileHandle.nullDevice   // Fehler NICHT in die Ausgabe mischen
+        p.standardError = FileHandle.nullDevice   // do NOT mix errors into the output
         do { try p.run() } catch { return "" }
         let data = out.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
@@ -21,14 +21,14 @@ enum Git {
             .trimmingCharacters(in: .whitespacesAndNewlines) == "true"
     }
 
-    /// Top-Level-Verzeichnis des Repos (für Worktree-Anlage), oder nil.
+    /// Top-level directory of the repo (for creating a worktree), or nil.
     static func topLevel(_ cwd: String) -> String? {
         let s = run(["rev-parse", "--show-toplevel"], cwd: cwd).trimmingCharacters(in: .whitespacesAndNewlines)
-        return s.hasPrefix("/") ? s : nil   // nur echte Pfade (kein Fehlertext)
+        return s.hasPrefix("/") ? s : nil   // only real paths (no error text)
     }
 
-    /// Legt für `folder` (muss in einem Git-Repo liegen) einen neuen Worktree + Branch an.
-    /// Gibt den Worktree-Pfad zurück, oder nil bei Fehler/kein Repo.
+    /// Creates a new worktree + branch for `folder` (which must be inside a Git repo).
+    /// Returns the worktree path, or nil on error / if not a repo.
     static func makeWorktree(in folder: String, name: String) -> String? {
         guard let repo = topLevel(folder) else { return nil }
         let repoName = (repo as NSString).lastPathComponent

@@ -2,27 +2,27 @@ import XCTest
 import AppKit
 @testable import Barycenter
 
-/// Layout-Regressionstests: fangen genau die Fehler ab, die uns hier passiert sind —
-/// kollabierendes Fenster, verschwindende Session-Liste, unsichtbare Notizen,
-/// nicht voll-breite Werkzeug-Ansichten.
+/// Layout regression tests: catch exactly the bugs that happened to us here —
+/// collapsing window, disappearing session list, invisible notes,
+/// tool views that aren't full width.
 final class SidebarLayoutTests: XCTestCase {
 
     private var savedNotes = false
 
     override func setUp() {
         super.setUp()
-        _ = NSApplication.shared                 // AppKit-Kontext sicherstellen
+        _ = NSApplication.shared                 // ensure the AppKit context
         savedNotes = AppSettings.shared.showSidebarNotes
     }
 
     override func tearDown() {
-        AppSettings.shared.showSidebarNotes = savedNotes   // echte Nutzer-Einstellung nicht verändern
+        AppSettings.shared.showSidebarNotes = savedNotes   // don't change the real user setting
         super.tearDown()
     }
 
-    /// Baut die Sidebar in einen fest dimensionierten Host und erzwingt das Layout.
-    /// (Ein Host mit expliziter Breite/Höhe statt `window.contentView`, sonst kollabiert
-    /// die View auf ihre Fitting-Breite und die Messungen werden unbrauchbar.)
+    /// Builds the sidebar into a fixed-size host and forces layout.
+    /// (A host with an explicit width/height instead of `window.contentView`, otherwise the
+    /// view collapses to its fitting width and the measurements become useless.)
     private func layoutSidebar(height: CGFloat, width: CGFloat = 320,
                                notes: Bool, expanded: Bool = false,
                                tools: [Tool]) -> SidebarViewController {
@@ -39,13 +39,13 @@ final class SidebarLayoutTests: XCTestCase {
             vc.view.heightAnchor.constraint(equalToConstant: height),
         ])
         vc.test_showTools(tools)
-        vc.test_setNotesExpanded(expanded)   // deterministischer Zustand (nicht aus UserDefaults geerbt)
+        vc.test_setNotesExpanded(expanded)   // deterministic state (not inherited from UserDefaults)
         host.layoutSubtreeIfNeeded()
         return vc
     }
 
-    /// Die Fitting-Höhe der Sidebar bestimmt (über NSSplitViewController) die Fenster-Mindesthöhe.
-    /// Fällt sie unter 480, kann das Fenster beim Start auf die Werkzeugleiste zusammenfallen.
+    /// The sidebar's fitting height determines (via NSSplitViewController) the window's minimum height.
+    /// If it drops below 480, the window can collapse to the tool bar on launch.
     func testSidebarHasMinimumFittingHeight() {
         let vc = SidebarViewController()
         _ = vc.view
@@ -53,7 +53,7 @@ final class SidebarLayoutTests: XCTestCase {
             "Sidebar-Fitting-Höhe < 480 ⇒ Fenster kann kollabieren")
     }
 
-    /// Feature an ⇒ Toggle verfügbar; Liste bleibt sichtbar, auch mit allen Werkzeugen.
+    /// Feature on ⇒ toggle available; list stays visible, even with all tools.
     func testNotesToggleAvailableWithAllTools() {
         let vc = layoutSidebar(height: 760, notes: true, tools: [.sessions, .manager, .history])
         XCTAssertGreaterThan(vc.test_sessionsListHeight, 0,
@@ -62,14 +62,14 @@ final class SidebarLayoutTests: XCTestCase {
             "Notizen-Toggle nicht verfügbar, obwohl Feature eingeschaltet")
     }
 
-    /// Feature aus ⇒ kein Toggle, keine Box; Liste trotzdem da.
+    /// Feature off ⇒ no toggle, no box; list still there.
     func testNotesSectionHiddenWhenSettingOff() {
         let vc = layoutSidebar(height: 760, notes: false, tools: [.sessions])
         XCTAssertFalse(vc.test_notesSectionVisible, "Notizen-Bereich sichtbar, obwohl ausgeschaltet")
         XCTAssertGreaterThan(vc.test_sessionsListHeight, 0)
     }
 
-    /// Der Toggle klappt die Textbox auf und wieder zu.
+    /// The toggle expands the text box and collapses it again.
     func testNotesToggleExpandsAndCollapsesBox() {
         AppSettings.shared.showSidebarNotes = true
         let vc = SidebarViewController()
@@ -95,7 +95,7 @@ final class SidebarLayoutTests: XCTestCase {
         XCTAssertTrue(vc.test_notesBoxVisible, "Box muss nach dem Aufklappen sichtbar sein")
     }
 
-    /// Notizen offen + alle Werkzeuge: Liste schrumpft, verschwindet aber nicht.
+    /// Notes open + all tools: list shrinks but doesn't disappear.
     func testListKeepsMinimumWhenNotesExpandedWithAllTools() {
         let vc = layoutSidebar(height: 760, notes: true, expanded: true,
                                tools: [.sessions, .manager, .history])
@@ -103,7 +103,7 @@ final class SidebarLayoutTests: XCTestCase {
             "Liste darf bei offenen Notizen + allen Werkzeugen nicht verschwinden")
     }
 
-    /// Jede Werkzeug-Ansicht muss die volle Panel-Breite haben (sonst verrutschen Liste/Header).
+    /// Every tool view must have the full panel width (otherwise list/header shift).
     func testAllToolViewsSpanFullPanelWidth() {
         let vc = layoutSidebar(height: 760, width: 320, notes: true,
                                tools: [.sessions, .manager, .history])
@@ -117,7 +117,7 @@ final class SidebarLayoutTests: XCTestCase {
         }
     }
 
-    /// Enges Fenster (Minimalhöhe): Notizen schrumpfen, aber nichts bricht/verschwindet hart.
+    /// Narrow window (minimum height): notes shrink, but nothing breaks/disappears hard.
     func testTightPanelDoesNotBreakLayout() {
         let vc = layoutSidebar(height: 520, notes: true,
                                tools: [.sessions, .manager, .history])

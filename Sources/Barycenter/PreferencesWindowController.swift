@@ -1,6 +1,6 @@
 import AppKit
 
-/// Einstellungs-Fenster (Cmd+,): Theme, Schriftart, Schriftgröße. Wirkt sofort.
+/// Preferences window (Cmd+,): theme, font, font size. Takes effect immediately.
 final class PreferencesWindowController: NSWindowController {
     private let themePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let fontPopup  = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -10,8 +10,8 @@ final class PreferencesWindowController: NSWindowController {
     private let notesCheckbox = NSButton(checkboxWithTitle: L("Notizen in der Seitenleiste"), target: nil, action: nil)
     private let lineNumbersCheckbox = NSButton(checkboxWithTitle: L("Zeilennummern im Editor"), target: nil, action: nil)
 
-    /// Sprach-Codes passend zu den Einträgen des Sprach-Popups.
-    /// `nil` = „System" (kein Override). Reihenfolge muss zu `languageItemTitles` passen.
+    /// Language codes matching the entries of the language popup.
+    /// `nil` = "System" (no override). Order must match `languageItemTitles`.
     private let languageCodes: [String?] = [nil, "de", "en", "es", "fr", "it", "ja", "zh-Hans"]
     private let languageItemTitles = [L("System"), "Deutsch", "English", "Español", "Français", "Italiano", "日本語", "简体中文"]
 
@@ -106,7 +106,7 @@ final class PreferencesWindowController: NSWindowController {
             grid.topAnchor.constraint(equalTo: content.topAnchor, constant: 24),
         ])
         window?.contentView = content
-        _ = settings // (nur zur Klarheit; Werte folgen in loadValues)
+        _ = settings // (for clarity only; values follow in loadValues)
     }
 
     private func label(_ s: String) -> NSTextField {
@@ -124,7 +124,7 @@ final class PreferencesWindowController: NSWindowController {
         sizeStepper.doubleValue = Double(s.fontSize)
         sizeField.stringValue = "\(Int(s.fontSize))"
 
-        // Aktuell aktiven Sprach-Override vorwählen (erster Eintrag der AppleLanguages-Liste).
+        // Preselect the currently active language override (first entry of the AppleLanguages list).
         let current = (UserDefaults.standard.array(forKey: "AppleLanguages") as? [String])?.first
         let idx = current.flatMap { code in languageCodes.firstIndex { $0 == code } } ?? 0
         languagePopup.selectItem(at: idx)
@@ -165,7 +165,7 @@ final class PreferencesWindowController: NSWindowController {
         if let code = languageCodes[idx] {
             UserDefaults.standard.set([code], forKey: "AppleLanguages")
         } else {
-            UserDefaults.standard.removeObject(forKey: "AppleLanguages")   // „System": kein Override
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")   // "System": no override
         }
     }
 }

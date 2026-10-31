@@ -1,6 +1,6 @@
 import AppKit
 
-/// Session-Seite „Diff": zeigt git status + diff des Session-Ordners (farbig, read-only).
+/// Session page "Diff": shows git status + diff of the session folder (colored, read-only).
 final class SessionDiffView: NSView {
     private let session: Session
     private let textView = NSTextView()

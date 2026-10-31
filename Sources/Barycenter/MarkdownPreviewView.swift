@@ -1,7 +1,7 @@
 import AppKit
 import WebKit
 
-/// Gerenderte Markdown-Vorschau (WKWebView + marked.js + GitHub-Dark-CSS, offline gebündelt).
+/// Rendered Markdown preview (WKWebView + marked.js + GitHub-Dark CSS, bundled offline).
 final class MarkdownPreviewView: NSView, WKNavigationDelegate {
     private let webView = WKWebView()
     private let markedJS: String
@@ -15,7 +15,7 @@ final class MarkdownPreviewView: NSView, WKNavigationDelegate {
         wantsLayer = true
         layer?.backgroundColor = NSColor(hex: "#0d1117").cgColor
         webView.navigationDelegate = self
-        webView.setValue(false, forKey: "drawsBackground")   // transparent -> kein Weiß-Blitz
+        webView.setValue(false, forKey: "drawsBackground")   // transparent -> no white flash
         webView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
         NSLayoutConstraint.activate([
@@ -28,7 +28,7 @@ final class MarkdownPreviewView: NSView, WKNavigationDelegate {
     required init?(coder: NSCoder) { fatalError() }
 
     func render(_ markdown: String) {
-        // Markdown sicher als JS-String einbetten (über JSON-Array-Trick).
+        // Safely embed the Markdown as a JS string (via the JSON-array trick).
         let jsonArr = (try? String(data: JSONSerialization.data(withJSONObject: [markdown]), encoding: .utf8)) ?? "[\"\"]"
         let html = """
         <!doctype html><html><head><meta charset="utf-8">
@@ -47,7 +47,7 @@ final class MarkdownPreviewView: NSView, WKNavigationDelegate {
         webView.loadHTMLString(html, baseURL: nil)
     }
 
-    // Links extern im Browser öffnen, nicht im Preview navigieren.
+    // Open links externally in the browser instead of navigating within the preview.
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url {

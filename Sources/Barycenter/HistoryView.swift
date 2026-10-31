@@ -1,7 +1,7 @@
 import AppKit
 
-/// Rail-Tool „Verlauf": sessionübergreifende Git-Commit-History.
-/// Sammelt die Repos aller Sessions und zeigt je Repo die letzten Commits.
+/// Rail tool "History": Git commit history across all sessions.
+/// Collects the repos of all sessions and shows the latest commits per repo.
 final class HistoryView: NSView {
     private let textView = NSTextView()
     private let scroll = NSScrollView()

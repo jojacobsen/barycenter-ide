@@ -1,9 +1,9 @@
 import AppKit
 
-/// Container, der seine Kacheln in einem Raster per Frame positioniert.
+/// Container that positions its tiles in a grid via frames.
 final class TileContainerView: NSView {
     var columns: Int = 1
-    override var isFlipped: Bool { true }   // (0,0) oben links
+    override var isFlipped: Bool { true }   // (0,0) at top left
 
     override func layout() {
         super.layout()
@@ -23,8 +23,8 @@ final class TileContainerView: NSView {
     }
 }
 
-/// Eine Kachel = Kopfzeile + Seiten-Umschalter unten (Terminal / Status / Notizen).
-/// Klick wählt aus, Doppelklick fokussiert (= groß).
+/// A tile = header + page switcher at the bottom (Terminal / Status / Notes).
+/// Click selects, double-click focuses (= large).
 final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDelegate {
     let session: Session
     private let dot = NSTextField(labelWithString: "●")
@@ -75,7 +75,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         headerStack.edgeInsets = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
         headerStack.translatesAutoresizingMaskIntoConstraints = false
 
-        // Seiten-Umschalter unten
+        // Page switcher at the bottom
         pageControl.selectedSegment = 0
         pageControl.controlSize = .small
         pageControl.segmentDistribution = .fillEqually
@@ -83,7 +83,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         pageControl.action = #selector(pageChanged)
         pageControl.translatesAutoresizingMaskIntoConstraints = false
 
-        // Kompaktes Dropdown für schmale Kacheln (wird adaptiv ein-/ausgeblendet)
+        // Compact dropdown for narrow tiles (shown/hidden adaptively)
         pagePopup.addItems(withTitles: Self.pageTitles)
         pagePopup.controlSize = .small
         pagePopup.target = self
@@ -91,7 +91,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         pagePopup.isHidden = true
         pagePopup.translatesAutoresizingMaskIntoConstraints = false
 
-        // Notizen-Editor
+        // Notes editor
         notesTextView.isRichText = false
         notesTextView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
         notesTextView.isAutomaticQuoteSubstitutionEnabled = false
@@ -164,7 +164,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         SessionManager.shared.setViewMode(.focus)
     }
 
-    // Klicks auf den ✕-Button nicht vom Header-Klick abfangen lassen.
+    // Don't let the header click swallow clicks on the ✕ button.
     func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldAttemptToRecognizeWith event: NSEvent) -> Bool {
         let p = closeButton.convert(event.locationInWindow, from: nil)
         return !closeButton.bounds.contains(p)
@@ -174,7 +174,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         SessionManager.shared.requestClose(session.id, window: window)
     }
 
-    // MARK: Seiten-Umschalter
+    // MARK: Page switcher
 
     private func showPage(_ p: Int) {
         page = p
@@ -189,7 +189,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
             startStatusTimer()
             v = statusView
         case 2:
-            notesTextView.string = session.notes   // Terminal rausnehmen (läuft weiter), Notizen zeigen
+            notesTextView.string = session.notes   // take the terminal out (keeps running), show notes
             stopStatusTimer()
             v = notesScroll
         case 3:
@@ -205,8 +205,8 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
             v = session.terminalView
         }
         v.translatesAutoresizingMaskIntoConstraints = false
-        // Inhalt darf die Kachel nie „aufblähen": sonst drückt z.B. der Terminal-View beim
-        // Schrumpfen (Fokus→Grid) die untere Leiste aus der Kachel. Er muss immer nachgeben.
+        // Content must never "inflate" the tile: otherwise e.g. the terminal view, when
+        // shrinking (focus→grid), pushes the bottom bar out of the tile. It must always yield.
         v.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         v.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         v.setContentHuggingPriority(.defaultLow, for: .vertical)
@@ -232,7 +232,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     @objc private func pageChanged() { showPage(pageControl.selectedSegment) }
     @objc private func popupChanged() { showPage(pagePopup.indexOfSelectedItem) }
 
-    // Schmale Kachel (viele Terminals) -> Tabs ausblenden, kompaktes Dropdown zeigen.
+    // Narrow tile (many terminals) -> hide tabs, show compact dropdown.
     override func layout() {
         super.layout()
         let narrow = bounds.width < 440
@@ -240,11 +240,11 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         pagePopup.isHidden = !narrow
     }
 
-    // Notizen live speichern (bleiben bis zum Schließen der Session erhalten).
+    // Save notes live (kept until the session is closed).
     func textDidChange(_ notification: Notification) { session.notes = notesTextView.string }
 }
 
-/// Hauptbereich: Topbar (Grid/Fokus, Pagination, + Session) + Kachel-Raster.
+/// Main area: top bar (grid/focus, pagination, + session) + tile grid.
 final class ContentViewController: NSViewController {
     private let container = TileContainerView()
     private var segmented: NSSegmentedControl!
@@ -252,7 +252,7 @@ final class ContentViewController: NSViewController {
     private var nextButton: NSButton!
     private var pageLabel: NSTextField!
 
-    /// Wiederverwendbare Kacheln pro Session -> kein unnötiges Re-Parenting der Terminals.
+    /// Reusable tiles per session -> no unnecessary re-parenting of the terminals.
     private var tiles: [UUID: SessionTileView] = [:]
 
     override func loadView() {
@@ -287,7 +287,7 @@ final class ContentViewController: NSViewController {
         bar.edgeInsets = NSEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
         bar.translatesAutoresizingMaskIntoConstraints = false
 
-        // Sichtbare Toolbar-Leiste (eigener Hintergrund + Trennlinie), damit ＋ klar erkennbar ist.
+        // Visible toolbar strip (own background + separator) so ＋ is clearly recognizable.
         let barBackground = NSVisualEffectView()
         barBackground.material = .titlebar
         barBackground.blendingMode = .withinWindow
@@ -341,13 +341,13 @@ final class ContentViewController: NSViewController {
             : mgr.visibleSessions()
         let desiredIDs = Set(desired.map { $0.id })
 
-        // Nicht mehr sichtbare Worker-Kacheln entfernen (Terminals bleiben in ihrer Kachel erhalten)
+        // Remove worker tiles that are no longer visible (terminals stay kept in their tile)
         for (id, tile) in tiles where !desiredIDs.contains(id) {
             tile.removeFromSuperview()
             tiles[id] = nil
         }
 
-        // Worker-Kacheln in gewünschter Reihenfolge (bestehende wiederverwenden)
+        // Worker tiles in the desired order (reuse existing ones)
         var ordered: [SessionTileView] = []
         for s in desired {
             let tile = tiles[s.id] ?? SessionTileView(session: s)
@@ -359,13 +359,12 @@ final class ContentViewController: NSViewController {
         container.subviews = ordered
         container.columns = columnsFor(desired.count)
         container.needsLayout = true
-        container.layoutSubtreeIfNeeded()   // setzt die neuen Kachel-Frames (Fokus→Grid: kleiner)
+        container.layoutSubtreeIfNeeded()   // sets the new tile frames (focus→grid: smaller)
 
-        // Zweiter, synchroner Pass pro Kachel: container.layout() markiert die Kacheln erst
-        // WÄHREND seines eigenen Layouts als änderungsbedürftig — zu spät für denselben
-        // Durchlauf. Ohne diesen Pass behält eine wiederverwendete (vormals fokussierte) Kachel
-        // ihre zu breite Tab-Leiste (NSSegmentedControl rechnet die Segmentbreiten nicht neu),
-        // bis man das Fenster anfasst.
+        // Second, synchronous pass per tile: container.layout() marks the tiles as needing
+        // layout only DURING its own layout — too late for the same run. Without this pass a
+        // reused (previously focused) tile keeps its too-wide tab bar (NSSegmentedControl does
+        // not recompute the segment widths) until you touch the window.
         for tile in ordered {
             tile.needsLayout = true
             tile.layoutSubtreeIfNeeded()
@@ -394,12 +393,12 @@ final class ContentViewController: NSViewController {
         NotificationCenter.default.post(name: .newSessionRequested, object: nil)
     }
     @objc private func presentNewSession() {
-        // Nur blocken, wenn unser Sheet bereits offen ist (robust gegen Ghost-Einträge).
+        // Only block if our sheet is already open (robust against ghost entries).
         if presentedViewControllers?.contains(where: { $0 is NewSessionSheetController }) == true { return }
         presentAsSheet(NewSessionSheetController())
     }
     @objc private func presentManager() {
-        // Läuft schon -> einfach fokussieren, kein Sheet.
+        // Already running -> just focus it, no sheet.
         if let m = SessionManager.shared.managerSession {
             SessionManager.shared.select(m.id); SessionManager.shared.setViewMode(.focus); return
         }

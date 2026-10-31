@@ -1,15 +1,15 @@
 import AppKit
 
-/// Menüleisten-Icon (`NSStatusItem`). Zeigt den Flotten-Zustand als Barycenter-Glyph
-/// (Kern + Orbit) — rot mit Zähler, sobald Sessions auf dich warten — und bietet ein
-/// schnelles Menü zum Fokussieren/Anzeigen, auch wenn das Fenster nicht im Vordergrund ist.
+/// Menu-bar icon (`NSStatusItem`). Shows the fleet state as a Barycenter glyph
+/// (core + orbit) — red with a counter as soon as sessions are waiting on you — and offers a
+/// quick menu to focus/show, even when the window is not in the foreground.
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let glyph = MenuBarController.makeGlyph()
 
-    /// Holt das Hauptfenster nach vorn (von AppDelegate gesetzt).
+    /// Brings the main window to the front (set by AppDelegate).
     var onShowWindow: (() -> Void)?
-    /// Fordert eine neue Session an (von AppDelegate gesetzt).
+    /// Requests a new session (set by AppDelegate).
     var onNewSession: (() -> Void)?
 
     override init() {
@@ -32,9 +32,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     deinit { NotificationCenter.default.removeObserver(self) }
 
-    // MARK: - Glyph & Zustand
+    // MARK: - Glyph & state
 
-    /// Spiegelt den Flotten-Zustand ins Icon: rote Tönung + Zähler, wenn etwas wartet.
+    /// Mirrors the fleet state into the icon: red tint + counter when something is waiting.
     @objc private func refresh() {
         guard let btn = statusItem.button else { return }
         let waiting = SessionManager.shared.sessions.filter { $0.needsAttention }.count
@@ -46,14 +46,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             ])
             btn.toolTip = "\(waiting) · \(L("braucht dich"))"
         } else {
-            btn.contentTintColor = nil            // folgt wieder der Menüleisten-Darstellung
+            btn.contentTintColor = nil            // follow the menu-bar appearance again
             btn.title = ""
             btn.toolTip = "Barycenter"
         }
     }
 
-    /// Das Barycenter-Zeichen: Ring (Orbit), gefüllter Kern, kleiner Trabant auf dem Ring.
-    /// Template-Bild ⇒ passt sich heller/dunkler Menüleiste an; Tönung steuert `refresh()`.
+    /// The Barycenter mark: ring (orbit), filled core, small satellite on the ring.
+    /// Template image ⇒ adapts to a light/dark menu bar; `refresh()` controls the tint.
     private static func makeGlyph() -> NSImage {
         let size = NSSize(width: 18, height: 16)
         let img = NSImage(size: size)
@@ -67,8 +67,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         ring.stroke()
         let coreR: CGFloat = 2.6
         NSBezierPath(ovalIn: NSRect(x: cx - coreR, y: cy - coreR, width: coreR * 2, height: coreR * 2)).fill()
-        // Trabant oben rechts auf dem Ring: erst einen Freiraum ausstanzen, dann füllen,
-        // damit er sich klar vom Orbit abhebt.
+        // Satellite at the top right on the ring: first punch out a gap, then fill it,
+        // so it stands out clearly from the orbit.
         let ang = CGFloat.pi / 4
         let sx = cx + cos(ang) * ringR, sy = cy + sin(ang) * ringR
         let satR: CGFloat = 2.2
@@ -83,7 +83,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         return img
     }
 
-    // MARK: - Menü (bei jedem Öffnen frisch aufgebaut)
+    // MARK: - Menu (rebuilt fresh on every open)
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
@@ -120,7 +120,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         return item
     }
 
-    /// Kleiner farbiger Statuspunkt (kein Template ⇒ behält seine Farbe).
+    /// Small colored status dot (not a template ⇒ keeps its color).
     private static func dot(_ color: NSColor, d: CGFloat = 9) -> NSImage {
         let img = NSImage(size: NSSize(width: d, height: d))
         img.lockFocus()
@@ -130,7 +130,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         return img
     }
 
-    // MARK: - Aktionen
+    // MARK: - Actions
 
     @objc private func focusSession(_ sender: NSMenuItem) {
         guard let idStr = sender.representedObject as? String, let id = UUID(uuidString: idStr) else { return }

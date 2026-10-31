@@ -2,11 +2,11 @@ import XCTest
 import AppKit
 @testable import Barycenter
 
-/// Sichert das Status-Mapping ab, das die Menüleiste (und der Dock-Alarm) nutzen:
-/// „braucht dich", Punktfarbe und Statustext je Session-Zustand.
+/// Verifies the status mapping used by the menu bar (and the Dock alarm):
+/// "needs you", dot color and status text per session state.
 final class MenuBarStatusTests: XCTestCase {
 
-    /// Shell-Session (kein Claude) folgt direkt `status` — ohne Live-Agent-Abfrage.
+    /// A shell session (no Claude) follows `status` directly, without a live agent query.
     private func shellSession() -> Session {
         Session(title: "shell", cwd: NSTemporaryDirectory(),
                 launchCommand: nil, profileName: "Shell")
@@ -23,7 +23,7 @@ final class MenuBarStatusTests: XCTestCase {
     func testAttentionIsFlaggedAndRed() {
         let s = shellSession()
         s.status = .attention
-        XCTAssertTrue(s.needsAttention, "attention muss als 'braucht dich' zaehlen")
+        XCTAssertTrue(s.needsAttention, "attention must count as 'needs you'")
         XCTAssertEqual(s.menuStatusColor, .systemRed)
         XCTAssertEqual(s.menuStatusText, L("braucht dich"))
     }

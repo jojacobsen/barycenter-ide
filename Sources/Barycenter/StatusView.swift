@@ -1,7 +1,7 @@
 import AppKit
 
-/// Status-Seite einer Session: Profil, Ordner, Startzeit, Zustand und — bei Claude —
-/// Modell, Kosten, Context (aus der statusLine-Datei). Fehlende Werte werden ausgelassen.
+/// Status page of a session: profile, folder, start time, state and — for Claude —
+/// model, cost, context (from the statusLine file). Missing values are omitted.
 final class SessionStatusView: NSView {
     private let stack = NSStackView()
 

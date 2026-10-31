@@ -1,20 +1,20 @@
 import AppKit
 
 extension Notification.Name {
-    /// Liste der Sessions oder ein Status hat sich geändert -> UI neu aufbauen.
+    /// The session list or a status changed -> rebuild the UI.
     static let sessionsChanged = Notification.Name("BarycenterSessionsChanged")
-    /// Nur die Auswahl hat sich geändert.
+    /// Only the selection changed.
     static let selectionChanged = Notification.Name("BarycenterSelectionChanged")
-    /// „Neue Session" wurde angefordert (＋ Button oder Cmd+T) -> Sheet zeigen.
+    /// "New session" was requested (＋ button or Cmd+T) -> show the sheet.
     static let newSessionRequested = Notification.Name("BarycenterNewSessionRequested")
-    /// „KI-Verwalter starten" wurde angefordert -> Konfig-Sheet (Ordner + AI) zeigen.
+    /// "Start AI manager" was requested -> show the config sheet (folder + AI).
     static let managerRequested = Notification.Name("BarycenterManagerRequested")
 }
 
 enum ViewMode { case grid, focus }
 
-/// Zentrale Quelle der Wahrheit: hält alle Sessions, Auswahl, Ansicht, Seite.
-/// UI (Sidebar + Content) beobachtet via NotificationCenter.
+/// Central source of truth: holds all sessions, selection, view, page.
+/// The UI (sidebar + content) observes via NotificationCenter.
 final class SessionManager {
     static let shared = SessionManager()
 
@@ -22,11 +22,11 @@ final class SessionManager {
     var selectedID: UUID?
     var viewMode: ViewMode = .grid
     var page = 0
-    let pageSize = 8   // ab 8 Kacheln -> neue Seite
+    let pageSize = 8   // from 8 tiles on -> new page
 
     var selectedSession: Session? { sessions.first { $0.id == selectedID } }
 
-    /// Normale Sessions (ohne den Manager — der hat einen eigenen Bereich).
+    /// Normal sessions (without the manager — it has its own area).
     var workerSessions: [Session] { sessions.filter { !$0.isManager } }
     var managerSession: Session? { sessions.first { $0.isManager } }
 
@@ -39,7 +39,7 @@ final class SessionManager {
         return Array(w[start ..< min(start + pageSize, w.count)])
     }
 
-    // MARK: - Mutationen
+    // MARK: - Mutations
 
     @discardableResult
     func addSession(title: String, cwd: String, launchCommand: String?, profileName: String,
@@ -51,7 +51,7 @@ final class SessionManager {
         s.start()
         if !isManager {
             selectedID = s.id
-            page = (workerSessions.count - 1) / pageSize   // auf die Seite der neuen Session springen
+            page = (workerSessions.count - 1) / pageSize   // jump to the page of the new session
             // Remember how this project was launched, to pre-fill the next New Session.
             LaunchMemory.remember(cwd: cwd, profileName: profileName,
                                   launchCommand: launchCommand, remoteControl: remoteControl)
@@ -67,14 +67,14 @@ final class SessionManager {
                           cwd: home, launchCommand: nil, profileName: "Shell")
     }
 
-    // MARK: - Layouts (welche Projekte/Sessions mit welchen Einstellungen laufen)
+    // MARK: - Layouts (which projects/sessions run with which settings)
 
     var currentLayoutName: String? {
         get { UserDefaults.standard.string(forKey: "currentLayoutName") }
         set { UserDefaults.standard.set(newValue, forKey: "currentLayoutName") }
     }
 
-    /// Specs der aktuellen Worker-Sessions (ohne Manager).
+    /// Specs of the current worker sessions (without the manager).
     func currentSpecs() -> [SessionSpec] {
         workerSessions.map {
             SessionSpec(title: $0.title, cwd: $0.cwd, launchCommand: $0.launchCommand,
@@ -95,7 +95,7 @@ final class SessionManager {
                    profileName: spec.profileName, remoteControl: spec.remoteControl)
     }
 
-    /// Ersetzt die aktuellen Worker-Sessions durch die des Layouts.
+    /// Replaces the current worker sessions with those of the layout.
     func applyLayout(_ layout: Layout) {
         clearWorkers()
         for spec in layout.sessions { spawn(from: spec) }
@@ -111,9 +111,9 @@ final class SessionManager {
 
     var managerIsRunning: Bool { managerSession != nil }
 
-    /// Startet den KI-Verwalter mit gewähltem Ordner + AI (oder fokussiert ihn, falls er schon läuft).
-    /// `launchCommand == "claude"` bekommt die Aufgabe als System-Prompt-Datei; andere AIs
-    /// (Codex/Gemini/Aider/Custom) bekommen sie als erste Nachricht „lies diese Datei".
+    /// Starts the AI manager with the chosen folder + AI (or focuses it if it's already running).
+    /// `launchCommand == "claude"` gets the task as a system-prompt file; other AIs
+    /// (Codex/Gemini/Aider/Custom) get it as a first message "read this file".
     func spawnManager(dir: String, profileName: String, launchCommand: String?) {
         if let existing = managerSession {
             select(existing.id); setViewMode(.focus); return
@@ -130,7 +130,7 @@ final class SessionManager {
         let s = addSession(title: L("KI-Verwalter"), cwd: cwd, launchCommand: launchCommand,
                            profileName: profileName, isManager: true, extraArgs: extra)
         if launchCommand != "claude" {
-            // Andere AIs kennen kein --append-system-prompt-file: Aufgabe per erster Nachricht einspielen.
+            // Other AIs don't know --append-system-prompt-file: feed the task via a first message.
             let msg = String(format: L("Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)."), promptPath)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 s.terminalView.send(txt: msg + "\r")
@@ -138,7 +138,7 @@ final class SessionManager {
         }
     }
 
-    /// Bequemer Start mit den gespeicherten Verwalter-Einstellungen.
+    /// Convenient start using the saved manager settings.
     func spawnManagerFromSettings() {
         let st = AppSettings.shared
         let launch: String?
@@ -183,7 +183,7 @@ final class SessionManager {
         return path
     }
 
-    /// Session schließen — mit Rückfrage, falls Prozess läuft oder Notizen vorhanden sind.
+    /// Close a session — with a confirmation prompt if the process is running or notes exist.
     func requestClose(_ id: UUID, window: NSWindow?) {
         guard let s = sessions.first(where: { $0.id == id }) else { return }
         let needsConfirm = (s.status == .running) || !s.notes.isEmpty
@@ -208,27 +208,27 @@ final class SessionManager {
         }
     }
 
-    /// Status einer Session setzen (von Hooks/Bell). Bei „attention": Sound + Dock-Bounce.
+    /// Set a session's status (from hooks/bell). On "attention": sound + Dock bounce.
     func setStatus(_ status: SessionStatus, for id: UUID) {
         guard let s = sessions.first(where: { $0.id == id }), s.status != status else { return }
         s.status = status
         if status == .attention {
             NSSound(named: "Ping")?.play()
-            NSApp.requestUserAttention(.informationalRequest)   // Dock-Bounce
-            Notifier.attention(sessionTitle: s.title)           // macOS-Banner (nur als .app)
+            NSApp.requestUserAttention(.informationalRequest)   // Dock bounce
+            Notifier.attention(sessionTitle: s.title)           // macOS banner (only as .app)
         }
         post(.sessionsChanged)
     }
 
     func select(_ id: UUID) {
         selectedID = id
-        // Beim Betrachten Attention löschen.
+        // Clear attention when viewing.
         var cleared = false
         if let s = sessions.first(where: { $0.id == id }), s.status == .attention {
             s.status = .running
             cleared = true
         }
-        // Im Grid automatisch auf die Seite der Session springen (so kommt man z.B. zurück zu Seite 1).
+        // In the grid, automatically jump to the session's page (e.g. to get back to page 1).
         if let idx = workerSessions.firstIndex(where: { $0.id == id }) {
             let target = idx / pageSize
             if target != page {
