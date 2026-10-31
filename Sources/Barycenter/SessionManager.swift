@@ -43,10 +43,11 @@ final class SessionManager {
 
     @discardableResult
     func addSession(title: String, cwd: String, launchCommand: String?, profileName: String,
-                    remoteControl: Bool = false, isManager: Bool = false, extraArgs: [String] = []) -> Session {
+                    remoteControl: Bool = false, resume: Bool = false,
+                    isManager: Bool = false, extraArgs: [String] = []) -> Session {
         let s = Session(title: title, cwd: cwd, launchCommand: launchCommand,
                         profileName: profileName, remoteControl: remoteControl,
-                        isManager: isManager, extraArgs: extraArgs)
+                        resume: resume, isManager: isManager, extraArgs: extraArgs)
         sessions.append(s)
         s.start()
         if !isManager {
@@ -78,7 +79,7 @@ final class SessionManager {
     func currentSpecs() -> [SessionSpec] {
         workerSessions.map {
             SessionSpec(title: $0.title, cwd: $0.cwd, launchCommand: $0.launchCommand,
-                        profileName: $0.profileName, remoteControl: $0.remoteControl)
+                        profileName: $0.profileName, remoteControl: $0.remoteControl, resume: $0.resume)
         }
     }
 
@@ -92,7 +93,8 @@ final class SessionManager {
             cwd = FileManager.default.homeDirectoryForCurrentUser.path
         }
         addSession(title: spec.title, cwd: cwd, launchCommand: spec.launchCommand,
-                   profileName: spec.profileName, remoteControl: spec.remoteControl)
+                   profileName: spec.profileName, remoteControl: spec.remoteControl,
+                   resume: spec.resume ?? false)
     }
 
     /// Replaces the current worker sessions with those of the layout.

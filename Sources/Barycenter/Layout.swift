@@ -7,6 +7,7 @@ struct SessionSpec: Codable {
     var launchCommand: String?   // nil = Shell
     var profileName: String
     var remoteControl: Bool
+    var resume: Bool?            // Claude --continue; optional so older layouts still decode
     // (Screen/window assignment comes with multi-window support.)
 }
 

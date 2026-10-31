@@ -12,6 +12,8 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
     private let nameField    = NSTextField()
     private let rcCheckbox   = NSButton(checkboxWithTitle: L("Remote Control (von anderem Gerät steuerbar)"),
                                         target: nil, action: nil)
+    private let resumeCheckbox = NSButton(checkboxWithTitle: L("Letzte Unterhaltung fortsetzen (-c)"),
+                                          target: nil, action: nil)
     private let worktreeCheckbox = NSButton(checkboxWithTitle: L("Eigener Git-Worktree (Branch) – nur bei Git-Repo"),
                                             target: nil, action: nil)
     private var grid: NSGridView!
@@ -165,6 +167,13 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
             profilePopup.selectItem(withTitle: "Claude Code")
         }
         profileChanged()
+        // A project with past Claude conversations -> default to resuming the last one.
+        if isClaudeSelected(), project.hasClaudeHistory {
+            resumeCheckbox.state = .on
+            worktreeCheckbox.state = .off
+        } else {
+            resumeCheckbox.state = .off
+        }
     }
 
     // MARK: - Right: launch form
@@ -189,11 +198,17 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
         nameField.translatesAutoresizingMaskIntoConstraints = false
         nameField.widthAnchor.constraint(equalToConstant: 240).isActive = true
 
+        // Resume and worktree are mutually exclusive: you can't continue a past
+        // conversation inside a brand-new worktree folder.
+        resumeCheckbox.target = self; resumeCheckbox.action = #selector(resumeToggled)
+        worktreeCheckbox.target = self; worktreeCheckbox.action = #selector(worktreeToggled)
+
         grid = NSGridView(views: [
             [label(L("Ordner:")), folderValue],
             [label(L("Profil:")), profilePopup],
             [label(L("Befehl:")), customField],
             [NSGridCell.emptyContentView, rcCheckbox],
+            [NSGridCell.emptyContentView, resumeCheckbox],
             [label(L("Name:")),   nameField],
             [NSGridCell.emptyContentView, worktreeCheckbox],
         ])
@@ -204,6 +219,7 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
         grid.translatesAutoresizingMaskIntoConstraints = false
         grid.row(at: 2).isHidden = true                  // "Befehl" only for Custom
         grid.row(at: 3).isHidden = !isClaudeSelected()    // "Remote Control" only for Claude Code
+        grid.row(at: 4).isHidden = !isClaudeSelected()    // "Fortsetzen" only for Claude Code
 
         let cancelButton = NSButton(title: L("Abbrechen"), target: self, action: #selector(cancel))
         cancelButton.bezelStyle = .rounded
@@ -242,8 +258,12 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
     @objc private func profileChanged() {
         grid.row(at: 2).isHidden = (profilePopup.titleOfSelectedItem != Profile.customName)
         grid.row(at: 3).isHidden = !isClaudeSelected()
+        grid.row(at: 4).isHidden = !isClaudeSelected()
         updateName()
     }
+
+    @objc private func resumeToggled()   { if resumeCheckbox.state == .on { worktreeCheckbox.state = .off } }
+    @objc private func worktreeToggled() { if worktreeCheckbox.state == .on { resumeCheckbox.state = .off } }
 
     /// Create a brand-new project folder (navigate to a parent, type the name).
     @objc private func newProject() {
@@ -301,17 +321,21 @@ final class NewSessionSheetController: NSViewController, NSTextFieldDelegate,
             launch = Profile.builtins.first { $0.name == selected }?.command
         }
         let profileName = (selected == Profile.customName) ? (launch ?? "Shell") : (selected ?? "Shell")
-        let rc = isClaudeSelected() && rcCheckbox.state == .on
+        let claude = isClaudeSelected()
+        let rc = claude && rcCheckbox.state == .on
+        let wantWorktree = worktreeCheckbox.state == .on
+        // Resume only makes sense for Claude in an existing folder (not a fresh worktree).
+        let resume = claude && resumeCheckbox.state == .on && !wantWorktree
         let title = nameField.stringValue.isEmpty ? defaultName() : nameField.stringValue
 
         // Optionally create a dedicated git worktree and start inside it.
         var cwd = folderURL.path
-        if worktreeCheckbox.state == .on, let wt = Git.makeWorktree(in: cwd, name: title) {
+        if wantWorktree, let wt = Git.makeWorktree(in: cwd, name: title) {
             cwd = wt
         }
 
-        SessionManager.shared.addSession(title: title, cwd: cwd,
-                                         launchCommand: launch, profileName: profileName, remoteControl: rc)
+        SessionManager.shared.addSession(title: title, cwd: cwd, launchCommand: launch,
+                                         profileName: profileName, remoteControl: rc, resume: resume)
         close()
     }
 

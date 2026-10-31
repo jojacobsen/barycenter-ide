@@ -46,6 +46,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     let launchCommand: String?
     let profileName: String
     let remoteControl: Bool           // Claude started with --remote-control?
+    let resume: Bool                  // Claude started with --continue (resume last conversation)?
     let isManager: Bool               // the AI manager?
     let extraArgs: [String]           // extra claude arguments (e.g. --append-system-prompt-file)
     let startedAt = Date()
@@ -57,12 +58,13 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     var pid: Int32 { terminalView.process?.shellPid ?? 0 }
 
     init(title: String, cwd: String, launchCommand: String?, profileName: String,
-         remoteControl: Bool = false, isManager: Bool = false, extraArgs: [String] = []) {
+         remoteControl: Bool = false, resume: Bool = false, isManager: Bool = false, extraArgs: [String] = []) {
         self.title = title
         self.cwd = cwd
         self.launchCommand = launchCommand
         self.profileName = profileName
         self.remoteControl = remoteControl
+        self.resume = resume
         self.isManager = isManager
         self.extraArgs = extraArgs
         self.terminalView = BarycenterTerminalView(frame: NSRect(x: 0, y: 0, width: 720, height: 460))
@@ -102,6 +104,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         // Claude Code: inject per-session hooks + statusLine (without touching the global config).
         if launchCommand == "claude", let path = AttentionCenter.shared.writeClaudeHookSettings(sessionID: id) {
             inner = "claude --settings \(shellQuote(path))"
+            if resume { inner! += " --continue" }   // resume last conversation, hooks stay injected
             if remoteControl { inner! += " --remote-control" }
             for a in extraArgs { inner! += " " + shellQuote(a) }
             statusFilePath = AttentionCenter.shared.statusFilePath(for: id)
