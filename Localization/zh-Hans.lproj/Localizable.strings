@@ -191,3 +191,11 @@
 "Vorheriges suchen" = "查找上一个";
 "Auswahl für Suche verwenden" = "用所选内容查找";
 "Letzte Unterhaltung fortsetzen (-c)" = "继续上次对话 (-c)";
+
+/* Settings: manager + notifications + quit */
+"KI-Verwalter anzeigen" = "显示 AI 管理器";
+"Benachrichtigung" = "通知";
+"Benachrichtigen, wenn eine Session fertig ist" = "会话完成时通知";
+"Ton:" = "声音：";
+"Aus" = "关闭";
+"Möchtest du Barycenter wirklich beenden?" = "确定要退出 Barycenter 吗？";

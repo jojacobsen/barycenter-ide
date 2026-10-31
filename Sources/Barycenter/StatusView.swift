@@ -44,7 +44,11 @@ final class SessionStatusView: NSView {
         genInfo.lineBreakMode = .byTruncatingTail
 
         genButton.bezelStyle = .rounded
-        genButton.controlSize = .small
+        genButton.controlSize = .regular
+        genButton.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: nil)
+        genButton.imagePosition = .imageLeading
+        genButton.bezelColor = .controlAccentColor        // prominent, accent-colored
+        genButton.contentTintColor = .white
         genButton.target = self
         genButton.action = #selector(generate)
 
@@ -130,7 +134,7 @@ final class SessionStatusView: NSView {
         if isGenerating {
             spinner.startAnimation(nil)
             genButton.isEnabled = false
-            genButton.title = L("Generieren")
+            setGenTitle(L("Generieren"))
             genInfo.stringValue = L("generiert …")
             return
         }
@@ -138,14 +142,14 @@ final class SessionStatusView: NSView {
         genButton.isEnabled = true
 
         guard let cwd = session?.cwd, let cached = ProjectStatus.cached(for: cwd) else {
-            genButton.title = L("Generieren")
+            setGenTitle(L("Generieren"))
             genInfo.stringValue = ""
             preview.isHidden = true
             placeholder.isHidden = false
             renderedText = nil
             return
         }
-        genButton.title = L("Neu generieren")
+        setGenTitle(L("Neu generieren"))
         genInfo.stringValue = String(format: L("Aktualisiert: %@"), Self.df.string(from: cached.date))
         placeholder.isHidden = true
         preview.isHidden = false
@@ -153,6 +157,14 @@ final class SessionStatusView: NSView {
             renderedText = cached.text
             preview.render(cached.text)
         }
+    }
+
+    /// White, semibold title so it stays legible on the accent-colored bezel.
+    private func setGenTitle(_ s: String) {
+        genButton.attributedTitle = NSAttributedString(string: s, attributes: [
+            .foregroundColor: NSColor.white,
+            .font: NSFont.systemFont(ofSize: 12, weight: .semibold),
+        ])
     }
 
     @objc private func generate() {

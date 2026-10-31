@@ -7,10 +7,19 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
     private var updatingSelection = false
 
     // Optional notes area at the bottom of the sessions view (per setting).
+    // Backed by the global Markdown file (NotesStore) — edited here or by the AI manager.
     private let sidebarNotes = NSTextView()
     private let sidebarNotesScroll = NSScrollView()
     private let notesToggleButton = NSButton()
+    private let notesModeButton = NSButton()      // switch raw editor <-> rendered preview
+    private let notesPreview = MarkdownPreviewView(frame: .zero)
     private var sidebarNotesSection: NSView!
+
+    /// Preview (rendered todo list) vs. raw Markdown editor (persisted).
+    private var notesPreviewMode: Bool {
+        get { UserDefaults.standard.object(forKey: "sidebarNotesPreview") == nil ? true : UserDefaults.standard.bool(forKey: "sidebarNotesPreview") }
+        set { UserDefaults.standard.set(newValue, forKey: "sidebarNotesPreview") }
+    }
     private var notesShownConstraint: NSLayoutConstraint!
     private var notesHiddenConstraint: NSLayoutConstraint!
     private var notesExpandedHeight: NSLayoutConstraint!
@@ -64,6 +73,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         NotificationCenter.default.addObserver(self, selector: #selector(reloadSelection), name: .selectionChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(reload), name: .agentsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onSettingsChanged), name: .settingsChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onNotesChanged), name: .notesChanged, object: nil)
 
         showTools([.sessions])
     }
@@ -191,10 +201,28 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         notesToggleButton.target = self
         notesToggleButton.action = #selector(toggleNotes)
 
+        // Edit/preview switch (top-right of the notes header).
+        notesModeButton.isBordered = false
+        notesModeButton.bezelStyle = .regularSquare
+        notesModeButton.setButtonType(.momentaryChange)
+        notesModeButton.focusRingType = .none
+        notesModeButton.contentTintColor = .secondaryLabelColor
+        notesModeButton.imagePosition = .imageOnly
+        notesModeButton.target = self
+        notesModeButton.action = #selector(toggleNotesMode)
+
         sidebarNotes.isRichText = false
-        sidebarNotes.font = .systemFont(ofSize: 12)
+        sidebarNotes.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
         sidebarNotes.delegate = self
-        sidebarNotes.string = UserDefaults.standard.string(forKey: "sidebarNotes") ?? ""
+        sidebarNotes.string = NotesStore.shared.read()
+
+        notesPreview.translatesAutoresizingMaskIntoConstraints = false
+        notesPreview.wantsLayer = true
+        notesPreview.layer?.cornerRadius = 6
+        notesPreview.layer?.masksToBounds = true
+        notesPreview.onToggleTask = { index, _ in
+            NotesStore.shared.toggleTask(at: index)   // write -> watcher -> re-render
+        }
         sidebarNotes.textContainerInset = NSSize(width: 4, height: 4)
         sidebarNotes.isVerticallyResizable = true
         sidebarNotes.autoresizingMask = [.width]
@@ -211,7 +239,7 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         sidebarNotesScroll.layer?.borderWidth = 1
         sidebarNotesScroll.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
 
-        [sep, notesToggleButton, sidebarNotesScroll].forEach {
+        [sep, notesToggleButton, notesModeButton, sidebarNotesScroll, notesPreview].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false; section.addSubview($0)
         }
         let boxBottom = sidebarNotesScroll.bottomAnchor.constraint(equalTo: section.bottomAnchor, constant: -8)
@@ -222,11 +250,18 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
             sep.trailingAnchor.constraint(equalTo: section.trailingAnchor),
             notesToggleButton.topAnchor.constraint(equalTo: sep.bottomAnchor, constant: 4),
             notesToggleButton.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 10),
-            notesToggleButton.trailingAnchor.constraint(lessThanOrEqualTo: section.trailingAnchor, constant: -10),
+            notesModeButton.centerYAnchor.constraint(equalTo: notesToggleButton.centerYAnchor),
+            notesModeButton.leadingAnchor.constraint(greaterThanOrEqualTo: notesToggleButton.trailingAnchor, constant: 6),
+            notesModeButton.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -10),
             sidebarNotesScroll.topAnchor.constraint(equalTo: notesToggleButton.bottomAnchor, constant: 6),
             sidebarNotesScroll.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 6),
             sidebarNotesScroll.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -6),
             boxBottom,
+            // The rendered preview occupies the same slot as the editor scroll view.
+            notesPreview.topAnchor.constraint(equalTo: sidebarNotesScroll.topAnchor),
+            notesPreview.leadingAnchor.constraint(equalTo: sidebarNotesScroll.leadingAnchor),
+            notesPreview.trailingAnchor.constraint(equalTo: sidebarNotesScroll.trailingAnchor),
+            notesPreview.bottomAnchor.constraint(equalTo: sidebarNotesScroll.bottomAnchor),
         ])
         // Two heights: collapsed = just the toggle header; expanded = header + box.
         notesCollapsedHeight = section.heightAnchor.constraint(equalToConstant: 34)
@@ -252,12 +287,11 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         sessionsView?.layoutSubtreeIfNeeded()
     }
 
-    /// Apply the expanded/collapsed state to height, box visibility, and chevron.
+    /// Apply the expanded/collapsed state to height and chevron, then the edit/preview mode.
     private func applyNotesExpansion() {
         let expanded = notesExpanded
         notesExpandedHeight?.isActive = expanded
         notesCollapsedHeight?.isActive = !expanded
-        sidebarNotesScroll.isHidden = !expanded
         let chevron = expanded ? "▾" : "▸"
         notesToggleButton.attributedTitle = NSAttributedString(
             string: "\(chevron)  " + L("NOTIZEN"),
@@ -265,6 +299,21 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
                 .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
                 .foregroundColor: NSColor.secondaryLabelColor,
             ])
+        applyNotesMode()
+    }
+
+    /// Show either the raw Markdown editor or the rendered preview (only when expanded).
+    private func applyNotesMode() {
+        let expanded = notesExpanded
+        let preview = notesPreviewMode
+        sidebarNotesScroll.isHidden = !(expanded && !preview)
+        notesPreview.isHidden = !(expanded && preview)
+        notesModeButton.isHidden = !expanded
+        // Icon shows the action: eye = switch to preview, pencil = switch to edit.
+        let symbol = preview ? "pencil" : "eye"
+        notesModeButton.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        notesModeButton.toolTip = preview ? L("Bearbeiten") : L("Vorschau")
+        if expanded && preview { notesPreview.render(NotesStore.shared.read()) }
     }
 
     @objc private func toggleNotes() {
@@ -277,11 +326,28 @@ final class SidebarViewController: NSViewController, NSTableViewDataSource, NSTa
         }
     }
 
+    @objc private func toggleNotesMode() {
+        // Leaving the editor -> make sure the latest text is on disk before rendering.
+        if !notesPreviewMode { NotesStore.shared.write(sidebarNotes.string, notify: false) }
+        notesPreviewMode.toggle()
+        applyNotesMode()
+    }
+
     @objc private func onSettingsChanged() { applySidebarNotesVisibility() }
+
+    /// The notes file changed (AI manager, external editor, or a preview checkbox click).
+    @objc private func onNotesChanged() {
+        let text = NotesStore.shared.read()
+        // Don't clobber the editor while the user is typing in it.
+        let editing = (view.window?.firstResponder === sidebarNotes)
+        if !editing, sidebarNotes.string != text { sidebarNotes.string = text }
+        if notesPreviewMode, !notesPreview.isHidden { notesPreview.render(text) }
+    }
 
     func textDidChange(_ notification: Notification) {
         if (notification.object as? NSTextView) === sidebarNotes {
-            UserDefaults.standard.set(sidebarNotes.string, forKey: "sidebarNotes")
+            // Persist without notifying (avoids a reload that would reset the caret).
+            NotesStore.shared.write(sidebarNotes.string, notify: false)
         }
     }
 

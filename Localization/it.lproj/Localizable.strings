@@ -191,3 +191,11 @@
 "Vorheriges suchen" = "Trova precedente";
 "Auswahl für Suche verwenden" = "Usa selezione per trovare";
 "Letzte Unterhaltung fortsetzen (-c)" = "Riprendi l’ultima conversazione (-c)";
+
+/* Settings: manager + notifications + quit */
+"KI-Verwalter anzeigen" = "Mostra il gestore IA";
+"Benachrichtigung" = "Notifica";
+"Benachrichtigen, wenn eine Session fertig ist" = "Notifica quando una sessione è completata";
+"Ton:" = "Suono:";
+"Aus" = "Disattivato";
+"Möchtest du Barycenter wirklich beenden?" = "Vuoi davvero chiudere Barycenter?";

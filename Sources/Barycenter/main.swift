@@ -106,15 +106,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     // Quit confirmation if sessions are still running; afterwards auto-save the current layout.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         let running = SessionManager.shared.sessions.contains { $0.status == .running }
-        if running {
-            let alert = NSAlert()
-            alert.messageText = L("Barycenter beenden?")
-            alert.informativeText = L("Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren.")
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: L("Beenden"))
-            alert.addButton(withTitle: L("Abbrechen"))
-            if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
-        }
+        let alert = NSAlert()
+        alert.messageText = L("Barycenter beenden?")
+        alert.informativeText = running
+            ? L("Laufende Sessions werden beendet und ungespeicherte Notizen gehen verloren.")
+            : L("Möchtest du Barycenter wirklich beenden?")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: L("Beenden"))
+        alert.addButton(withTitle: L("Abbrechen"))
+        if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
         // Keep the last-used layout up to date so it can be loaded on the next launch.
         if let n = SessionManager.shared.currentLayoutName {
             SessionManager.shared.saveCurrentLayout(name: n)
@@ -285,7 +285,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc private func newSession()  { NotificationCenter.default.post(name: .newSessionRequested, object: nil) }
-    @objc private func startManager() { NotificationCenter.default.post(name: .managerRequested, object: nil) }
+    @objc private func startManager() {
+        guard AppSettings.shared.showManager else { return }
+        NotificationCenter.default.post(name: .managerRequested, object: nil)
+    }
+
+    // Grey out "KI-Verwalter starten" while the manager is disabled in settings.
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(startManager) { return AppSettings.shared.showManager }
+        return true
+    }
     @objc private func closeSession() {
         if let id = SessionManager.shared.selectedID {
             SessionManager.shared.requestClose(id, window: window)

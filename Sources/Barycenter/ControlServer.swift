@@ -58,7 +58,7 @@ final class ControlServer {
         var result: [String: Any] = ["ok": false, "error": "bad request"]
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let cmd = obj["cmd"] as? String {
-            if cmd == "list" || cmd == "read" {
+            if cmd == "list" || cmd == "read" || cmd == "notes" {
                 // Reading: synchronous, since we return the data.
                 DispatchQueue.main.sync { result = BarycenterControl.execute(cmd: cmd, args: obj) }
             } else {
@@ -161,6 +161,21 @@ enum BarycenterControl {
         case "close":
             guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
             mgr.remove(s.id)
+            return ["ok": true]
+
+        case "notes":
+            return ["ok": true, "text": NotesStore.shared.read()]
+
+        case "note-add":
+            guard let text = (args["text"] as? String), !text.isEmpty else {
+                return ["ok": false, "error": "text required"]
+            }
+            NotesStore.shared.addTodo(text)
+            return ["ok": true]
+
+        case "notes-set":
+            let text = (args["text"] as? String) ?? ""
+            NotesStore.shared.write(text)
             return ["ok": true]
 
         default:

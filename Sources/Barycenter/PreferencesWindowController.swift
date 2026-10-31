@@ -9,6 +9,11 @@ final class PreferencesWindowController: NSWindowController {
     private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let notesCheckbox = NSButton(checkboxWithTitle: L("Notizen in der Seitenleiste"), target: nil, action: nil)
     private let lineNumbersCheckbox = NSButton(checkboxWithTitle: L("Zeilennummern im Editor"), target: nil, action: nil)
+    private let managerCheckbox = NSButton(checkboxWithTitle: L("KI-Verwalter anzeigen"), target: nil, action: nil)
+    private let notifyCheckbox = NSButton(checkboxWithTitle: L("Benachrichtigen, wenn eine Session fertig ist"), target: nil, action: nil)
+    private let soundPopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    /// Sound names matching the popup entries (index 0 = "Aus").
+    private var soundNames: [String] = []
 
     /// Language codes matching the entries of the language popup.
     /// `nil` = "System" (no override). Order must match `languageItemTitles`.
@@ -17,7 +22,7 @@ final class PreferencesWindowController: NSWindowController {
 
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 340),
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: 460),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
@@ -68,6 +73,17 @@ final class PreferencesWindowController: NSWindowController {
         lineNumbersCheckbox.target = self
         lineNumbersCheckbox.action = #selector(lineNumbersToggled)
 
+        managerCheckbox.target = self
+        managerCheckbox.action = #selector(managerToggled)
+
+        notifyCheckbox.target = self
+        notifyCheckbox.action = #selector(notifyToggled)
+
+        soundNames = [AppSettings.soundOff] + AppSettings.availableSystemSounds()
+        soundPopup.addItems(withTitles: [L("Aus")] + AppSettings.availableSystemSounds())
+        soundPopup.target = self
+        soundPopup.action = #selector(soundChanged)
+
         let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
         note.lineBreakMode = .byWordWrapping
         note.maximumNumberOfLines = 2
@@ -91,6 +107,9 @@ final class PreferencesWindowController: NSWindowController {
             [NSGridCell.emptyContentView, restartNote],
             [NSGridCell.emptyContentView, notesCheckbox],
             [NSGridCell.emptyContentView, lineNumbersCheckbox],
+            [NSGridCell.emptyContentView, managerCheckbox],
+            [sectionLabel(L("Benachrichtigung")), notifyCheckbox],
+            [label(L("Ton:")), soundPopup],
         ])
         grid.rowAlignment = .firstBaseline
         grid.column(at: 0).xPlacement = .trailing
@@ -115,6 +134,12 @@ final class PreferencesWindowController: NSWindowController {
         return l
     }
 
+    private func sectionLabel(_ s: String) -> NSTextField {
+        let l = NSTextField(labelWithString: s)
+        l.font = .systemFont(ofSize: 13, weight: .semibold)
+        return l
+    }
+
     private func loadValues() {
         let s = AppSettings.shared
         themePopup.selectItem(withTitle: s.themeName)
@@ -131,6 +156,11 @@ final class PreferencesWindowController: NSWindowController {
 
         notesCheckbox.state = s.showSidebarNotes ? .on : .off
         lineNumbersCheckbox.state = s.showEditorLineNumbers ? .on : .off
+        managerCheckbox.state = s.showManager ? .on : .off
+        notifyCheckbox.state = s.notificationsEnabled ? .on : .off
+        let soundIdx = soundNames.firstIndex(of: s.notificationSound) ?? 0
+        soundPopup.selectItem(at: soundIdx)
+        soundPopup.isEnabled = s.notificationsEnabled
     }
 
     @objc private func notesToggled() {
@@ -139,6 +169,22 @@ final class PreferencesWindowController: NSWindowController {
 
     @objc private func lineNumbersToggled() {
         AppSettings.shared.showEditorLineNumbers = (lineNumbersCheckbox.state == .on)
+    }
+
+    @objc private func managerToggled() {
+        AppSettings.shared.showManager = (managerCheckbox.state == .on)
+    }
+
+    @objc private func notifyToggled() {
+        let on = (notifyCheckbox.state == .on)
+        AppSettings.shared.notificationsEnabled = on
+        soundPopup.isEnabled = on
+    }
+
+    @objc private func soundChanged() {
+        let name = soundNames[soundPopup.indexOfSelectedItem]
+        AppSettings.shared.notificationSound = name
+        AppSettings.shared.playNotificationSound()   // preview the chosen tone
     }
 
     // MARK: Actions

@@ -191,3 +191,11 @@
 "Vorheriges suchen" = "前を検索";
 "Auswahl für Suche verwenden" = "選択部分を検索に使用";
 "Letzte Unterhaltung fortsetzen (-c)" = "前回の会話を再開 (-c)";
+
+/* Settings: manager + notifications + quit */
+"KI-Verwalter anzeigen" = "AIマネージャーを表示";
+"Benachrichtigung" = "通知";
+"Benachrichtigen, wenn eine Session fertig ist" = "セッション完了時に通知する";
+"Ton:" = "サウンド:";
+"Aus" = "オフ";
+"Möchtest du Barycenter wirklich beenden?" = "Barycenter を終了してもよろしいですか？";

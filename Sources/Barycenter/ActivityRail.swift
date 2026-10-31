@@ -79,24 +79,22 @@ final class ActivityRailViewController: NSViewController {
     var onChange: (([Tool]) -> Void)?
     private var active: Set<Tool> = [.sessions]
     private var buttons: [RailButton] = []
+    private let stack = NSStackView()
+
+    /// Tools currently shown — the manager is hidden when disabled in settings.
+    private func visibleTools() -> [Tool] {
+        Tool.allCases.filter { $0 != .manager || AppSettings.shared.showManager }
+    }
 
     override func loadView() {
         let v = NSView()
         v.wantsLayer = true
 
-        let stack = NSStackView()
         stack.orientation = .vertical
         stack.spacing = 6
         stack.alignment = .centerX
         stack.edgeInsets = NSEdgeInsets(top: 14, left: 0, bottom: 14, right: 0)
         stack.translatesAutoresizingMaskIntoConstraints = false
-
-        for tool in Tool.allCases {
-            let b = RailButton(tool: tool)
-            b.onClick = { [weak self] in self?.tap($0) }
-            buttons.append(b)
-            stack.addArrangedSubview(b)
-        }
 
         v.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -104,7 +102,36 @@ final class ActivityRailViewController: NSViewController {
             stack.centerXAnchor.constraint(equalTo: v.centerXAnchor),
         ])
         self.view = v
+        rebuildButtons()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(settingsChanged), name: .settingsChanged, object: nil)
+    }
+
+    deinit { NotificationCenter.default.removeObserver(self) }
+
+    /// (Re)create the rail buttons for the currently visible tools.
+    private func rebuildButtons() {
+        buttons.forEach { $0.removeFromSuperview() }
+        buttons.removeAll()
+        for tool in visibleTools() {
+            let b = RailButton(tool: tool)
+            b.onClick = { [weak self] in self?.tap($0) }
+            buttons.append(b)
+            stack.addArrangedSubview(b)
+        }
         highlight()
+    }
+
+    @objc private func settingsChanged() {
+        // If the manager was just hidden while active, drop it and update the panel.
+        let visible = Set(visibleTools())
+        let removed = active.subtracting(visible)
+        if !removed.isEmpty {
+            active.subtract(removed)
+            onChange?(ordered())
+        }
+        rebuildButtons()
     }
 
     private func tap(_ tool: Tool) {
@@ -112,6 +139,6 @@ final class ActivityRailViewController: NSViewController {
         highlight()
         onChange?(ordered())
     }
-    private func ordered() -> [Tool] { Tool.allCases.filter { active.contains($0) } }
+    private func ordered() -> [Tool] { visibleTools().filter { active.contains($0) } }
     private func highlight() { buttons.forEach { $0.isSelected = active.contains($0.tool) } }
 }
