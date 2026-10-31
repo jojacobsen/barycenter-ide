@@ -90,7 +90,16 @@
 "Modell/Kosten" = "Modelo/Coste";
 "— (sammelt Daten …)" = "— (recopilando datos …)";
 "Befehl" = "Comando";
-"Zusammenfassung & Roadmap: folgt" = "Resumen y hoja de ruta: próximamente";
+/* Project status page (AI-generated) */
+"PROJEKT-STATUS" = "ESTADO DEL PROYECTO";
+"Generieren" = "Generar";
+"Neu generieren" = "Regenerar";
+"generiert …" = "generando …";
+"Aktualisiert: %@" = "Actualizado: %@";
+"Noch kein Projekt-Status. „Generieren“ lässt einen Claude-Lauf im Projektordner eine Zusammenfassung, Roadmap und offene Punkte erstellen." = "Aún no hay estado del proyecto. «Generar» ejecuta Claude en la carpeta del proyecto para crear un resumen, una hoja de ruta y los puntos pendientes.";
+"Keine Ausgabe erhalten." = "No se recibió ninguna salida.";
+"Zeitüberschreitung (claude -p)." = "Se agotó el tiempo (claude -p).";
+"Generierung fehlgeschlagen." = "La generación falló.";
 
 /* Session badges */
 "Manager" = "Gestor";

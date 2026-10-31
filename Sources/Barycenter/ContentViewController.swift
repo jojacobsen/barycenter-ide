@@ -51,7 +51,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         layer?.cornerRadius = 6
         layer?.borderWidth = 1
 
-        dot.textColor = session.status.color
+        dot.textColor = session.displayState.color
         dot.font = .systemFont(ofSize: 10)
 
         let name = NSTextField(labelWithString: session.title)
@@ -151,11 +151,19 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     func setSelected(_ v: Bool) { selected = v; refresh() }
 
     func refresh() {
-        dot.textColor = session.status.color
-        let color: NSColor = session.status == .attention ? .systemRed
+        let st = session.displayState
+        dot.textColor = st.color
+        let color: NSColor = st.needsYou ? .systemRed
                            : (selected ? .controlAccentColor : .separatorColor)
         layer?.borderColor = color.cgColor
-        layer?.borderWidth = (selected || session.status == .attention) ? 2 : 1
+        layer?.borderWidth = (selected || st.needsYou) ? 2 : 1
+    }
+
+    /// Put the keyboard into the terminal when this tile is selected and the terminal
+    /// page is showing -> you can type straight after selecting a tile.
+    func focusTerminalIfVisible() {
+        guard selected, page == 0, let w = window else { return }
+        w.makeFirstResponder(session.terminalView)
     }
 
     @objc private func onClick()  { SessionManager.shared.select(session.id) }
@@ -203,6 +211,8 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         default:
             stopStatusTimer()
             v = session.terminalView
+            // Switching back to the terminal tab on the selected tile -> focus it.
+            DispatchQueue.main.async { [weak self] in self?.focusTerminalIfVisible() }
         }
         v.translatesAutoresizingMaskIntoConstraints = false
         // Content must never "inflate" the tile: otherwise e.g. the terminal view, when
@@ -254,6 +264,8 @@ final class ContentViewController: NSViewController {
 
     /// Reusable tiles per session -> no unnecessary re-parenting of the terminals.
     private var tiles: [UUID: SessionTileView] = [:]
+    /// Last selection we moved the keyboard focus to -> only refocus on real changes.
+    private var lastFocusedID: UUID?
 
     override func loadView() {
         let root = NSView()
@@ -327,6 +339,7 @@ final class ContentViewController: NSViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .sessionsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .selectionChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(agentsUpdated), name: .agentsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentNewSession), name: .newSessionRequested, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentManager), name: .managerRequested, object: nil)
         rebuild()
@@ -372,6 +385,21 @@ final class ContentViewController: NSViewController {
         }
 
         updateTopBar()
+
+        // When the selection actually changed, move the keyboard into that tile's
+        // terminal so you can type right away (periodic status refreshes won't refocus).
+        if mgr.selectedID != lastFocusedID {
+            lastFocusedID = mgr.selectedID
+            if let id = mgr.selectedID, let tile = tiles[id] {
+                DispatchQueue.main.async { tile.focusTerminalIfVisible() }
+            }
+        }
+    }
+
+    /// Live status from `claude agents --json`: refresh each tile's dot + border
+    /// (no rebuild, no focus change) so the frame matches the sidebar at all times.
+    @objc private func agentsUpdated() {
+        for tile in tiles.values { tile.refresh() }
     }
 
     private func updateTopBar() {

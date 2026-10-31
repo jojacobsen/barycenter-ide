@@ -90,7 +90,16 @@
 "Modell/Kosten" = "模型/费用";
 "— (sammelt Daten …)" = "—（正在收集数据 …）";
 "Befehl" = "命令";
-"Zusammenfassung & Roadmap: folgt" = "摘要与路线图：即将推出";
+/* Project status page (AI-generated) */
+"PROJEKT-STATUS" = "项目状态";
+"Generieren" = "生成";
+"Neu generieren" = "重新生成";
+"generiert …" = "生成中 …";
+"Aktualisiert: %@" = "更新于：%@";
+"Noch kein Projekt-Status. „Generieren“ lässt einen Claude-Lauf im Projektordner eine Zusammenfassung, Roadmap und offene Punkte erstellen." = "尚无项目状态。“生成”将在项目文件夹中运行 Claude，创建摘要、路线图和待办事项。";
+"Keine Ausgabe erhalten." = "未收到输出。";
+"Zeitüberschreitung (claude -p)." = "超时（claude -p）。";
+"Generierung fehlgeschlagen." = "生成失败。";
 
 /* Session badges */
 "Manager" = "管理器";

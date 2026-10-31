@@ -90,7 +90,16 @@
 "Modell/Kosten" = "モデル／コスト";
 "— (sammelt Daten …)" = "—（データ収集中 …）";
 "Befehl" = "コマンド";
-"Zusammenfassung & Roadmap: folgt" = "概要とロードマップ：近日公開";
+/* Project status page (AI-generated) */
+"PROJEKT-STATUS" = "プロジェクトステータス";
+"Generieren" = "生成";
+"Neu generieren" = "再生成";
+"generiert …" = "生成中 …";
+"Aktualisiert: %@" = "更新: %@";
+"Noch kein Projekt-Status. „Generieren“ lässt einen Claude-Lauf im Projektordner eine Zusammenfassung, Roadmap und offene Punkte erstellen." = "プロジェクトステータスはまだありません。「生成」でプロジェクトフォルダー内で Claude を実行し、概要・ロードマップ・未解決の項目を作成します。";
+"Keine Ausgabe erhalten." = "出力がありません。";
+"Zeitüberschreitung (claude -p)." = "タイムアウト（claude -p）。";
+"Generierung fehlgeschlagen." = "生成に失敗しました。";
 
 /* Session badges */
 "Manager" = "マネージャー";

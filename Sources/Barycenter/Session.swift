@@ -25,9 +25,15 @@ struct SessionBadge { let text: String; let color: NSColor }
 /// on non-Claude sessions (shells, other agents).
 final class BarycenterTerminalView: LocalProcessTerminalView {
     var onBell: (() -> Void)?
+    /// Fired when the terminal is clicked -> select its tile.
+    var onFocus: (() -> Void)?
     override func bell(source: Terminal) {
         // No super.bell -> we handle sound/attention centrally in SessionManager.
         onBell?()
+    }
+    override func mouseDown(with event: NSEvent) {
+        super.mouseDown(with: event)
+        onFocus?()
     }
 }
 
@@ -70,11 +76,23 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
 
         terminalView.onBell = { [weak self] in
             guard let self else { return }
+            // Claude sessions have real hooks (Stop/Notification/UserPromptSubmit) for
+            // attention — Claude Code also rings the bell WHILE working, which would
+            // wrongly flag a busy session. So the bell heuristic is for other CLIs only.
+            guard self.launchCommand != "claude" else { return }
             DispatchQueue.main.async {
                 // Only report when the session is NOT currently being viewed.
                 if SessionManager.shared.selectedID != self.id {
                     SessionManager.shared.setStatus(.attention, for: self.id)
                 }
+            }
+        }
+
+        terminalView.onFocus = { [weak self] in
+            guard let self else { return }
+            // Clicking into the terminal selects its tile (so typing lands here).
+            if SessionManager.shared.selectedID != self.id {
+                SessionManager.shared.select(self.id)
             }
         }
     }
@@ -113,65 +131,57 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         return obj
     }
 
-    /// "Needs you" state for the Dock & menu bar: a hook/bell reported attention,
-    /// or Claude is live-waiting on you (approval/prompt).
-    var needsAttention: Bool {
-        if status == .attention { return true }
-        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
-            return a.status == "waiting"
-        }
-        return false
-    }
+    /// The single status shown everywhere — sidebar dot/pill, tile border and status
+    /// page — so the frame, the dot and the label can never disagree. It merges the
+    /// hook/bell state with Claude's live `agents --json` status.
+    struct DisplayState { let text: String; let color: NSColor; let needsYou: Bool }
 
-    /// Status-dot color for the menu-bar menu (live status preferred).
-    var menuStatusColor: NSColor {
+    var displayState: DisplayState {
+        // A finished process wins over any stale live info.
+        if status == .done { return DisplayState(text: L("beendet"), color: .systemGray, needsYou: false) }
+
+        // Claude with live status from `claude agents --json`.
         if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
             switch a.status {
-            case "busy":    return .systemGreen
-            case "waiting": return .systemRed
-            default:        return .systemGray
+            case "busy":
+                return DisplayState(text: L("arbeitet"), color: .systemGreen, needsYou: false)
+            case "waiting":
+                return DisplayState(text: L("wartet") + (a.waitingFor.map { ": \($0)" } ?? ""),
+                                    color: .systemRed, needsYou: true)
+            default: // "idle": not actively working
+                // A Stop/Notification hook flagged this as "your turn" and you haven't
+                // looked yet -> keep it red instead of a muted (and misleading) "bereit".
+                if status == .attention {
+                    return DisplayState(text: L("braucht dich"), color: .systemRed, needsYou: true)
+                }
+                return DisplayState(text: L("bereit"), color: .systemGray, needsYou: false)
             }
         }
-        return status.color
+
+        // Non-Claude sessions (shells, other agents), or Claude not matched yet: the enum.
+        switch status {
+        case .running:   return DisplayState(text: L("läuft"), color: .systemGreen, needsYou: false)
+        case .attention: return DisplayState(text: L("braucht dich"), color: .systemRed, needsYou: true)
+        case .done:      return DisplayState(text: L("beendet"), color: .systemGray, needsYou: false)
+        case .idle:      return DisplayState(text: L("wartet"), color: .systemYellow, needsYou: false)
+        }
     }
+
+    /// "Needs you" for the Dock & menu bar — derived from the single display state.
+    var needsAttention: Bool { displayState.needsYou }
+
+    /// Status-dot color for the menu-bar menu.
+    var menuStatusColor: NSColor { displayState.color }
 
     /// Short status text for the menu-bar menu.
-    var menuStatusText: String {
-        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
-            switch a.status {
-            case "busy":    return L("arbeitet")
-            case "waiting": return L("wartet") + (a.waitingFor.map { ": \($0)" } ?? "")
-            case "idle":    return L("bereit")
-            default:        return a.status
-            }
-        }
-        switch status {
-        case .running:   return L("läuft")
-        case .attention: return L("braucht dich")
-        case .done:      return L("beendet")
-        case .idle:      return L("wartet")
-        }
-    }
+    var menuStatusText: String { displayState.text }
 
-    /// Color-coded labels for the sidebar: live status (+ reason) and an optional RC badge.
+    /// Color-coded labels for the sidebar: the single live status + Manager/RC badges.
     func statusBadges() -> [SessionBadge] {
         var out: [SessionBadge] = []
         if isManager { out.append(SessionBadge(text: L("Manager"), color: .systemPurple)) }
-        if launchCommand == "claude", let a = AgentsMonitor.shared.info(forPID: pid) {
-            switch a.status {
-            case "busy":    out.append(SessionBadge(text: L("arbeitet"), color: .systemGreen))
-            case "waiting": out.append(SessionBadge(text: L("wartet") + (a.waitingFor.map { ": \($0)" } ?? ""), color: .systemRed))
-            case "idle":    out.append(SessionBadge(text: L("bereit"), color: .systemGray))
-            default:        out.append(SessionBadge(text: a.status, color: .systemGray))
-            }
-        } else {
-            switch status {
-            case .running:   out.append(SessionBadge(text: L("läuft"), color: .systemGreen))
-            case .attention: out.append(SessionBadge(text: L("braucht dich"), color: .systemRed))
-            case .done:      out.append(SessionBadge(text: L("beendet"), color: .systemGray))
-            case .idle:      out.append(SessionBadge(text: L("wartet"), color: .systemYellow))
-            }
-        }
+        let st = displayState
+        out.append(SessionBadge(text: st.text, color: st.color))
         if remoteControl { out.append(SessionBadge(text: "RC", color: .systemBlue)) }
         return out
     }

@@ -90,7 +90,16 @@
 "Modell/Kosten" = "Modello/Costo";
 "— (sammelt Daten …)" = "— (raccolta dati …)";
 "Befehl" = "Comando";
-"Zusammenfassung & Roadmap: folgt" = "Riepilogo e roadmap: in arrivo";
+/* Project status page (AI-generated) */
+"PROJEKT-STATUS" = "STATO DEL PROGETTO";
+"Generieren" = "Genera";
+"Neu generieren" = "Rigenera";
+"generiert …" = "generazione …";
+"Aktualisiert: %@" = "Aggiornato: %@";
+"Noch kein Projekt-Status. „Generieren“ lässt einen Claude-Lauf im Projektordner eine Zusammenfassung, Roadmap und offene Punkte erstellen." = "Nessuno stato del progetto ancora. «Genera» esegue Claude nella cartella del progetto per creare un riepilogo, una roadmap e i punti aperti.";
+"Keine Ausgabe erhalten." = "Nessun output ricevuto.";
+"Zeitüberschreitung (claude -p)." = "Timeout (claude -p).";
+"Generierung fehlgeschlagen." = "Generazione non riuscita.";
 
 /* Session badges */
 "Manager" = "Gestore";
