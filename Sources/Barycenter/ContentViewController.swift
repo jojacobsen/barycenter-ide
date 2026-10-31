@@ -426,6 +426,7 @@ final class ContentViewController: NSViewController {
         presentAsSheet(NewSessionSheetController())
     }
     @objc private func presentManager() {
+        guard AppSettings.shared.showManager else { return }
         // Already running -> just focus it, no sheet.
         if let m = SessionManager.shared.managerSession {
             SessionManager.shared.select(m.id); SessionManager.shared.setViewMode(.focus); return

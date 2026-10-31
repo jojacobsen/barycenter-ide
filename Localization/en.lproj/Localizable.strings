@@ -191,3 +191,11 @@
 "Vorheriges suchen" = "Find Previous";
 "Auswahl für Suche verwenden" = "Use Selection for Find";
 "Letzte Unterhaltung fortsetzen (-c)" = "Resume last conversation (-c)";
+
+/* Settings: manager + notifications + quit */
+"KI-Verwalter anzeigen" = "Show AI manager";
+"Benachrichtigung" = "Notification";
+"Benachrichtigen, wenn eine Session fertig ist" = "Notify when a session is done";
+"Ton:" = "Sound:";
+"Aus" = "Off";
+"Möchtest du Barycenter wirklich beenden?" = "Are you sure you want to quit Barycenter?";

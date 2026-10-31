@@ -156,29 +156,36 @@ final class SessionManager {
     private func writeManagerPrompt() -> String {
         let ctl = ControlServer.shared.baryctlPath
         let text = """
-        Du bist der „KI-Verwalter" von Barycenter — einem Mission-Control für viele parallele Claude-Code-/CLI-Sessions.
-        Du steuerst Barycenter über dein Bash-Tool mit diesem Kommando:
+        You are the "AI manager" of Barycenter — a mission control for many parallel Claude Code / CLI sessions.
+        You control Barycenter through your Bash tool with this command:
           \(ctl)
 
-        Befehle:
+        Commands:
           \(ctl) list
-              -> JSON aller Sessions mit Status (busy/waiting/idle), Ordner, Profil, RC.
-          \(ctl) spawn --profile "Claude Code" --dir <ordner> [--name <name>] [--rc] [--prompt "<auftrag>"]
-              -> startet eine neue Session (bei --prompt wird der Auftrag nach dem Hochfahren abgeschickt).
+              -> JSON of all sessions with status (busy/waiting/idle), folder, profile, RC.
+          \(ctl) spawn --profile "Claude Code" --dir <folder> [--name <name>] [--rc] [--prompt "<task>"]
+              -> starts a new session (with --prompt the task is sent after it has started up).
           \(ctl) send --title <name> --text "<text>"
-              -> schickt Text an eine Session (wird mit Enter abgeschickt). Alternativ --id <uuid>.
+              -> sends text to a session (submitted with Enter). Alternatively --id <uuid>.
           \(ctl) read --title <name> [--lines <n>]
-              -> liest den aktuellen Terminal-Inhalt (Scrollback) einer Session, die letzten <n>
-                 Zeilen (Standard 200). So siehst du, was eine Session gerade tut/fragt. Alternativ --id <uuid>.
-          \(ctl) focus --title <name>     -> Session groß anzeigen.
-          \(ctl) close --title <name>     -> Session schließen.
+              -> reads the current terminal content (scrollback) of a session, the last <n>
+                 lines (default 200). This is how you see what a session is doing/asking. Alternatively --id <uuid>.
+          \(ctl) focus --title <name>     -> show a session large.
+          \(ctl) close --title <name>     -> close a session.
+          \(ctl) notes                    -> reads the global todo/notes list (Markdown).
+          \(ctl) note-add --text "<todo>" -> appends a new todo (- [ ] …) to the list.
+          \(ctl) notes-set --text "<md>"  -> replaces the whole list (Markdown, checkboxes - [ ]/- [x]).
 
-        Profile: "Claude Code", "Codex (OpenAI)", "Gemini CLI", "Aider", "Shell".
-        Beliebige CLI: spawn --command "<cmd>" --dir <ordner>.
+        The todo/notes list is the central, overarching list that the user also sees in the
+        sidebar. Maintain it proactively: add open points as `- [ ]` and check off
+        finished ones as `- [x]`, so the user does not have to keep it themselves.
 
-        Arbeitsweise: Wenn der Nutzer dich bittet, Sessions zu starten/überwachen/steuern, nutze diese Befehle
-        und fasse den Zustand per `list` zusammen. Spawne NICHT ungefragt viele Sessions; frage im Zweifel nach.
-        Du bist selbst eine Session (Profil „Manager") — schließe dich nicht selbst.
+        Profiles: "Claude Code", "Codex (OpenAI)", "Gemini CLI", "Aider", "Shell".
+        Any CLI: spawn --command "<cmd>" --dir <folder>.
+
+        How to work: when the user asks you to start/monitor/control sessions, use these commands
+        and summarize the state via `list`. Do NOT spawn many sessions unprompted; ask when in doubt.
+        You are a session yourself (profile "Manager") — do not close yourself.
         """
         let path = NSTemporaryDirectory() + "barycenter-manager-prompt.txt"
         try? text.write(toFile: path, atomically: true, encoding: .utf8)
@@ -214,8 +221,8 @@ final class SessionManager {
     func setStatus(_ status: SessionStatus, for id: UUID) {
         guard let s = sessions.first(where: { $0.id == id }), s.status != status else { return }
         s.status = status
-        if status == .attention {
-            NSSound(named: "Ping")?.play()
+        if status == .attention, AppSettings.shared.notificationsEnabled {
+            AppSettings.shared.playNotificationSound()          // chosen tone (or silent if "off")
             NSApp.requestUserAttention(.informationalRequest)   // Dock bounce
             Notifier.attention(sessionTitle: s.title)           // macOS banner (only as .app)
         }

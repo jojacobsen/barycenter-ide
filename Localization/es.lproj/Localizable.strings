@@ -191,3 +191,11 @@
 "Vorheriges suchen" = "Buscar anterior";
 "Auswahl für Suche verwenden" = "Usar selección para buscar";
 "Letzte Unterhaltung fortsetzen (-c)" = "Reanudar la última conversación (-c)";
+
+/* Settings: manager + notifications + quit */
+"KI-Verwalter anzeigen" = "Mostrar gestor de IA";
+"Benachrichtigung" = "Notificación";
+"Benachrichtigen, wenn eine Session fertig ist" = "Avisar cuando una sesión termine";
+"Ton:" = "Sonido:";
+"Aus" = "Desactivado";
+"Möchtest du Barycenter wirklich beenden?" = "¿Seguro que quieres salir de Barycenter?";
