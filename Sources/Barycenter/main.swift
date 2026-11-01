@@ -105,6 +105,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             // Restore the activity-rail tools (Sessions / Control Center / History) as
             // they were last session — now that onChange and the panel are wired up.
             rail.restoreSelection()
+            // If the Control Center (AI manager) was running last time, start it again.
+            SessionManager.shared.restoreManagerIfNeeded()
             // At launch: layout picker (last used preselected) — or the New Session dialog.
             self.presentLayoutChooser(atLaunch: true)
         }

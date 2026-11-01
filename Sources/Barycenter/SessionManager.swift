@@ -113,6 +113,19 @@ final class SessionManager {
 
     var managerIsRunning: Bool { managerSession != nil }
 
+    /// Whether a manager ("Control Center") session was running — persisted so it can
+    /// be auto-started on the next launch.
+    private var managerWasRunning: Bool {
+        get { UserDefaults.standard.bool(forKey: "managerWasRunning") }
+        set { UserDefaults.standard.set(newValue, forKey: "managerWasRunning") }
+    }
+
+    /// On launch: re-start the manager if it was running last time (and still enabled).
+    func restoreManagerIfNeeded() {
+        guard managerWasRunning, AppSettings.shared.showManager, managerSession == nil else { return }
+        spawnManagerFromSettings()
+    }
+
     /// Starts the AI manager with the chosen folder + AI (or focuses it if it's already running).
     /// `launchCommand == "claude"` gets the task as a system-prompt file; other AIs
     /// (Codex/Gemini/Aider/Custom) get it as a first message "read this file".
@@ -131,6 +144,7 @@ final class SessionManager {
         }
         let s = addSession(title: L("KI-Verwalter"), cwd: cwd, launchCommand: launchCommand,
                            profileName: profileName, isManager: true, extraArgs: extra)
+        managerWasRunning = true   // remember so it auto-starts next launch
         if launchCommand != "claude" {
             // Other AIs don't know --append-system-prompt-file: feed the task via a first message.
             let msg = String(format: L("Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)."), promptPath)
@@ -252,6 +266,7 @@ final class SessionManager {
     func remove(_ id: UUID) {
         guard let idx = sessions.firstIndex(where: { $0.id == id }) else { return }
         let s = sessions.remove(at: idx)
+        if s.isManager { managerWasRunning = false }   // don't auto-start it next launch
         s.terminate()
         s.terminalView.removeFromSuperview()
         if selectedID == id { selectedID = sessions.first?.id }
