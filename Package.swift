@@ -20,6 +20,11 @@ let package = Package(
             resources: [
                 .copy("Resources/marked.min.js"),
                 .copy("Resources/github-markdown-dark.min.css"),
+            ],
+            linkerSettings: [
+                // Find embedded frameworks (Sparkle) in the app bundle's Frameworks dir.
+                // SwiftPM executables don't get this app-bundle rpath by default.
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])
             ]
         ),
         .testTarget(
