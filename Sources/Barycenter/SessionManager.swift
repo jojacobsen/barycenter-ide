@@ -120,6 +120,23 @@ final class SessionManager {
         set { UserDefaults.standard.set(newValue, forKey: "managerWasRunning") }
     }
 
+    /// `claude --continue` with no prior conversation prints "No conversation found to
+    /// continue" and leaves a dead session. Detect that shortly after start and fall
+    /// back to a fresh manager (no resume), informing the user.
+    private func scheduleResumeFallback(for s: Session) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self, weak s] in
+            guard let self, let s, s.isManager, self.managerSession?.id == s.id else { return }
+            guard s.terminalText(maxLines: 60).contains("No conversation found to continue") else { return }
+            self.remove(s.id)   // tear down the dead resumed session
+            let alert = NSAlert()
+            alert.messageText = L("Keine vorherige Unterhaltung gefunden.")
+            alert.informativeText = L("Der KI-Verwalter wird ohne Fortsetzen neu gestartet.")
+            alert.addButton(withTitle: L("OK"))
+            alert.runModal()
+            self.spawnManagerFromSettings(resume: false)
+        }
+    }
+
     /// On launch: re-start the manager if it was running last time (and still enabled),
     /// resuming its previous conversation so the Control Center picks up where it left off.
     func restoreManagerIfNeeded() {
@@ -146,6 +163,7 @@ final class SessionManager {
         let s = addSession(title: L("KI-Verwalter"), cwd: cwd, launchCommand: launchCommand,
                            profileName: profileName, resume: resume, isManager: true, extraArgs: extra)
         managerWasRunning = true   // remember so it auto-starts next launch
+        if resume, launchCommand == "claude" { scheduleResumeFallback(for: s) }
         if launchCommand != "claude" {
             // Other AIs don't know --append-system-prompt-file: feed the task via a first message.
             let msg = String(format: L("Lies die Datei %@ — sie beschreibt deine Aufgabe als Barycenter-Verwalter und die Steuerbefehle (baryctl)."), promptPath)

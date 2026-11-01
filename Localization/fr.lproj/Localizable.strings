@@ -215,3 +215,7 @@
 "Update-Prüfung fehlgeschlagen." = "Échec de la vérification des mises à jour.";
 "Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "Impossible de joindre GitHub. Réessayez plus tard.";
 "OK" = "OK";
+
+/* Manager resume fallback */
+"Keine vorherige Unterhaltung gefunden." = "Aucune conversation précédente trouvée.";
+"Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "Le gestionnaire IA va redémarrer sans reprendre.";
