@@ -528,9 +528,11 @@ extension SidebarViewController {
         return !s.isHidden && s.frame.height > 1
     }
 
-    /// Notes text box actually expanded and visible?
+    /// Notes content area (editor or rendered preview) actually expanded and visible?
     var test_notesBoxVisible: Bool {
-        !sidebarNotesScroll.isHidden && sidebarNotesScroll.frame.height > 1
+        let editor  = !sidebarNotesScroll.isHidden && sidebarNotesScroll.frame.height > 1
+        let preview = !notesPreview.isHidden && notesPreview.frame.height > 1
+        return editor || preview
     }
 
     /// Expand/collapse the notes (test access) and re-apply layout.

@@ -49,34 +49,62 @@ final class NotesStore {
         write(current)
     }
 
-    /// Flip the n-th task-list checkbox (0-based, in document order).
+    /// Flip the n-th task-list checkbox (0-based, in document order). The ordering
+    /// matches how marked.js renders checkboxes (fenced code skipped, ordered and
+    /// bulleted list markers both recognized), so a click maps to the right line.
     func toggleTask(at index: Int) {
-        let lines = read().components(separatedBy: "\n")
-        var taskIdx = 0
-        var out = lines
+        var out = read().components(separatedBy: "\n")
+        let tasks = Self.taskLineIndices(in: out)
+        guard index >= 0, index < tasks.count else { return }
+        let i = tasks[index]
+        guard let box = Self.taskBoxRange(in: out[i]) else { return }
+        let line = out[i]
+        let checked = line[box].lowercased() == "x"
+        var chars = Array(line)
+        chars[line.distance(from: line.startIndex, to: box.lowerBound)] = checked ? " " : "x"
+        out[i] = String(chars)
+        write(out.joined(separator: "\n"))
+    }
+
+    /// Indices of the lines that render as task-list checkboxes, in document order,
+    /// skipping fenced code blocks (``` / ~~~) — mirrors marked.js's task list.
+    static func taskLineIndices(in lines: [String]) -> [Int] {
+        var result: [Int] = []
+        var inFence = false
+        var fence: Character = "`"
         for (i, line) in lines.enumerated() {
-            guard let box = Self.taskBoxRange(in: line) else { continue }
-            if taskIdx == index {
-                let checked = line[box].lowercased() == "x"
-                var chars = Array(line)
-                // `box` indexes the single char between the brackets.
-                let pos = line.distance(from: line.startIndex, to: box.lowerBound)
-                chars[pos] = checked ? " " : "x"
-                out[i] = String(chars)
-                write(out.joined(separator: "\n"))
-                return
+            let t = line.drop { $0 == " " || $0 == "\t" }
+            if t.hasPrefix("```") || t.hasPrefix("~~~") {
+                let marker = t.first!
+                if !inFence { inFence = true; fence = marker }
+                else if marker == fence { inFence = false }
+                continue
             }
-            taskIdx += 1
+            if inFence { continue }
+            if taskBoxRange(in: line) != nil { result.append(i) }
         }
+        return result
     }
 
     /// Range of the single character inside `[ ]` / `[x]` for a task-list line, else nil.
-    /// Matches an optional indent, a bullet (-,*,+), whitespace, then `[ ]`/`[x]`/`[X]`.
-    private static func taskBoxRange(in line: String) -> Range<String.Index>? {
+    /// Accepts an indent, a bullet (`-`/`*`/`+`) or an ordered marker (`1.` / `2)`),
+    /// whitespace, then `[ ]` / `[x]` / `[X]`.
+    static func taskBoxRange(in line: String) -> Range<String.Index>? {
         let trimmed = line.drop { $0 == " " || $0 == "\t" }
-        guard let first = trimmed.first, first == "-" || first == "*" || first == "+" else { return nil }
-        var idx = trimmed.index(after: trimmed.startIndex)
-        // require at least one space after the bullet
+        guard let first = trimmed.first else { return nil }
+        var idx: Substring.Index
+        if first == "-" || first == "*" || first == "+" {
+            idx = trimmed.index(after: trimmed.startIndex)
+        } else if first.isNumber {
+            // ordered list: one or more digits, then '.' or ')'
+            var j = trimmed.startIndex
+            while j < trimmed.endIndex, trimmed[j].isNumber { j = trimmed.index(after: j) }
+            guard j < trimmed.endIndex, trimmed[j] == "." || trimmed[j] == ")" else { return nil }
+            idx = trimmed.index(after: j)
+        } else {
+            return nil
+        }
+        // require at least one space after the marker
         guard idx < trimmed.endIndex, trimmed[idx] == " " else { return nil }
         while idx < trimmed.endIndex, trimmed[idx] == " " { idx = trimmed.index(after: idx) }
         guard idx < trimmed.endIndex, trimmed[idx] == "[" else { return nil }

@@ -199,3 +199,19 @@
 "Ton:" = "サウンド:";
 "Aus" = "オフ";
 "Möchtest du Barycenter wirklich beenden?" = "Barycenter を終了してもよろしいですか？";
+
+/* Session launch error */
+"Fehler" = "エラー";
+"„%@“ konnte nicht gestartet werden (Exit %d). Ist es installiert und im PATH?" = "「%@」を起動できませんでした (終了コード %d)。インストールされ、PATH に含まれていますか？";
+
+/* Update checker */
+"Nach Updates suchen…" = "アップデートを確認…";
+"Neue Version verfügbar: %@" = "新しいバージョンがあります: %@";
+"Du verwendest %@. Jetzt die signierte DMG herunterladen?" = "現在 %@ を使用中です。署名済み DMG を今すぐダウンロードしますか？";
+"Herunterladen" = "ダウンロード";
+"Später" = "後で";
+"Du bist auf dem neuesten Stand." = "最新の状態です。";
+"Version %@ ist die aktuelle." = "バージョン %@ が最新です。";
+"Update-Prüfung fehlgeschlagen." = "アップデートの確認に失敗しました。";
+"Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "GitHub に接続できませんでした。後でもう一度お試しください。";
+"OK" = "OK";

@@ -27,6 +27,17 @@ if [ -d Localization ]; then
   echo "✓ Copied $(ls -d Localization/*.lproj | wc -l | tr -d ' ') localizations"
 fi
 
+# Embed Sparkle.framework (auto-updater) from the SwiftPM binary artifact.
+SPARKLE_FW=$(find .build -type d -path '*/Sparkle.xcframework/macos-*/Sparkle.framework' 2>/dev/null | head -1)
+if [ -n "$SPARKLE_FW" ]; then
+  mkdir -p "$APP/Contents/Frameworks"
+  rm -rf "$APP/Contents/Frameworks/Sparkle.framework"
+  cp -R "$SPARKLE_FW" "$APP/Contents/Frameworks/Sparkle.framework"
+  echo "✓ Embedded Sparkle.framework"
+else
+  echo "⚠︎ Sparkle.framework not found in .build — run 'swift build' first" >&2
+fi
+
 echo "▸ Signing (ad-hoc)…"
 codesign --force --deep --sign - "$APP"
 

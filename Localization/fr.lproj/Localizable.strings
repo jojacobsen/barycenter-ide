@@ -199,3 +199,19 @@
 "Ton:" = "Son :";
 "Aus" = "Désactivé";
 "Möchtest du Barycenter wirklich beenden?" = "Voulez-vous vraiment quitter Barycenter ?";
+
+/* Session launch error */
+"Fehler" = "Erreur";
+"„%@“ konnte nicht gestartet werden (Exit %d). Ist es installiert und im PATH?" = "« %@ » n’a pas pu démarrer (code %d). Est-il installé et dans le PATH ?";
+
+/* Update checker */
+"Nach Updates suchen…" = "Rechercher des mises à jour…";
+"Neue Version verfügbar: %@" = "Nouvelle version disponible : %@";
+"Du verwendest %@. Jetzt die signierte DMG herunterladen?" = "Vous utilisez la %@. Télécharger le DMG signé maintenant ?";
+"Herunterladen" = "Télécharger";
+"Später" = "Plus tard";
+"Du bist auf dem neuesten Stand." = "Vous êtes à jour.";
+"Version %@ ist die aktuelle." = "La version %@ est la plus récente.";
+"Update-Prüfung fehlgeschlagen." = "Échec de la vérification des mises à jour.";
+"Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "Impossible de joindre GitHub. Réessayez plus tard.";
+"OK" = "OK";
