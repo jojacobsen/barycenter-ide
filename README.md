@@ -41,12 +41,90 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
   (model / cost / context) **· Notes · Diff** (`git diff`) **· Files**:
   a mini file browser + editor with **syntax highlighting** and a rendered
   **Markdown preview**, plus recursive filename search.
-- **Handler**: an AI manager (itself a Claude session) that controls Barycenter
-  via a tiny local command (`baryctl`): list / spawn / send / focus / close.
-- **Activity rail**: toggle **Sessions**, **Handler** and **Verlauf** (cross-repo
+- **AI Manager** (the *Control Center*): an AI manager — itself a Claude session —
+  that controls Barycenter via a tiny local command (`baryctl`): list / spawn /
+  send / focus / close, and it maintains your shared todo list (notes / note-add /
+  notes-set).
+- **Activity rail**: toggle **Sessions**, **Manager** and **History** (cross-repo
   git history); two tools split the panel 50/50.
-- **Remote Control** toggle & badge for Claude sessions, themes, notes, and a
-  dark, modern UI throughout.
+- **Shared notes / todo list** as a Markdown file with an edit/preview switch and
+  clickable checkboxes — editable by you and the AI Manager alike.
+- **Remote Control** toggle & badge for Claude sessions, themes, and a dark,
+  modern UI throughout.
+
+## Quick start
+
+1. **Open Barycenter.** On first launch it offers to load a saved *layout* or
+   start empty.
+2. **New session** — `⌘T` (or the ＋ button). Pick a **folder** and a **profile**
+   (Claude Code · Codex · Gemini CLI · Aider · Shell · custom), optionally in its
+   own **git worktree**, and — for Claude — optionally *resume the last
+   conversation* (`-c`).
+3. **Watch the fleet.** The **Grid** (`⌘1`) shows every session at once; **Focus**
+   (`⌘2`) blows one up. A session that needs you turns 🔴 with a sound, a Dock
+   bounce and a macOS banner. Click any tile to jump in and type.
+4. **Per-tile tabs.** Each tile switches between **Terminal · Status** (model /
+   cost / context + an AI *Generate*-on-demand project overview) **· Notes · Diff ·
+   Files**.
+5. **Left activity rail.** Toggle **Sessions**, **Manager** (the AI Control Center)
+   and **History**. Two tools split the panel 50/50.
+6. **Shared todo list.** Expand **NOTES** at the bottom of the sidebar, switch
+   between the Markdown editor and the rendered preview, and tick checkboxes
+   directly — the AI Manager edits the same list.
+7. **Let the AI run the fleet.** Start the **AI Manager** (`⌘M`); it spawns,
+   monitors and steers sessions for you via `baryctl`.
+
+## Session status
+
+Every session carries one **color-coded status** that drives the sidebar dot, the
+tile border and the menu-bar list — so the frame, the dot and the label can never
+disagree.
+
+<img src="docs/status-badges.svg" width="820" alt="Barycenter session status labels and color code" />
+
+**Claude Code sessions** merge the live `claude agents --json` status with the
+hook/bell signal:
+
+| Label | Color | Meaning |
+|-------|-------|---------|
+| **working** | 🟢 green | Actively running a task. |
+| **waiting** *(+ reason)* | 🔴 red | Blocked on you (e.g. a permission prompt); the reason is shown inline. **Needs you.** |
+| **needs you** | 🔴 red | A Stop/Notification hook says it's your turn and you haven't looked yet. **Needs you.** |
+| **ready** | ⚪️ gray | Idle — nothing pending. |
+| **finished** | ⚪️ gray | The process has exited. |
+
+**Other sessions** (shells, other agents) use the terminal-bell heuristic and the
+raw state:
+
+| Label | Color | Meaning |
+|-------|-------|---------|
+| **running** | 🟢 green | The process is alive. |
+| **needs you** | 🔴 red | The terminal rang the bell (`\a`). **Needs you.** |
+| **finished** | ⚪️ gray | The process has exited. |
+
+Two extra badges can appear next to the status:
+
+| Badge | Color | Meaning |
+|-------|-------|---------|
+| **Manager** | 🟣 purple | This session is the AI Manager (the Control Center). |
+| **RC** | 🔵 blue | Remote Control is enabled for this Claude session. |
+
+## Settings
+
+Open with `⌘,` (**Barycenter → Settings…**). Everything takes effect immediately
+(except the UI language, which needs a restart).
+
+| Setting | Options / default | Effect |
+|---------|-------------------|--------|
+| **Theme** | preset themes | Terminal color theme for **all** session consoles (not the app chrome). |
+| **Font** | monospace fonts | Terminal font. |
+| **Size** | 9–24 pt | Terminal font size. |
+| **Language** | System / Deutsch / English / Español / Français / Italiano / 日本語 / 简体中文 | UI language (**restart required**). |
+| **Notes in the sidebar** | on / off | Show the shared notes / todo list at the bottom of the sidebar. |
+| **Line numbers in the editor** | on *(default)* / off | Line numbers in the file editor. |
+| **Show AI manager** | on *(default)* / off | When off, hides the **Manager** rail button and greys out *Start AI manager*. |
+| **Notify when a session is done** | on *(default)* / off | Master switch for attention alerts — sound **+** banner **+** Dock bounce. Off = fully silent. |
+| **Sound** | *Off* + all macOS system sounds | The tone played when a session needs you; picking one **previews** it. |
 
 ## Requirements
 
@@ -75,7 +153,7 @@ open Barycenter.app
 - Claude sessions are launched with per-session **hooks + statusLine** injected
   through `--settings` (no changes to your global config), writing to a local
   file that Barycenter watches → that's the attention/status channel.
-- The **Handler** drives the app through a local Unix-domain socket; `baryctl`
+- The **AI Manager** drives the app through a local Unix-domain socket; `baryctl`
   (auto-generated at runtime) is the thin client it calls from its shell tool.
 
 ## Releases (signed DMG)

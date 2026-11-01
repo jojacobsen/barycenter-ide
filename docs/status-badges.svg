@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="232" viewBox="0 0 960 232" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <rect x="0.5" y="0.5" width="959" height="231" rx="12" fill="#0d1117" stroke="#30363d"/>
+  <text x="24" y="34" fill="#c9d1d9" font-size="16" font-weight="600">Session status — color code &amp; labels</text>
+
+  <!-- Row 1: Claude Code live status -->
+  <text x="24" y="85" fill="#8b949e" font-size="13">Claude Code (live)</text>
+  <!-- working / green -->
+  <g>
+    <rect x="200" y="68" width="120" height="32" rx="16" fill="#30d158" fill-opacity="0.15" stroke="#30d158" stroke-opacity="0.5"/>
+    <circle cx="220" cy="84" r="5" fill="#30d158"/><text x="234" y="89" fill="#e6edf3" font-size="14">working</text>
+  </g>
+  <!-- waiting / red -->
+  <g>
+    <rect x="332" y="68" width="120" height="32" rx="16" fill="#ff453a" fill-opacity="0.15" stroke="#ff453a" stroke-opacity="0.5"/>
+    <circle cx="352" cy="84" r="5" fill="#ff453a"/><text x="366" y="89" fill="#e6edf3" font-size="14">waiting</text>
+  </g>
+  <!-- needs you / red -->
+  <g>
+    <rect x="464" y="68" width="130" height="32" rx="16" fill="#ff453a" fill-opacity="0.15" stroke="#ff453a" stroke-opacity="0.5"/>
+    <circle cx="484" cy="84" r="5" fill="#ff453a"/><text x="498" y="89" fill="#e6edf3" font-size="14">needs you</text>
+  </g>
+  <!-- ready / gray -->
+  <g>
+    <rect x="606" y="68" width="120" height="32" rx="16" fill="#98989d" fill-opacity="0.15" stroke="#98989d" stroke-opacity="0.5"/>
+    <circle cx="626" cy="84" r="5" fill="#98989d"/><text x="640" y="89" fill="#e6edf3" font-size="14">ready</text>
+  </g>
+  <!-- finished / gray -->
+  <g>
+    <rect x="738" y="68" width="120" height="32" rx="16" fill="#98989d" fill-opacity="0.15" stroke="#98989d" stroke-opacity="0.5"/>
+    <circle cx="758" cy="84" r="5" fill="#98989d"/><text x="772" y="89" fill="#e6edf3" font-size="14">finished</text>
+  </g>
+
+  <!-- Row 2: other sessions -->
+  <text x="24" y="137" fill="#8b949e" font-size="13">Other sessions</text>
+  <!-- running / green -->
+  <g>
+    <rect x="200" y="120" width="120" height="32" rx="16" fill="#30d158" fill-opacity="0.15" stroke="#30d158" stroke-opacity="0.5"/>
+    <circle cx="220" cy="136" r="5" fill="#30d158"/><text x="234" y="141" fill="#e6edf3" font-size="14">running</text>
+  </g>
+  <!-- needs you / red -->
+  <g>
+    <rect x="332" y="120" width="130" height="32" rx="16" fill="#ff453a" fill-opacity="0.15" stroke="#ff453a" stroke-opacity="0.5"/>
+    <circle cx="352" cy="136" r="5" fill="#ff453a"/><text x="366" y="141" fill="#e6edf3" font-size="14">needs you</text>
+  </g>
+  <!-- finished / gray -->
+  <g>
+    <rect x="474" y="120" width="120" height="32" rx="16" fill="#98989d" fill-opacity="0.15" stroke="#98989d" stroke-opacity="0.5"/>
+    <circle cx="494" cy="136" r="5" fill="#98989d"/><text x="508" y="141" fill="#e6edf3" font-size="14">finished</text>
+  </g>
+
+  <!-- Row 3: extra badges -->
+  <text x="24" y="189" fill="#8b949e" font-size="13">Badges</text>
+  <!-- Manager / purple -->
+  <g>
+    <rect x="200" y="172" width="120" height="32" rx="16" fill="#bf5af2" fill-opacity="0.15" stroke="#bf5af2" stroke-opacity="0.5"/>
+    <circle cx="220" cy="188" r="5" fill="#bf5af2"/><text x="234" y="193" fill="#e6edf3" font-size="14">Manager</text>
+  </g>
+  <!-- RC / blue -->
+  <g>
+    <rect x="332" y="172" width="90" height="32" rx="16" fill="#0a84ff" fill-opacity="0.15" stroke="#0a84ff" stroke-opacity="0.5"/>
+    <circle cx="352" cy="188" r="5" fill="#0a84ff"/><text x="366" y="193" fill="#e6edf3" font-size="14">RC</text>
+  </g>
+</svg>

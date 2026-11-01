@@ -6,14 +6,12 @@ enum SessionStatus {
     case running    // working / running
     case attention  // needs you (hooks / bell)
     case done       // process finished
-    case idle       // waiting
 
     var color: NSColor {
         switch self {
         case .running:   return .systemGreen
         case .attention: return .systemRed
         case .done:      return .systemGray
-        case .idle:      return .systemYellow
         }
     }
 }
@@ -166,7 +164,6 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         case .running:   return DisplayState(text: L("läuft"), color: .systemGreen, needsYou: false)
         case .attention: return DisplayState(text: L("braucht dich"), color: .systemRed, needsYou: true)
         case .done:      return DisplayState(text: L("beendet"), color: .systemGray, needsYou: false)
-        case .idle:      return DisplayState(text: L("wartet"), color: .systemYellow, needsYou: false)
         }
     }
 
