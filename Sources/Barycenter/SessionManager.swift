@@ -120,16 +120,17 @@ final class SessionManager {
         set { UserDefaults.standard.set(newValue, forKey: "managerWasRunning") }
     }
 
-    /// On launch: re-start the manager if it was running last time (and still enabled).
+    /// On launch: re-start the manager if it was running last time (and still enabled),
+    /// resuming its previous conversation so the Control Center picks up where it left off.
     func restoreManagerIfNeeded() {
         guard managerWasRunning, AppSettings.shared.showManager, managerSession == nil else { return }
-        spawnManagerFromSettings()
+        spawnManagerFromSettings(resume: true)
     }
 
     /// Starts the AI manager with the chosen folder + AI (or focuses it if it's already running).
     /// `launchCommand == "claude"` gets the task as a system-prompt file; other AIs
     /// (Codex/Gemini/Aider/Custom) get it as a first message "read this file".
-    func spawnManager(dir: String, profileName: String, launchCommand: String?) {
+    func spawnManager(dir: String, profileName: String, launchCommand: String?, resume: Bool = false) {
         if let existing = managerSession {
             select(existing.id); setViewMode(.focus); return
         }
@@ -143,7 +144,7 @@ final class SessionManager {
             extra = ["--append-system-prompt-file", promptPath]
         }
         let s = addSession(title: L("KI-Verwalter"), cwd: cwd, launchCommand: launchCommand,
-                           profileName: profileName, isManager: true, extraArgs: extra)
+                           profileName: profileName, resume: resume, isManager: true, extraArgs: extra)
         managerWasRunning = true   // remember so it auto-starts next launch
         if launchCommand != "claude" {
             // Other AIs don't know --append-system-prompt-file: feed the task via a first message.
@@ -154,8 +155,9 @@ final class SessionManager {
         }
     }
 
-    /// Convenient start using the saved manager settings.
-    func spawnManagerFromSettings() {
+    /// Convenient start using the saved manager settings. `resume` continues the
+    /// manager's last conversation (Claude `--continue`), used on auto-restore.
+    func spawnManagerFromSettings(resume: Bool = false) {
         let st = AppSettings.shared
         let launch: String?
         if st.managerProfile == Profile.customName {
@@ -164,7 +166,7 @@ final class SessionManager {
         } else {
             launch = Profile.builtins.first { $0.name == st.managerProfile }?.command ?? "claude"
         }
-        spawnManager(dir: st.managerDir, profileName: st.managerProfile, launchCommand: launch)
+        spawnManager(dir: st.managerDir, profileName: st.managerProfile, launchCommand: launch, resume: resume)
     }
 
     private func writeManagerPrompt() -> String {
