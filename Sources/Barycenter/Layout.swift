@@ -51,4 +51,23 @@ enum LayoutStore {
         get { UserDefaults.standard.string(forKey: "lastLayoutName") }
         set { UserDefaults.standard.set(newValue, forKey: "lastLayoutName") }
     }
+
+    // MARK: - Last session snapshot (auto session restore)
+
+    /// Separate from named layouts (and from the chooser): the sessions that were
+    /// open at quit, so they can be auto-restored on the next launch.
+    private static var restoreURL: URL {
+        dir.deletingLastPathComponent().appendingPathComponent("last-session.json")
+    }
+
+    static func saveLastSession(_ specs: [SessionSpec]) {
+        let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted]
+        if let data = try? enc.encode(specs) { try? data.write(to: restoreURL) }
+    }
+
+    static func loadLastSession() -> [SessionSpec] {
+        guard let data = try? Data(contentsOf: restoreURL),
+              let specs = try? JSONDecoder().decode([SessionSpec].self, from: data) else { return [] }
+        return specs
+    }
 }

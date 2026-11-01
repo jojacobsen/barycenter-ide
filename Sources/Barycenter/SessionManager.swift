@@ -87,6 +87,22 @@ final class SessionManager {
         for s in workerSessions { remove(s.id) }
     }
 
+    /// Snapshot the open worker sessions so they can be auto-restored next launch.
+    func persistOpenSessions() { LayoutStore.saveLastSession(currentSpecs()) }
+
+    /// On launch: re-open the worker sessions from the last run, resuming each one's
+    /// conversation (Claude `--continue`). Returns how many were restored.
+    @discardableResult
+    func restoreLastSessions() -> Int {
+        let specs = LayoutStore.loadLastSession()
+        guard !specs.isEmpty else { return 0 }
+        for var spec in specs {
+            spec.resume = true   // continue where each session left off
+            spawn(from: spec)
+        }
+        return specs.count
+    }
+
     private func spawn(from spec: SessionSpec) {
         var cwd = spec.cwd
         if !FileManager.default.fileExists(atPath: cwd) {

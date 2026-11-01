@@ -107,8 +107,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             rail.restoreSelection()
             // If the Control Center (AI manager) was running last time, start it again.
             SessionManager.shared.restoreManagerIfNeeded()
-            // At launch: layout picker (last used preselected) — or the New Session dialog.
-            self.presentLayoutChooser(atLaunch: true)
+            // Auto-restore the worker sessions from last run (resuming each). Only if
+            // there were none do we fall back to the layout picker / New Session dialog.
+            if SessionManager.shared.restoreLastSessions() == 0 {
+                self.presentLayoutChooser(atLaunch: true)
+            }
         }
     }
 
@@ -126,6 +129,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         alert.addButton(withTitle: L("Beenden"))
         alert.addButton(withTitle: L("Abbrechen"))
         if alert.runModal() != .alertFirstButtonReturn { return .terminateCancel }
+        // Snapshot the open sessions so they auto-restore (and resume) next launch.
+        SessionManager.shared.persistOpenSessions()
         // Keep the last-used layout up to date so it can be loaded on the next launch.
         if let n = SessionManager.shared.currentLayoutName {
             SessionManager.shared.saveCurrentLayout(name: n)
