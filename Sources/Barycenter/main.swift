@@ -1,6 +1,7 @@
 import AppKit
 import UserNotifications
 import QuartzCore
+import Sparkle
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     private var window: NSWindow!
@@ -9,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private var sidebar: SidebarViewController!
     private var toolItem: NSSplitViewItem!
     private var menuBar: MenuBarController!
+    private var updaterController: SPUStandardUpdaterController?   // Sparkle auto-updater
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = buildMainMenu()
@@ -18,6 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         if Notifier.isBundled {
             UNUserNotificationCenter.current().delegate = self
             Notifier.requestAuthorization()
+            // Sparkle: starts the updater, which checks for updates on its schedule
+            // (SUEnableAutomaticChecks / SUScheduledCheckInterval in Info.plist).
+            updaterController = SPUStandardUpdaterController(
+                startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
         }
 
         NSApp.appearance = NSAppearance(named: .darkAqua)   // dark, modern look
@@ -180,6 +186,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
     @objc private func loadLayout() { presentLayoutChooser(atLaunch: false) }
 
+    @objc private func checkForUpdates() { updaterController?.updater.checkForUpdates() }
+
     @objc private func showAbout() {
         if aboutController == nil { aboutController = AboutWindowController() }
         aboutController?.showWindow(nil)
@@ -206,6 +214,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         let appMenu = NSMenu()
         appItem.submenu = appMenu
         add(appMenu, L("Über Barycenter"), #selector(showAbout), "")
+        add(appMenu, L("Nach Updates suchen…"), #selector(checkForUpdates), "")
         appMenu.addItem(.separator())
         add(appMenu, L("Einstellungen…"), #selector(openPreferences), ",")
         appMenu.addItem(.separator())

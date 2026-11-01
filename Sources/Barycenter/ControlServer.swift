@@ -18,6 +18,7 @@ final class ControlServer {
     }
 
     func start() {
+        sweepStaleLeftovers()
         writeBarycenterctl()
 
         unlink(socketPath)
@@ -36,6 +37,31 @@ final class ControlServer {
         guard bound == 0, listen(listenFD, 8) == 0 else { close(listenFD); listenFD = -1; return }
 
         DispatchQueue.global(qos: .utility).async { [weak self] in self?.acceptLoop() }
+    }
+
+    /// Remove sockets and `baryctl` scripts left behind by previous runs whose
+    /// process is no longer alive (we only ever unlinked our own socket before,
+    /// so dead instances leaked both files in /tmp).
+    private func sweepStaleLeftovers() {
+        let fm = FileManager.default
+        let tmp = NSTemporaryDirectory()
+        // Sockets live in /tmp; baryctl scripts in NSTemporaryDirectory().
+        let candidates: [(dir: String, prefix: String, suffix: String)] = [
+            ("/tmp", "barycenter-", ".sock"),
+            (tmp,    "barycenter-", "-baryctl"),
+        ]
+        let myPid = ProcessInfo.processInfo.processIdentifier
+        for c in candidates {
+            guard let names = try? fm.contentsOfDirectory(atPath: c.dir) else { continue }
+            for name in names where name.hasPrefix(c.prefix) && name.hasSuffix(c.suffix) {
+                let mid = name.dropFirst(c.prefix.count).dropLast(c.suffix.count)
+                guard let pid = Int32(mid), pid != myPid else { continue }
+                // kill(pid, 0) == -1 with ESRCH -> no such process -> safe to remove.
+                if kill(pid, 0) == -1 && errno == ESRCH {
+                    try? fm.removeItem(atPath: c.dir + "/" + name)
+                }
+            }
+        }
     }
 
     private func acceptLoop() {

@@ -16,3 +16,4 @@ DerivedData/
 # DMG / release artifacts
 *.dmg
 build/
+dist/

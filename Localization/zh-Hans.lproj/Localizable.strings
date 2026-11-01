@@ -199,3 +199,19 @@
 "Ton:" = "声音：";
 "Aus" = "关闭";
 "Möchtest du Barycenter wirklich beenden?" = "确定要退出 Barycenter 吗？";
+
+/* Session launch error */
+"Fehler" = "错误";
+"„%@“ konnte nicht gestartet werden (Exit %d). Ist es installiert und im PATH?" = "“%@” 无法启动（退出码 %d）。是否已安装并在 PATH 中？";
+
+/* Update checker */
+"Nach Updates suchen…" = "检查更新…";
+"Neue Version verfügbar: %@" = "有新版本: %@";
+"Du verwendest %@. Jetzt die signierte DMG herunterladen?" = "当前为 %@。立即下载已签名的 DMG？";
+"Herunterladen" = "下载";
+"Später" = "稍后";
+"Du bist auf dem neuesten Stand." = "已是最新版本。";
+"Version %@ ist die aktuelle." = "版本 %@ 为最新。";
+"Update-Prüfung fehlgeschlagen." = "检查更新失败。";
+"Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "无法连接 GitHub，请稍后重试。";
+"OK" = "确定";

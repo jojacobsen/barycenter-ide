@@ -107,6 +107,11 @@ final class SessionStatusView: NSView {
         let st = session.displayState
         row(L("Zustand"), st.text, color: st.color)
 
+        // Surface a likely launch failure (e.g. the CLI isn't on PATH).
+        if let hint = session.launchFailureHint {
+            row(L("Fehler"), hint, color: .systemRed)
+        }
+
         if session.remoteControl { row(L("Remote Control"), L("aktiv")) }
 
         if session.launchCommand == "claude" {

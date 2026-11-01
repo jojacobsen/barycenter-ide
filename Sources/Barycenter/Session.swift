@@ -48,6 +48,8 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     let isManager: Bool               // the AI manager?
     let extraArgs: [String]           // extra claude arguments (e.g. --append-system-prompt-file)
     let startedAt = Date()
+    var endedAt: Date?                 // when the process terminated
+    var exitCode: Int32?              // process exit status (nil while running / unknown)
     var notes = ""                    // scratchpad, stays until closed
     var statusFilePath: String?       // Claude statusLine JSON (model/cost/context)
     let terminalView: BarycenterTerminalView
@@ -192,6 +194,19 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
     func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {}
     func processTerminated(source: TerminalView, exitCode: Int32?) {
         status = .done
+        self.endedAt = Date()
+        self.exitCode = exitCode
         NotificationCenter.default.post(name: .sessionsChanged, object: nil)
+    }
+
+    /// A hint shown on the Status page when a launched command most likely failed
+    /// to start — e.g. the CLI isn't installed / not on PATH. Heuristic: a session
+    /// with a launch command that exits non-zero within a few seconds.
+    var launchFailureHint: String? {
+        guard let cmd = launchCommand, let code = exitCode, code != 0,
+              let ended = endedAt, ended.timeIntervalSince(startedAt) < 4 else { return nil }
+        let tool = cmd.split(separator: " ").first.map(String.init) ?? cmd
+        return String(format: L("„%@“ konnte nicht gestartet werden (Exit %d). Ist es installiert und im PATH?"),
+                      tool, Int(code))
     }
 }
