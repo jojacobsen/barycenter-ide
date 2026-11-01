@@ -3,6 +3,18 @@
     <channel>
         <title>Barycenter</title>
         <item>
+            <title>0.3.1</title>
+            <pubDate>Sun, 01 Nov 2026 15:28:19 +0100</pubDate>
+            <sparkle:version>8</sparkle:version>
+            <sparkle:shortVersionString>0.3.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter-0.3.1.dmg" length="3320064" type="application/octet-stream" sparkle:edSignature="CwX2P/3yPUL2qzLypcaulX0ZKICLZkIOjckJdW90+TzvDmix+Ek1hOKuP4Gj1V9LMzjR3KzPGJSDP8voFMzLBg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter8-7.delta" sparkle:deltaFrom="7" length="46838" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="uc+X6QTqr9ABms+d51WYuGsFb8+w5+DhOffltOMd6jVbvSf+k8G+0/sxOPu4MgywybzaZby7h0bBkukTKnrtCw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.3.0</title>
             <pubDate>Sun, 01 Nov 2026 15:00:34 +0100</pubDate>
             <sparkle:version>7</sparkle:version>
