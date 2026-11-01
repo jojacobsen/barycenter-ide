@@ -102,6 +102,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         DispatchQueue.main.async {
             self.window.setContentSize(NSSize(width: 1200, height: 760))
             self.window.center()
+            // Restore the activity-rail tools (Sessions / Control Center / History) as
+            // they were last session — now that onChange and the panel are wired up.
+            rail.restoreSelection()
             // At launch: layout picker (last used preselected) — or the New Session dialog.
             self.presentLayoutChooser(atLaunch: true)
         }

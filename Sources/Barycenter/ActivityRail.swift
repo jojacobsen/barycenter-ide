@@ -4,6 +4,19 @@ import AppKit
 enum Tool: CaseIterable {
     case sessions, manager, history
 
+    /// Stable identifier for persisting which tools are toggled on across launches.
+    var persistID: String {
+        switch self {
+        case .sessions: return "sessions"
+        case .manager:  return "manager"
+        case .history:  return "history"
+        }
+    }
+
+    static func from(persistID id: String) -> Tool? {
+        Tool.allCases.first { $0.persistID == id }
+    }
+
     var title: String {
         switch self {
         case .sessions: return L("Sessions")
@@ -77,9 +90,24 @@ final class RailButton: NSView {
 /// Narrow strip on the far left holding the tool buttons.
 final class ActivityRailViewController: NSViewController {
     var onChange: (([Tool]) -> Void)?
-    private var active: Set<Tool> = [.sessions]
+    private var active: Set<Tool> = ActivityRailViewController.loadActive()
     private var buttons: [RailButton] = []
     private let stack = NSStackView()
+
+    private static let activeKey = "activeTools"
+
+    /// Restore the toggled tools from the last session (default: just Sessions).
+    private static func loadActive() -> Set<Tool> {
+        guard let ids = UserDefaults.standard.object(forKey: activeKey) as? [String] else { return [.sessions] }
+        return Set(ids.compactMap { Tool.from(persistID: $0) })
+    }
+
+    private func saveActive() {
+        UserDefaults.standard.set(active.map { $0.persistID }, forKey: Self.activeKey)
+    }
+
+    /// Apply the restored selection to the panel (call once onChange is wired).
+    func restoreSelection() { onChange?(ordered()) }
 
     /// Tools currently shown — the manager is hidden when disabled in settings.
     private func visibleTools() -> [Tool] {
@@ -129,6 +157,7 @@ final class ActivityRailViewController: NSViewController {
         let removed = active.subtracting(visible)
         if !removed.isEmpty {
             active.subtract(removed)
+            saveActive()
             onChange?(ordered())
         }
         rebuildButtons()
@@ -136,6 +165,7 @@ final class ActivityRailViewController: NSViewController {
 
     private func tap(_ tool: Tool) {
         if active.contains(tool) { active.remove(tool) } else { active.insert(tool) }
+        saveActive()
         highlight()
         onChange?(ordered())
     }
