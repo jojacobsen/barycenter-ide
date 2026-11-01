@@ -215,3 +215,7 @@
 "Update-Prüfung fehlgeschlagen." = "Controllo aggiornamenti non riuscito.";
 "Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "Impossibile raggiungere GitHub. Riprova più tardi.";
 "OK" = "OK";
+
+/* Manager resume fallback */
+"Keine vorherige Unterhaltung gefunden." = "Nessuna conversazione precedente trovata.";
+"Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "Il gestore IA verrà riavviato senza riprendere.";

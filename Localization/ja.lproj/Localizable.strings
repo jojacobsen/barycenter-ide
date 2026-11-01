@@ -215,3 +215,7 @@
 "Update-Prüfung fehlgeschlagen." = "アップデートの確認に失敗しました。";
 "Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "GitHub に接続できませんでした。後でもう一度お試しください。";
 "OK" = "OK";
+
+/* Manager resume fallback */
+"Keine vorherige Unterhaltung gefunden." = "前回の会話が見つかりません。";
+"Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "AIマネージャーを再開せずに起動し直します。";

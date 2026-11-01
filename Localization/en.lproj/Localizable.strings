@@ -215,3 +215,7 @@
 "Update-Prüfung fehlgeschlagen." = "Update check failed.";
 "Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "Couldn’t reach GitHub. Please try again later.";
 "OK" = "OK";
+
+/* Manager resume fallback */
+"Keine vorherige Unterhaltung gefunden." = "No previous conversation found.";
+"Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "The AI manager will be restarted without resuming.";

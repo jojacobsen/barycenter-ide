@@ -215,3 +215,7 @@
 "Update-Prüfung fehlgeschlagen." = "Error al buscar actualizaciones.";
 "Konnte GitHub nicht erreichen. Bitte später erneut versuchen." = "No se pudo conectar con GitHub. Inténtalo de nuevo más tarde.";
 "OK" = "OK";
+
+/* Manager resume fallback */
+"Keine vorherige Unterhaltung gefunden." = "No se encontró ninguna conversación anterior.";
+"Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "El gestor de IA se reiniciará sin reanudar.";
