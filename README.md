@@ -13,7 +13,6 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 [![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-native%20arm64-black)](#requirements)
 [![Swift](https://img.shields.io/badge/Swift-AppKit-orange)](#build--run)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-early%20WIP-yellow)](#)
 [![Latest release](https://img.shields.io/github/v/release/jojacobsen/barycenter-ide?label=download&color=black)](https://github.com/jojacobsen/barycenter-ide/releases/latest)
 
 **[⬇︎ Download the latest signed & notarized DMG](https://github.com/jojacobsen/barycenter-ide/releases/latest)** · [Features](#features) · [Build from source](#build--run)
@@ -128,8 +127,10 @@ Open with `⌘,` (**Barycenter → Settings…**). Everything takes effect immed
 
 ## Requirements
 
+- **Apple Silicon (arm64) Mac** — the prebuilt DMG is arm64-only; Intel Macs are
+  not supported.
 - macOS 13+
-- Swift 6 / Xcode 16+ (`swift` toolchain)
+- Swift 6 / Xcode 16+ (`swift` toolchain) — only needed to build from source.
 - The [`claude`](https://docs.claude.com/en/docs/claude-code) CLI for Claude Code
   sessions (optional for plain shells / other agents)
 
@@ -179,8 +180,6 @@ xcrun notarytool store-credentials "barycenter-notary" \
 
 `release.sh` re-signs the app with Hardened Runtime (+ a JIT entitlement for
 JavaScriptCore/WebKit), builds the DMG via `hdiutil`, notarizes and staples it.
-
-> ⚠️ Early-stage / work in progress; expect rough edges.
 
 ## License
 
