@@ -229,3 +229,12 @@
 "Rahmen" = "边框";
 "Hintergrund" = "背景";
 "„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "“区分”会在每个窗格的左侧边缘添加一条彩色条，便于区分。";
+
+/* Diff tab: agent actions */
+"AI-Review" = "AI 审查";
+"PR erstellen" = "创建 PR";
+"Lässt den Agenten dieser Session die aktuellen Änderungen reviewen." = "让本会话的智能体审查当前更改。";
+"Lässt den Agenten committen, pushen und einen PR via gh öffnen." = "让智能体提交、推送并通过 gh 打开 PR。";
+"Pull Request erstellen lassen?" = "创建拉取请求？";
+"Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "本会话的智能体将提交更改、推送并通过 gh 打开 PR。";
+"✓ Gesendet" = "✓ 已发送";

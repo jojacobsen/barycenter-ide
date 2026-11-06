@@ -229,3 +229,12 @@
 "Rahmen" = "Borde";
 "Hintergrund" = "Fondo";
 "„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "«Diferenciado» da a cada mosaico una franja de color en el borde izquierdo para distinguirlos mejor.";
+
+/* Diff tab: agent actions */
+"AI-Review" = "Revisión IA";
+"PR erstellen" = "Crear PR";
+"Lässt den Agenten dieser Session die aktuellen Änderungen reviewen." = "Pide al agente de esta sesión que revise los cambios actuales.";
+"Lässt den Agenten committen, pushen und einen PR via gh öffnen." = "Pide al agente que haga commit, push y abra un PR con gh.";
+"Pull Request erstellen lassen?" = "¿Crear una pull request?";
+"Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "El agente de esta sesión hará commit de los cambios, push y abrirá un PR con gh.";
+"✓ Gesendet" = "✓ Enviado";
