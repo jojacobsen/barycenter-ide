@@ -228,4 +228,4 @@
 "Status anzeigen als:" = "Show status as:";
 "Rahmen" = "Frame";
 "Hintergrund" = "Background";
-"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "“Distinct” gives each tile its own accent color in the title so you can tell them apart more easily.";
+"„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "“Distinct” gives each tile a colored stripe on its left edge so you can tell them apart more easily.";

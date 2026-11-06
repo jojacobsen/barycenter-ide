@@ -97,7 +97,7 @@ final class PreferencesWindowController: NSWindowController {
         statusDisplayPopup.target = self
         statusDisplayPopup.action = #selector(statusDisplayChanged)
 
-        let tileNote = NSTextField(labelWithString: L("„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst."))
+        let tileNote = NSTextField(labelWithString: L("„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst."))
         tileNote.lineBreakMode = .byWordWrapping
         tileNote.maximumNumberOfLines = 2
         tileNote.preferredMaxLayoutWidth = 340

@@ -228,4 +228,4 @@
 "Status anzeigen als:" = "Afficher le statut comme :";
 "Rahmen" = "Cadre";
 "Hintergrund" = "Arrière-plan";
-"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "« Distinct » donne à chaque tuile sa propre couleur d’accent dans le titre pour mieux les distinguer.";
+"„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "« Distinct » ajoute à chaque tuile une bande colorée sur le bord gauche pour mieux les distinguer.";
