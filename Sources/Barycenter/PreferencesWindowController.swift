@@ -1,179 +1,233 @@
 import AppKit
 
-/// Preferences window (Cmd+,): theme, font, font size. Takes effect immediately.
-final class PreferencesWindowController: NSWindowController {
+/// Preferences window (Cmd+,), organized like a native macOS settings window:
+/// a toolbar of tabs (General · Terminal · Grid · Notifications), each a pane.
+/// Everything takes effect immediately (except the UI language, which needs a restart).
+final class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
+    // Terminal
     private let themePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let fontPopup  = NSPopUpButton(frame: .zero, pullsDown: false)
     private let sizeField  = NSTextField()
     private let sizeStepper = NSStepper()
+    // General
     private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let notesCheckbox = NSButton(checkboxWithTitle: L("Notizen in der Seitenleiste"), target: nil, action: nil)
     private let lineNumbersCheckbox = NSButton(checkboxWithTitle: L("Zeilennummern im Editor"), target: nil, action: nil)
     private let managerCheckbox = NSButton(checkboxWithTitle: L("KI-Verwalter anzeigen"), target: nil, action: nil)
+    // Notifications
     private let notifyCheckbox = NSButton(checkboxWithTitle: L("Benachrichtigen, wenn eine Session fertig ist"), target: nil, action: nil)
     private let soundPopup = NSPopUpButton(frame: .zero, pullsDown: false)
-    /// Sound names matching the popup entries (index 0 = "Aus").
     private var soundNames: [String] = []
+    // Grid
+    private let pageSizePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let tileStylePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let statusDisplayPopup = NSPopUpButton(frame: .zero, pullsDown: false)
-    /// Values matching the popup entries (order must match the `addItems` calls below).
+    private let pageSizeValues = [4, 6, 8]
     private let tileStyleValues: [GridTileStyle] = [.uniform, .distinct]
     private let statusDisplayValues: [StatusDisplay] = [.border, .background]
 
-    /// Language codes matching the entries of the language popup.
-    /// `nil` = "System" (no override). Order must match `languageItemTitles`.
     private let languageCodes: [String?] = [nil, "de", "en", "es", "fr", "it", "ja", "zh-Hans"]
     private let languageItemTitles = [L("System"), "Deutsch", "English", "Español", "Français", "Italiano", "日本語", "简体中文"]
 
+    // MARK: Tabs
+
+    private enum Tab: String, CaseIterable {
+        case general, terminal, grid, notifications
+        var title: String {
+            switch self {
+            case .general:       return L("Allgemein")
+            case .terminal:      return L("Terminal")
+            case .grid:          return L("Raster")
+            case .notifications: return L("Benachrichtigung")
+            }
+        }
+        var symbol: String {
+            switch self {
+            case .general:       return "gearshape"
+            case .terminal:      return "terminal"
+            case .grid:          return "square.grid.2x2"
+            case .notifications: return "bell"
+            }
+        }
+        var id: NSToolbarItem.Identifier { .init("pref.\(rawValue)") }
+    }
+    private var panes: [Tab: NSView] = [:]
+    private static let paneWidth: CGFloat = 480
+
     convenience init() {
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 560),
-            styleMask: [.titled, .closable],
-            backing: .buffered, defer: false
-        )
-        window.title = L("Terminal-Einstellungen")
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: Self.paneWidth, height: 240),
+                              styleMask: [.titled, .closable], backing: .buffered, defer: false)
         self.init(window: window)
-        buildUI()
+        buildControls()
+        buildPanes()
+
+        let toolbar = NSToolbar(identifier: "BarycenterPrefsToolbar")
+        toolbar.delegate = self
+        toolbar.displayMode = .iconAndLabel
+        toolbar.allowsUserCustomization = false
+        window.toolbar = toolbar
+        window.toolbarStyle = .preference
+
         loadValues()
+        select(.general)
+        window.center()
     }
 
-    private func buildUI() {
-        let settings = AppSettings.shared
+    // MARK: Build controls
 
+    private func buildControls() {
         themePopup.addItems(withTitles: Theme.presets.map { $0.name })
-        themePopup.target = self
-        themePopup.action = #selector(themeChanged)
+        themePopup.target = self; themePopup.action = #selector(themeChanged)
 
         fontPopup.addItems(withTitles: availableMonoFonts())
-        fontPopup.target = self
-        fontPopup.action = #selector(fontChanged)
+        fontPopup.target = self; fontPopup.action = #selector(fontChanged)
 
-        sizeStepper.minValue = 9
-        sizeStepper.maxValue = 24
-        sizeStepper.increment = 1
+        sizeStepper.minValue = 9; sizeStepper.maxValue = 24; sizeStepper.increment = 1
         sizeStepper.valueWraps = false
-        sizeStepper.target = self
-        sizeStepper.action = #selector(stepperChanged)
-
+        sizeStepper.target = self; sizeStepper.action = #selector(stepperChanged)
         sizeField.alignment = .right
         sizeField.formatter = {
             let f = NumberFormatter(); f.minimum = 9; f.maximum = 24; f.allowsFloats = false; return f
         }()
-        sizeField.target = self
-        sizeField.action = #selector(sizeFieldChanged)
+        sizeField.target = self; sizeField.action = #selector(sizeFieldChanged)
         sizeField.translatesAutoresizingMaskIntoConstraints = false
         sizeField.widthAnchor.constraint(equalToConstant: 48).isActive = true
 
-        let sizeRow = NSStackView(views: [sizeField, sizeStepper])
-        sizeRow.orientation = .horizontal
-        sizeRow.spacing = 4
-
         languagePopup.addItems(withTitles: languageItemTitles)
-        languagePopup.target = self
-        languagePopup.action = #selector(languageChanged)
+        languagePopup.target = self; languagePopup.action = #selector(languageChanged)
 
-        notesCheckbox.target = self
-        notesCheckbox.action = #selector(notesToggled)
+        notesCheckbox.target = self; notesCheckbox.action = #selector(notesToggled)
+        lineNumbersCheckbox.target = self; lineNumbersCheckbox.action = #selector(lineNumbersToggled)
+        managerCheckbox.target = self; managerCheckbox.action = #selector(managerToggled)
 
-        lineNumbersCheckbox.target = self
-        lineNumbersCheckbox.action = #selector(lineNumbersToggled)
-
-        managerCheckbox.target = self
-        managerCheckbox.action = #selector(managerToggled)
-
-        notifyCheckbox.target = self
-        notifyCheckbox.action = #selector(notifyToggled)
-
+        notifyCheckbox.target = self; notifyCheckbox.action = #selector(notifyToggled)
         soundNames = [AppSettings.soundOff] + AppSettings.availableSystemSounds()
         soundPopup.addItems(withTitles: [L("Aus")] + AppSettings.availableSystemSounds())
-        soundPopup.target = self
-        soundPopup.action = #selector(soundChanged)
+        soundPopup.target = self; soundPopup.action = #selector(soundChanged)
 
+        pageSizePopup.addItems(withTitles: pageSizeValues.map { "\($0)" })
+        pageSizePopup.target = self; pageSizePopup.action = #selector(pageSizeChanged)
         tileStylePopup.addItems(withTitles: [L("Einheitlich"), L("Unterschiedlich")])
-        tileStylePopup.target = self
-        tileStylePopup.action = #selector(tileStyleChanged)
-
+        tileStylePopup.target = self; tileStylePopup.action = #selector(tileStyleChanged)
         statusDisplayPopup.addItems(withTitles: [L("Rahmen"), L("Hintergrund")])
-        statusDisplayPopup.target = self
-        statusDisplayPopup.action = #selector(statusDisplayChanged)
+        statusDisplayPopup.target = self; statusDisplayPopup.action = #selector(statusDisplayChanged)
+    }
 
-        let tileNote = NSTextField(labelWithString: L("„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst."))
-        tileNote.lineBreakMode = .byWordWrapping
-        tileNote.maximumNumberOfLines = 2
-        tileNote.preferredMaxLayoutWidth = 340
-        tileNote.font = .systemFont(ofSize: 11)
-        tileNote.textColor = .secondaryLabelColor
+    // MARK: Build panes
 
-        let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
-        note.lineBreakMode = .byWordWrapping
-        note.maximumNumberOfLines = 2
-        note.preferredMaxLayoutWidth = 340
-        note.font = .systemFont(ofSize: 11)
-        note.textColor = .secondaryLabelColor
+    private func buildPanes() {
+        let sizeRow = NSStackView(views: [sizeField, sizeStepper])
+        sizeRow.orientation = .horizontal; sizeRow.spacing = 4
 
-        let restartNote = NSTextField(labelWithString: L("Neustart erforderlich, um die Sprache zu übernehmen."))
-        restartNote.lineBreakMode = .byWordWrapping
-        restartNote.maximumNumberOfLines = 2
-        restartNote.preferredMaxLayoutWidth = 340
-        restartNote.font = .systemFont(ofSize: 11)
-        restartNote.textColor = .secondaryLabelColor
-
-        let grid = NSGridView(views: [
-            [label(L("Theme:")),  themePopup],
+        panes[.terminal] = pane([
+            [label(L("Theme:")),   themePopup],
             [label(L("Schrift:")), fontPopup],
             [label(L("Größe:")),   sizeRow],
-            [NSGridCell.emptyContentView, note],
+            [NSGridCell.emptyContentView,
+             note(L("Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))],
+        ])
+
+        panes[.grid] = pane([
+            [label(L("Sessions pro Seite:")), pageSizePopup],
+            [label(L("Kacheln:")),            tileStylePopup],
+            [label(L("Status anzeigen als:")), statusDisplayPopup],
+            [NSGridCell.emptyContentView,
+             note(L("„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst."))],
+        ])
+
+        panes[.general] = pane([
             [label(L("Sprache:")), languagePopup],
-            [NSGridCell.emptyContentView, restartNote],
+            [NSGridCell.emptyContentView, note(L("Neustart erforderlich, um die Sprache zu übernehmen."))],
             [NSGridCell.emptyContentView, notesCheckbox],
             [NSGridCell.emptyContentView, lineNumbersCheckbox],
             [NSGridCell.emptyContentView, managerCheckbox],
-            [sectionLabel(L("Darstellung")), NSGridCell.emptyContentView],
-            [label(L("Kacheln:")), tileStylePopup],
-            [label(L("Status anzeigen als:")), statusDisplayPopup],
-            [NSGridCell.emptyContentView, tileNote],
-            [sectionLabel(L("Benachrichtigung")), notifyCheckbox],
+        ])
+
+        panes[.notifications] = pane([
+            [NSGridCell.emptyContentView, notifyCheckbox],
             [label(L("Ton:")), soundPopup],
         ])
+    }
+
+    /// A padded pane that wraps a 2-column grid at a fixed content width.
+    private func pane(_ rows: [[NSView]]) -> NSView {
+        let grid = NSGridView(views: rows)
         grid.rowAlignment = .firstBaseline
         grid.column(at: 0).xPlacement = .trailing
         grid.rowSpacing = 14
         grid.columnSpacing = 10
         grid.translatesAutoresizingMaskIntoConstraints = false
 
-        let content = NSView()
-        content.addSubview(grid)
+        let container = NSView()
+        container.addSubview(grid)
         NSLayoutConstraint.activate([
-            grid.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            grid.trailingAnchor.constraint(lessThanOrEqualTo: content.trailingAnchor, constant: -24),
-            grid.topAnchor.constraint(equalTo: content.topAnchor, constant: 24),
+            container.widthAnchor.constraint(equalToConstant: Self.paneWidth),
+            grid.topAnchor.constraint(equalTo: container.topAnchor, constant: 24),
+            grid.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
+            grid.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -24),
+            grid.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -24),
         ])
-        window?.contentView = content
-        _ = settings // (for clarity only; values follow in loadValues)
+        return container
     }
 
     private func label(_ s: String) -> NSTextField {
+        let l = NSTextField(labelWithString: s); l.font = .systemFont(ofSize: 13); return l
+    }
+    private func note(_ s: String) -> NSTextField {
         let l = NSTextField(labelWithString: s)
-        l.font = .systemFont(ofSize: 13)
+        l.lineBreakMode = .byWordWrapping
+        l.maximumNumberOfLines = 3
+        l.preferredMaxLayoutWidth = Self.paneWidth - 24 - 24 - 90
+        l.font = .systemFont(ofSize: 11)
+        l.textColor = .secondaryLabelColor
         return l
     }
 
-    private func sectionLabel(_ s: String) -> NSTextField {
-        let l = NSTextField(labelWithString: s)
-        l.font = .systemFont(ofSize: 13, weight: .semibold)
-        return l
+    // MARK: Tab switching
+
+    private func select(_ tab: Tab) {
+        guard let pane = panes[tab], let window else { return }
+        window.title = tab.title
+        window.toolbar?.selectedItemIdentifier = tab.id
+        let targetHeight = pane.fittingSize.height
+        let newContent = NSSize(width: Self.paneWidth, height: targetHeight)
+        let oldTop = window.frame.maxY
+        window.contentView = pane
+        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: newContent))
+        frame.origin.x = window.frame.origin.x
+        frame.origin.y = oldTop - frame.height        // keep the title bar anchored
+        window.setFrame(frame, display: true, animate: true)
     }
+
+    @objc private func tabSelected(_ sender: NSToolbarItem) {
+        if let tab = Tab.allCases.first(where: { $0.id == sender.itemIdentifier }) { select(tab) }
+    }
+
+    // MARK: NSToolbarDelegate
+
+    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier,
+                 willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+        guard let tab = Tab.allCases.first(where: { $0.id == id }) else { return nil }
+        let item = NSToolbarItem(itemIdentifier: id)
+        item.label = tab.title
+        item.image = NSImage(systemSymbolName: tab.symbol, accessibilityDescription: tab.title)
+        item.target = self
+        item.action = #selector(tabSelected(_:))
+        return item
+    }
+    func toolbarDefaultItemIdentifiers(_ t: NSToolbar) -> [NSToolbarItem.Identifier] { Tab.allCases.map { $0.id } }
+    func toolbarAllowedItemIdentifiers(_ t: NSToolbar) -> [NSToolbarItem.Identifier] { Tab.allCases.map { $0.id } }
+    func toolbarSelectableItemIdentifiers(_ t: NSToolbar) -> [NSToolbarItem.Identifier] { Tab.allCases.map { $0.id } }
+
+    // MARK: Values
 
     private func loadValues() {
         let s = AppSettings.shared
         themePopup.selectItem(withTitle: s.themeName)
-        if fontPopup.itemTitles.contains(s.fontName) {
-            fontPopup.selectItem(withTitle: s.fontName)
-        }
+        if fontPopup.itemTitles.contains(s.fontName) { fontPopup.selectItem(withTitle: s.fontName) }
         sizeStepper.doubleValue = Double(s.fontSize)
         sizeField.stringValue = "\(Int(s.fontSize))"
 
-        // Preselect the currently active language override (first entry of the AppleLanguages list).
         let current = (UserDefaults.standard.array(forKey: "AppleLanguages") as? [String])?.first
         let idx = current.flatMap { code in languageCodes.firstIndex { $0 == code } } ?? 0
         languagePopup.selectItem(at: idx)
@@ -182,54 +236,18 @@ final class PreferencesWindowController: NSWindowController {
         lineNumbersCheckbox.state = s.showEditorLineNumbers ? .on : .off
         managerCheckbox.state = s.showManager ? .on : .off
         notifyCheckbox.state = s.notificationsEnabled ? .on : .off
-        let soundIdx = soundNames.firstIndex(of: s.notificationSound) ?? 0
-        soundPopup.selectItem(at: soundIdx)
+        soundPopup.selectItem(at: soundNames.firstIndex(of: s.notificationSound) ?? 0)
         soundPopup.isEnabled = s.notificationsEnabled
 
+        pageSizePopup.selectItem(at: pageSizeValues.firstIndex(of: s.gridPageSize) ?? 2)
         tileStylePopup.selectItem(at: tileStyleValues.firstIndex(of: s.gridTileStyle) ?? 0)
         statusDisplayPopup.selectItem(at: statusDisplayValues.firstIndex(of: s.statusDisplay) ?? 0)
     }
 
-    @objc private func tileStyleChanged() {
-        AppSettings.shared.gridTileStyle = tileStyleValues[tileStylePopup.indexOfSelectedItem]
-    }
-
-    @objc private func statusDisplayChanged() {
-        AppSettings.shared.statusDisplay = statusDisplayValues[statusDisplayPopup.indexOfSelectedItem]
-    }
-
-    @objc private func notesToggled() {
-        AppSettings.shared.showSidebarNotes = (notesCheckbox.state == .on)
-    }
-
-    @objc private func lineNumbersToggled() {
-        AppSettings.shared.showEditorLineNumbers = (lineNumbersCheckbox.state == .on)
-    }
-
-    @objc private func managerToggled() {
-        AppSettings.shared.showManager = (managerCheckbox.state == .on)
-    }
-
-    @objc private func notifyToggled() {
-        let on = (notifyCheckbox.state == .on)
-        AppSettings.shared.notificationsEnabled = on
-        soundPopup.isEnabled = on
-    }
-
-    @objc private func soundChanged() {
-        let name = soundNames[soundPopup.indexOfSelectedItem]
-        AppSettings.shared.notificationSound = name
-        AppSettings.shared.playNotificationSound()   // preview the chosen tone
-    }
-
     // MARK: Actions
 
-    @objc private func themeChanged() {
-        AppSettings.shared.themeName = themePopup.titleOfSelectedItem ?? "Barycenter Dark"
-    }
-    @objc private func fontChanged() {
-        if let f = fontPopup.titleOfSelectedItem { AppSettings.shared.fontName = f }
-    }
+    @objc private func themeChanged() { AppSettings.shared.themeName = themePopup.titleOfSelectedItem ?? "Barycenter Dark" }
+    @objc private func fontChanged()  { if let f = fontPopup.titleOfSelectedItem { AppSettings.shared.fontName = f } }
     @objc private func stepperChanged() {
         let v = sizeStepper.doubleValue
         sizeField.stringValue = "\(Int(v))"
@@ -237,16 +255,27 @@ final class PreferencesWindowController: NSWindowController {
     }
     @objc private func sizeFieldChanged() {
         let v = max(9, min(24, sizeField.integerValue))
-        sizeStepper.doubleValue = Double(v)
-        sizeField.stringValue = "\(v)"
+        sizeStepper.doubleValue = Double(v); sizeField.stringValue = "\(v)"
         AppSettings.shared.fontSize = CGFloat(v)
     }
     @objc private func languageChanged() {
         let idx = languagePopup.indexOfSelectedItem
-        if let code = languageCodes[idx] {
-            UserDefaults.standard.set([code], forKey: "AppleLanguages")
-        } else {
-            UserDefaults.standard.removeObject(forKey: "AppleLanguages")   // "System": no override
-        }
+        if let code = languageCodes[idx] { UserDefaults.standard.set([code], forKey: "AppleLanguages") }
+        else { UserDefaults.standard.removeObject(forKey: "AppleLanguages") }
     }
+    @objc private func notesToggled()       { AppSettings.shared.showSidebarNotes = (notesCheckbox.state == .on) }
+    @objc private func lineNumbersToggled() { AppSettings.shared.showEditorLineNumbers = (lineNumbersCheckbox.state == .on) }
+    @objc private func managerToggled()     { AppSettings.shared.showManager = (managerCheckbox.state == .on) }
+    @objc private func notifyToggled() {
+        let on = (notifyCheckbox.state == .on)
+        AppSettings.shared.notificationsEnabled = on
+        soundPopup.isEnabled = on
+    }
+    @objc private func soundChanged() {
+        AppSettings.shared.notificationSound = soundNames[soundPopup.indexOfSelectedItem]
+        AppSettings.shared.playNotificationSound()
+    }
+    @objc private func pageSizeChanged()      { AppSettings.shared.gridPageSize = pageSizeValues[pageSizePopup.indexOfSelectedItem] }
+    @objc private func tileStyleChanged()     { AppSettings.shared.gridTileStyle = tileStyleValues[tileStylePopup.indexOfSelectedItem] }
+    @objc private func statusDisplayChanged() { AppSettings.shared.statusDisplay = statusDisplayValues[statusDisplayPopup.indexOfSelectedItem] }
 }

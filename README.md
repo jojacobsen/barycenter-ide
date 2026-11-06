@@ -30,7 +30,9 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 
 - **Grid & Focus**: all sessions at once, or one big; click a tile and type.
   **Drag a tile's header** to rearrange the grid — the order is kept in your layout
-  and restored on the next launch.
+  and restored on the next launch. **Right-click a tile's header** to rename it or
+  open its per-session settings (folder / profile / Remote Control — applied by
+  restarting the session, Claude with `--continue`).
 - **Attention routing**: a session that needs you turns 🔴 with a sound, Dock
   bounce and a macOS banner. For Claude Code this is driven by real **hooks**;
   others use a terminal-bell heuristic.
@@ -113,22 +115,24 @@ Two extra badges can appear next to the status:
 
 ## Settings
 
-Open with `⌘,` (**Barycenter → Settings…**). Everything takes effect immediately
-(except the UI language, which needs a restart).
+Open with `⌘,` (**Barycenter → Settings…**). Settings are grouped into tabs —
+**General · Terminal · Grid · Notifications** — and everything takes effect
+immediately (except the UI language, which needs a restart).
 
-| Setting | Options / default | Effect |
-|---------|-------------------|--------|
-| **Theme** | preset themes | Terminal color theme for **all** session consoles (not the app chrome). |
-| **Font** | monospace fonts | Terminal font. |
-| **Size** | 9–24 pt | Terminal font size. |
-| **Language** | System / Deutsch / English / Español / Français / Italiano / 日本語 / 简体中文 | UI language (**restart required**). |
-| **Notes in the sidebar** | on / off | Show the shared notes / todo list at the bottom of the sidebar. |
-| **Line numbers in the editor** | on *(default)* / off | Line numbers in the file editor. |
-| **Show AI manager** | on *(default)* / off | When off, hides the **Manager** rail button and greys out *Start AI manager*. |
-| **Tiles** | Uniform *(default)* / Distinct | *Distinct* gives each grid tile a stable accent color as a stripe on its left edge so you can tell sessions apart at a glance. |
-| **Show status as** | Frame *(default)* / Background | *Frame* draws a thin colored border; *Background* fills the whole title bar with the status color (green/red/gray). |
-| **Notify when a session is done** | on *(default)* / off | Master switch for attention alerts — sound **+** banner **+** Dock bounce. Off = fully silent. |
-| **Sound** | *Off* + all macOS system sounds | The tone played when a session needs you; picking one **previews** it. |
+| Tab | Setting | Options / default | Effect |
+|-----|---------|-------------------|--------|
+| General | **Language** | System / Deutsch / English / Español / Français / Italiano / 日本語 / 简体中文 | UI language (**restart required**). |
+| General | **Notes in the sidebar** | on / off | Show the shared notes / todo list at the bottom of the sidebar. |
+| General | **Line numbers in the editor** | on *(default)* / off | Line numbers in the file editor. |
+| General | **Show AI manager** | on *(default)* / off | When off, hides the **Manager** rail button and greys out *Start AI manager*. |
+| Terminal | **Theme** | preset themes | Terminal color theme for **all** session consoles (not the app chrome). |
+| Terminal | **Font** | monospace fonts | Terminal font. |
+| Terminal | **Size** | 9–24 pt | Terminal font size. |
+| Grid | **Sessions per page** | 4 / 6 / 8 *(default)* | Max session tiles shown on one grid page before paginating. |
+| Grid | **Tiles** | Uniform *(default)* / Distinct | *Distinct* gives each grid tile a stable accent color as a stripe on its left edge so you can tell sessions apart at a glance. |
+| Grid | **Show status as** | Frame *(default)* / Background | *Frame* draws a thin colored border; *Background* fills the whole title bar with the status color (green/red/gray). |
+| Notifications | **Notify when a session is done** | on *(default)* / off | Master switch for attention alerts — sound **+** banner **+** Dock bounce. Off = fully silent. |
+| Notifications | **Sound** | *Off* + all macOS system sounds | The tone played when a session needs you; picking one **previews** it. |
 
 ## Requirements
 
