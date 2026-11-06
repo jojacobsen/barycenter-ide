@@ -3,10 +3,14 @@ import AppKit
 /// Container that positions its tiles in a grid via frames.
 final class TileContainerView: NSView {
     var columns: Int = 1
+    /// Suppresses the grid relayout while a tile is being dragged (so the dragged
+    /// tile can follow the cursor without the others snapping around).
+    var isReordering = false
     override var isFlipped: Bool { true }   // (0,0) at top left
 
     override func layout() {
         super.layout()
+        guard !isReordering else { return }
         let tiles = subviews
         guard !tiles.isEmpty else { return }
         let cols = max(1, columns)
@@ -20,6 +24,20 @@ final class TileContainerView: NSView {
                                 y: gap + CGFloat(r) * (h + gap),
                                 width: max(1, w), height: max(1, h))
         }
+    }
+
+    /// The tile slot (0-based, row-major) whose cell contains `p` (container coords).
+    func slotIndex(for p: NSPoint) -> Int {
+        let n = subviews.count
+        guard n > 0 else { return 0 }
+        let cols = max(1, columns)
+        let rows = Int(ceil(Double(n) / Double(cols)))
+        let gap: CGFloat = 8
+        let w = (bounds.width  - gap * CGFloat(cols + 1)) / CGFloat(cols)
+        let h = (bounds.height - gap * CGFloat(rows + 1)) / CGFloat(rows)
+        let col = max(0, min(cols - 1, Int((p.x - gap) / (w + gap))))
+        let row = max(0, min(rows - 1, Int((p.y - gap) / (h + gap))))
+        return min(row * cols + col, n - 1)
     }
 }
 
@@ -48,6 +66,8 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     private lazy var filesView = SessionFilesView(session: session)
     private var page = 0
     private var statusTimer: Timer?
+    private var dragStartFrame: NSRect = .zero
+    private var isDragging = false
 
     init(session: Session) {
         self.session = session
@@ -160,6 +180,11 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         double.delegate = self
         headerStack.addGestureRecognizer(double)
 
+        // Drag the header to reorder tiles within the grid page.
+        let pan = NSPanGestureRecognizer(target: self, action: #selector(onPan(_:)))
+        pan.delegate = self
+        headerStack.addGestureRecognizer(pan)
+
         showPage(0)
         refresh()
     }
@@ -228,6 +253,43 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     }
 
     @objc private func onClick()  { SessionManager.shared.select(session.id) }
+
+    /// Drag the header to reorder this tile within the current grid page. Only grid
+    /// tiles (not the sidebar manager tile) participate; dropping computes the target
+    /// slot and reorders the worker list, which persists into layouts + auto-restore.
+    @objc private func onPan(_ g: NSPanGestureRecognizer) {
+        guard let container = superview as? TileContainerView,
+              SessionManager.shared.viewMode == .grid, !session.isManager else { return }
+        switch g.state {
+        case .began:
+            isDragging = true
+            container.isReordering = true
+            dragStartFrame = frame
+            layer?.zPosition = 1              // draw above neighbors (keeps subview order intact)
+            alphaValue = 0.9
+        case .changed:
+            guard isDragging else { return }
+            let t = g.translation(in: container)
+            setFrameOrigin(NSPoint(x: dragStartFrame.origin.x + t.x,
+                                   y: dragStartFrame.origin.y + t.y))
+        case .ended, .cancelled, .failed:
+            guard isDragging else { return }
+            isDragging = false
+            alphaValue = 1
+            layer?.zPosition = 0
+            container.isReordering = false
+            let local = container.slotIndex(for: NSPoint(x: frame.midX, y: frame.midY))
+            let absolute = SessionManager.shared.page * SessionManager.shared.pageSize + local
+            // On a real change this triggers .sessionsChanged -> rebuild re-lays the
+            // grid. Force a relayout too, so a no-op drop snaps the tile back.
+            SessionManager.shared.reorderWorker(session.id, toIndex: absolute)
+            container.needsLayout = true
+            container.layoutSubtreeIfNeeded()
+        default:
+            break
+        }
+    }
+
     @objc private func onDouble() {
         SessionManager.shared.select(session.id)
         // The manager tile lives in the Control Center; don't drag it into the
