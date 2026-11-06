@@ -219,3 +219,13 @@
 /* Manager resume fallback */
 "Keine vorherige Unterhaltung gefunden." = "未找到之前的对话。";
 "Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "AI 管理器将不恢复并重新启动。";
+
+/* Settings: appearance */
+"Darstellung" = "外观";
+"Kacheln:" = "窗格:";
+"Einheitlich" = "统一";
+"Unterschiedlich" = "区分";
+"Status anzeigen als:" = "状态显示方式:";
+"Rahmen" = "边框";
+"Hintergrund" = "背景";
+"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "“区分”会为每个窗格的标题赋予专属强调色，便于区分。";

@@ -219,3 +219,13 @@
 /* Manager resume fallback */
 "Keine vorherige Unterhaltung gefunden." = "No previous conversation found.";
 "Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "The AI manager will be restarted without resuming.";
+
+/* Settings: appearance */
+"Darstellung" = "Appearance";
+"Kacheln:" = "Tiles:";
+"Einheitlich" = "Uniform";
+"Unterschiedlich" = "Distinct";
+"Status anzeigen als:" = "Show status as:";
+"Rahmen" = "Frame";
+"Hintergrund" = "Background";
+"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "“Distinct” gives each tile its own accent color in the title so you can tell them apart more easily.";

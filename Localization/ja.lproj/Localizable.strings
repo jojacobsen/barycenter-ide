@@ -219,3 +219,13 @@
 /* Manager resume fallback */
 "Keine vorherige Unterhaltung gefunden." = "前回の会話が見つかりません。";
 "Der KI-Verwalter wird ohne Fortsetzen neu gestartet." = "AIマネージャーを再開せずに起動し直します。";
+
+/* Settings: appearance */
+"Darstellung" = "外観";
+"Kacheln:" = "タイル:";
+"Einheitlich" = "統一";
+"Unterschiedlich" = "個別";
+"Status anzeigen als:" = "ステータスの表示:";
+"Rahmen" = "枠線";
+"Hintergrund" = "背景";
+"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "「個別」にすると、各タイルのタイトルに固有のアクセントカラーが付き、見分けやすくなります。";
