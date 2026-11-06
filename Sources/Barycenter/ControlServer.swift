@@ -84,7 +84,7 @@ final class ControlServer {
         var result: [String: Any] = ["ok": false, "error": "bad request"]
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let cmd = obj["cmd"] as? String {
-            if cmd == "list" || cmd == "read" || cmd == "notes" {
+            if cmd == "list" || cmd == "read" || cmd == "notes" || cmd == "diff" || cmd == "files" {
                 // Reading: synchronous, since we return the data.
                 DispatchQueue.main.sync { result = BarycenterControl.execute(cmd: cmd, args: obj) }
             } else {
@@ -178,6 +178,40 @@ enum BarycenterControl {
             let lines = (args["lines"] as? Int) ?? (args["lines"] as? String).flatMap { Int($0) } ?? 200
             return ["ok": true, "id": s.id.uuidString, "title": s.title,
                     "text": s.terminalText(maxLines: lines)]
+
+        case "diff":
+            guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
+            guard Git.isRepo(s.cwd) else {
+                return ["ok": true, "id": s.id.uuidString, "title": s.title, "repo": false,
+                        "status": "", "diff": "", "note": "not a git repo"]
+            }
+            let status = Git.run(["status", "--short", "--branch"], cwd: s.cwd)
+            let staged = (args["staged"] as? Bool) ?? false
+            let diff = Git.run(["diff"] + (staged ? ["--staged"] : []), cwd: s.cwd)
+            return ["ok": true, "id": s.id.uuidString, "title": s.title, "repo": true,
+                    "cwd": s.cwd, "status": status, "diff": diff]
+
+        case "files":
+            guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
+            // With --path: that file's content (relative to the session folder).
+            // Otherwise: the list of changed files (git status --short).
+            if let rel = args["path"] as? String, !rel.isEmpty {
+                let base = (s.cwd as NSString).standardizingPath
+                let resolved = ((s.cwd as NSString).appendingPathComponent(rel) as NSString).standardizingPath
+                guard resolved == base || resolved.hasPrefix(base + "/") else {
+                    return ["ok": false, "error": "path escapes session folder"]
+                }
+                guard let data = FileManager.default.contents(atPath: resolved),
+                      let text = String(data: data, encoding: .utf8) else {
+                    return ["ok": false, "error": "cannot read file (missing or not UTF-8)"]
+                }
+                let maxBytes = 200_000
+                let content = data.count > maxBytes ? String(text.prefix(maxBytes)) + "\n…(truncated)" : text
+                return ["ok": true, "id": s.id.uuidString, "path": rel, "content": content]
+            }
+            let changed = Git.isRepo(s.cwd) ? Git.run(["status", "--short"], cwd: s.cwd) : ""
+            return ["ok": true, "id": s.id.uuidString, "title": s.title,
+                    "repo": Git.isRepo(s.cwd), "cwd": s.cwd, "changed": changed]
 
         case "focus":
             guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }

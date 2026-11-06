@@ -229,3 +229,12 @@
 "Rahmen" = "枠線";
 "Hintergrund" = "背景";
 "„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "「個別」にすると、各タイルの左端に色付きの帯が付き、見分けやすくなります。";
+
+/* Diff tab: agent actions */
+"AI-Review" = "AIレビュー";
+"PR erstellen" = "PRを作成";
+"Lässt den Agenten dieser Session die aktuellen Änderungen reviewen." = "このセッションのエージェントに現在の変更をレビューさせます。";
+"Lässt den Agenten committen, pushen und einen PR via gh öffnen." = "エージェントにコミット・プッシュし、gh で PR を開かせます。";
+"Pull Request erstellen lassen?" = "プルリクエストを作成しますか？";
+"Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "このセッションのエージェントが変更をコミットし、プッシュして gh で PR を開きます。";
+"✓ Gesendet" = "✓ 送信しました";

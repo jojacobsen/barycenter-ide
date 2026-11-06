@@ -28,20 +28,89 @@ final class SessionDiffView: NSView {
         let refreshButton = NSButton(title: L("↻ Aktualisieren"), target: self, action: #selector(refresh))
         refreshButton.bezelStyle = .rounded
         refreshButton.controlSize = .small
-        refreshButton.translatesAutoresizingMaskIntoConstraints = false
+
+        // Agent actions (only meaningful for a running Claude Code session).
+        let isClaude = (session.launchCommand == "claude")
+        reviewButton = NSButton(title: L("AI-Review"), target: self, action: #selector(requestReview))
+        reviewButton.bezelStyle = .rounded
+        reviewButton.controlSize = .small
+        reviewButton.toolTip = L("Lässt den Agenten dieser Session die aktuellen Änderungen reviewen.")
+        reviewButton.isHidden = !isClaude
+
+        prButton = NSButton(title: L("PR erstellen"), target: self, action: #selector(requestPR))
+        prButton.bezelStyle = .rounded
+        prButton.controlSize = .small
+        prButton.toolTip = L("Lässt den Agenten committen, pushen und einen PR via gh öffnen.")
+        prButton.isHidden = !isClaude
+
+        let spacer = NSView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let toolbar = NSStackView(views: [reviewButton, prButton, spacer, refreshButton])
+        toolbar.orientation = .horizontal
+        toolbar.spacing = 6
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(scroll)
-        addSubview(refreshButton)
+        addSubview(toolbar)
         NSLayoutConstraint.activate([
-            refreshButton.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            refreshButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            scroll.topAnchor.constraint(equalTo: refreshButton.bottomAnchor, constant: 4),
+            toolbar.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            toolbar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            toolbar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            scroll.topAnchor.constraint(equalTo: toolbar.bottomAnchor, constant: 4),
             scroll.leadingAnchor.constraint(equalTo: leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: trailingAnchor),
             scroll.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
+
+    private var reviewButton: NSButton!
+    private var prButton: NSButton!
     required init?(coder: NSCoder) { fatalError() }
+
+    @objc private func requestReview() {
+        sendToAgent(
+            "Please review the current uncommitted changes in this repo (run `git diff`). "
+            + "Flag correctness bugs and security issues, most severe first, with concrete "
+            + "file:line references. Keep it concise.",
+            from: reviewButton)
+    }
+
+    @objc private func requestPR() {
+        let alert = NSAlert()
+        alert.messageText = L("Pull Request erstellen lassen?")
+        alert.informativeText = L("Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen.")
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: L("PR erstellen"))
+        alert.addButton(withTitle: L("Abbrechen"))
+        let go = { [weak self] in
+            guard let self else { return }
+            self.sendToAgent(
+                "Create a pull request for the current changes: if needed create a branch, commit with a "
+                + "clear message, push, and open a PR with `gh pr create` (sensible title and body). "
+                + "Tell me the PR URL when done.",
+                from: self.prButton)
+        }
+        if let win = window {
+            alert.beginSheetModal(for: win) { if $0 == .alertFirstButtonReturn { go() } }
+        } else if alert.runModal() == .alertFirstButtonReturn {
+            go()
+        }
+    }
+
+    /// Submit a prompt to this session's agent (as if typed + Enter) and briefly
+    /// confirm on the button. Reviews/PRs happen in the session's Terminal tab.
+    private func sendToAgent(_ text: String, from button: NSButton?) {
+        session.terminalView.send(txt: text + "\r")
+        SessionManager.shared.select(session.id)
+        guard let button else { return }
+        let orig = button.title
+        button.title = L("✓ Gesendet")
+        button.isEnabled = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            button.title = orig
+            button.isEnabled = true
+        }
+    }
 
     @objc func refresh() {
         let cwd = session.cwd

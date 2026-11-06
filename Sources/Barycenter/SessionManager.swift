@@ -222,6 +222,12 @@ final class SessionManager {
                  lines (default 200). This is how you see what a session is doing/asking. Alternatively --id <uuid>.
           \(ctl) focus --title <name>     -> show a session large.
           \(ctl) close --title <name>     -> close a session.
+          \(ctl) diff --title <name> [--staged]
+              -> git status + git diff of that session's folder, so you can SEE its
+                 uncommitted changes (not just the terminal). Alternatively --id <uuid>.
+          \(ctl) files --title <name> [--path <relative/file>]
+              -> without --path: the changed files (git status --short) in the session's
+                 folder. With --path: that file's current content. Alternatively --id <uuid>.
           \(ctl) notes                    -> reads the global todo/notes list (Markdown).
           \(ctl) note-add --text "<todo>" -> appends a new todo (- [ ] …) to the list.
           \(ctl) notes-set --text "<md>"  -> replaces the whole list (Markdown, checkboxes - [ ]/- [x]).

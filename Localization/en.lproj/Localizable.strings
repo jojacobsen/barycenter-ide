@@ -229,3 +229,12 @@
 "Rahmen" = "Frame";
 "Hintergrund" = "Background";
 "„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "“Distinct” gives each tile a colored stripe on its left edge so you can tell them apart more easily.";
+
+/* Diff tab: agent actions */
+"AI-Review" = "AI review";
+"PR erstellen" = "Create PR";
+"Lässt den Agenten dieser Session die aktuellen Änderungen reviewen." = "Asks this session's agent to review the current changes.";
+"Lässt den Agenten committen, pushen und einen PR via gh öffnen." = "Asks the agent to commit, push, and open a PR via gh.";
+"Pull Request erstellen lassen?" = "Create a pull request?";
+"Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "This session's agent will commit the changes, push, and open a PR via gh.";
+"✓ Gesendet" = "✓ Sent";

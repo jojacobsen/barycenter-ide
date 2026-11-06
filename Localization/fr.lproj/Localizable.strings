@@ -229,3 +229,12 @@
 "Rahmen" = "Cadre";
 "Hintergrund" = "Arrière-plan";
 "„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "« Distinct » ajoute à chaque tuile une bande colorée sur le bord gauche pour mieux les distinguer.";
+
+/* Diff tab: agent actions */
+"AI-Review" = "Revue IA";
+"PR erstellen" = "Créer une PR";
+"Lässt den Agenten dieser Session die aktuellen Änderungen reviewen." = "Demande à l’agent de cette session de relire les modifications actuelles.";
+"Lässt den Agenten committen, pushen und einen PR via gh öffnen." = "Demande à l’agent de commiter, pousser et ouvrir une PR via gh.";
+"Pull Request erstellen lassen?" = "Créer une pull request ?";
+"Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "L’agent de cette session va commiter les modifications, pousser et ouvrir une PR via gh.";
+"✓ Gesendet" = "✓ Envoyé";
