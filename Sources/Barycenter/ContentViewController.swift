@@ -169,6 +169,9 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     @objc private func onClick()  { SessionManager.shared.select(session.id) }
     @objc private func onDouble() {
         SessionManager.shared.select(session.id)
+        // The manager tile lives in the Control Center; don't drag it into the
+        // main area's focus mode (that would steal its terminal view).
+        guard !session.isManager else { return }
         SessionManager.shared.setViewMode(.focus)
     }
 
@@ -349,9 +352,21 @@ final class ContentViewController: NSViewController {
 
     @objc private func rebuild() {
         let mgr = SessionManager.shared
-        let desired: [Session] = (mgr.viewMode == .focus)
-            ? (mgr.selectedSession.map { [$0] } ?? [])
-            : mgr.visibleSessions()
+        // The manager lives in the Control Center (sidebar) and owns a single
+        // terminal view. It must never be hosted as a main-area tile, or focusing
+        // it would re-parent that terminal out of the Control Center (leaving it
+        // blank). So in focus mode the manager is not a valid focus target.
+        let desired: [Session]
+        switch mgr.viewMode {
+        case .focus:
+            if let sel = mgr.selectedSession, !sel.isManager {
+                desired = [sel]
+            } else {
+                desired = mgr.workerSessions.first.map { [$0] } ?? []
+            }
+        case .grid:
+            desired = mgr.visibleSessions()
+        }
         let desiredIDs = Set(desired.map { $0.id })
 
         // Remove worker tiles that are no longer visible (terminals stay kept in their tile)
@@ -427,9 +442,13 @@ final class ContentViewController: NSViewController {
     }
     @objc private func presentManager() {
         guard AppSettings.shared.showManager else { return }
-        // Already running -> just focus it, no sheet.
+        // Already running -> select it and move the keyboard into the Control Center
+        // terminal. Do NOT switch the main area to focus mode: the manager is hosted
+        // in the sidebar, and focusing it there would steal its terminal view.
         if let m = SessionManager.shared.managerSession {
-            SessionManager.shared.select(m.id); SessionManager.shared.setViewMode(.focus); return
+            SessionManager.shared.select(m.id)
+            DispatchQueue.main.async { m.terminalView.window?.makeFirstResponder(m.terminalView) }
+            return
         }
         if presentedViewControllers?.contains(where: { $0 is ManagerSheetController }) == true { return }
         presentAsSheet(ManagerSheetController())
