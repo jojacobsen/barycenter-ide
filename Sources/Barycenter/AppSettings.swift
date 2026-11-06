@@ -5,6 +5,18 @@ extension Notification.Name {
     static let settingsChanged = Notification.Name("BarycenterSettingsChanged")
 }
 
+/// How a session's status is shown on its grid tile.
+enum StatusDisplay: String {
+    case border      // thin colored frame (default)
+    case background  // the whole tile chrome is tinted with the status color
+}
+
+/// Whether grid tiles all look alike or get a per-session accent to tell them apart.
+enum GridTileStyle: String {
+    case uniform   // all tiles look the same (default)
+    case distinct  // each tile gets a stable accent color in its header
+}
+
 /// Persistent user preferences (UserDefaults). Everyone sets their own theme/font.
 /// Changes apply immediately to all existing + new sessions.
 final class AppSettings {
@@ -62,6 +74,32 @@ final class AppSettings {
     var notificationSound: String {
         get { d.string(forKey: "notificationSound") ?? "Ping" }
         set { d.set(newValue, forKey: "notificationSound"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
+    /// How a session's status is shown on its tile: a frame (default) or the whole
+    /// tile background tinted with the status color.
+    var statusDisplay: StatusDisplay {
+        get { StatusDisplay(rawValue: d.string(forKey: "statusDisplay") ?? "") ?? .border }
+        set { d.set(newValue.rawValue, forKey: "statusDisplay"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
+    /// Whether grid tiles look uniform (default) or get a per-session accent color.
+    var gridTileStyle: GridTileStyle {
+        get { GridTileStyle(rawValue: d.string(forKey: "gridTileStyle") ?? "") ?? .uniform }
+        set { d.set(newValue.rawValue, forKey: "gridTileStyle"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
+    /// A stable, distinguishing accent color for a session (used when `gridTileStyle`
+    /// is `.distinct`). Avoids green/red/gray so it never clashes with status colors.
+    private static let tilePalette: [NSColor] = [
+        .systemBlue, .systemPurple, .systemPink, .systemTeal, .systemIndigo,
+        .systemOrange, .systemCyan, .systemBrown, .systemYellow, .systemMint
+    ]
+    func distinctColor(for id: UUID) -> NSColor {
+        // Deterministic hash over the UUID bytes (Swift's hashValue is per-process seeded).
+        let bytes = withUnsafeBytes(of: id.uuid) { Array($0) }
+        let sum = bytes.reduce(0) { ($0 &* 31) &+ Int($1) }
+        return Self.tilePalette[abs(sum) % Self.tilePalette.count]
     }
 
     /// Folder the AI manager starts in (default: home).

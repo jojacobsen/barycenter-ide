@@ -14,6 +14,11 @@ final class PreferencesWindowController: NSWindowController {
     private let soundPopup = NSPopUpButton(frame: .zero, pullsDown: false)
     /// Sound names matching the popup entries (index 0 = "Aus").
     private var soundNames: [String] = []
+    private let tileStylePopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    private let statusDisplayPopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    /// Values matching the popup entries (order must match the `addItems` calls below).
+    private let tileStyleValues: [GridTileStyle] = [.uniform, .distinct]
+    private let statusDisplayValues: [StatusDisplay] = [.border, .background]
 
     /// Language codes matching the entries of the language popup.
     /// `nil` = "System" (no override). Order must match `languageItemTitles`.
@@ -22,7 +27,7 @@ final class PreferencesWindowController: NSWindowController {
 
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 460),
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: 560),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
@@ -84,6 +89,21 @@ final class PreferencesWindowController: NSWindowController {
         soundPopup.target = self
         soundPopup.action = #selector(soundChanged)
 
+        tileStylePopup.addItems(withTitles: [L("Einheitlich"), L("Unterschiedlich")])
+        tileStylePopup.target = self
+        tileStylePopup.action = #selector(tileStyleChanged)
+
+        statusDisplayPopup.addItems(withTitles: [L("Rahmen"), L("Hintergrund")])
+        statusDisplayPopup.target = self
+        statusDisplayPopup.action = #selector(statusDisplayChanged)
+
+        let tileNote = NSTextField(labelWithString: L("„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst."))
+        tileNote.lineBreakMode = .byWordWrapping
+        tileNote.maximumNumberOfLines = 2
+        tileNote.preferredMaxLayoutWidth = 340
+        tileNote.font = .systemFont(ofSize: 11)
+        tileNote.textColor = .secondaryLabelColor
+
         let note = NSTextField(labelWithString: L("Theme/Schrift gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort."))
         note.lineBreakMode = .byWordWrapping
         note.maximumNumberOfLines = 2
@@ -108,6 +128,10 @@ final class PreferencesWindowController: NSWindowController {
             [NSGridCell.emptyContentView, notesCheckbox],
             [NSGridCell.emptyContentView, lineNumbersCheckbox],
             [NSGridCell.emptyContentView, managerCheckbox],
+            [sectionLabel(L("Darstellung")), NSGridCell.emptyContentView],
+            [label(L("Kacheln:")), tileStylePopup],
+            [label(L("Status anzeigen als:")), statusDisplayPopup],
+            [NSGridCell.emptyContentView, tileNote],
             [sectionLabel(L("Benachrichtigung")), notifyCheckbox],
             [label(L("Ton:")), soundPopup],
         ])
@@ -161,6 +185,17 @@ final class PreferencesWindowController: NSWindowController {
         let soundIdx = soundNames.firstIndex(of: s.notificationSound) ?? 0
         soundPopup.selectItem(at: soundIdx)
         soundPopup.isEnabled = s.notificationsEnabled
+
+        tileStylePopup.selectItem(at: tileStyleValues.firstIndex(of: s.gridTileStyle) ?? 0)
+        statusDisplayPopup.selectItem(at: statusDisplayValues.firstIndex(of: s.statusDisplay) ?? 0)
+    }
+
+    @objc private func tileStyleChanged() {
+        AppSettings.shared.gridTileStyle = tileStyleValues[tileStylePopup.indexOfSelectedItem]
+    }
+
+    @objc private func statusDisplayChanged() {
+        AppSettings.shared.statusDisplay = statusDisplayValues[statusDisplayPopup.indexOfSelectedItem]
     }
 
     @objc private func notesToggled() {

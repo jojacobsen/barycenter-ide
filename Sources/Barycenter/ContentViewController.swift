@@ -32,6 +32,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     private var selected = false
 
     private let contentContainer = NSView()
+    private var headerStack: NSStackView!
     private let pageControl = NSSegmentedControl(labels: [L("Terminal"), L("Status"), L("Notizen"), L("Diff"), L("Dateien")],
                                                  trackingMode: .selectOne, target: nil, action: nil)
     private let pagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -50,6 +51,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         wantsLayer = true
         layer?.cornerRadius = 6
         layer?.borderWidth = 1
+        layer?.masksToBounds = true   // so a tinted header fill follows the rounded corners
 
         dot.textColor = session.displayState.color
         dot.font = .systemFont(ofSize: 10)
@@ -68,12 +70,13 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
         closeButton.toolTip = L("Session schließen")
 
-        let headerStack = NSStackView(views: [dot, name, closeButton])
+        headerStack = NSStackView(views: [dot, name, closeButton])
         headerStack.orientation = .horizontal
         headerStack.distribution = .fill
         headerStack.spacing = 6
         headerStack.edgeInsets = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
         headerStack.translatesAutoresizingMaskIntoConstraints = false
+        headerStack.wantsLayer = true   // for the per-session distinct-color tint
 
         // Page switcher at the bottom
         pageControl.selectedSegment = 0
@@ -152,11 +155,34 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
 
     func refresh() {
         let st = session.displayState
+        let s = AppSettings.shared
         dot.textColor = st.color
-        let color: NSColor = st.needsYou ? .systemRed
-                           : (selected ? .controlAccentColor : .separatorColor)
-        layer?.borderColor = color.cgColor
-        layer?.borderWidth = (selected || st.needsYou) ? 2 : 1
+
+        // Border: selection / attention always win; otherwise the status color in
+        // "background" mode, or the neutral separator in "border" (default) mode.
+        let borderColor: NSColor
+        let borderWidth: CGFloat
+        if st.needsYou           { borderColor = .systemRed;          borderWidth = 2 }
+        else if selected         { borderColor = .controlAccentColor; borderWidth = 2 }
+        else if s.statusDisplay == .background { borderColor = st.color; borderWidth = 1 }
+        else                     { borderColor = .separatorColor;     borderWidth = 1 }
+        layer?.borderColor = borderColor.cgColor
+        layer?.borderWidth = borderWidth
+
+        // Status as the whole tile background (optional). The terminal fills the
+        // content area opaquely, so this shows through the header and the chrome.
+        layer?.backgroundColor = (s.statusDisplay == .background)
+            ? st.color.withAlphaComponent(0.20).cgColor
+            : nil
+
+        // Distinct per-session accent in the header (optional; the manager keeps
+        // its own look). Sits on top of the status tint, so both can be read:
+        // header = which session, chrome/border = its status.
+        if s.gridTileStyle == .distinct && !session.isManager {
+            headerStack.layer?.backgroundColor = s.distinctColor(for: session.id).withAlphaComponent(0.55).cgColor
+        } else {
+            headerStack.layer?.backgroundColor = nil
+        }
     }
 
     /// Put the keyboard into the terminal when this tile is selected and the terminal
@@ -343,6 +369,7 @@ final class ContentViewController: NSViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .sessionsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .selectionChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(agentsUpdated), name: .agentsUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(agentsUpdated), name: .settingsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentNewSession), name: .newSessionRequested, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentManager), name: .managerRequested, object: nil)
         rebuild()

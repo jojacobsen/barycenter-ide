@@ -122,6 +122,8 @@ Open with `⌘,` (**Barycenter → Settings…**). Everything takes effect immed
 | **Notes in the sidebar** | on / off | Show the shared notes / todo list at the bottom of the sidebar. |
 | **Line numbers in the editor** | on *(default)* / off | Line numbers in the file editor. |
 | **Show AI manager** | on *(default)* / off | When off, hides the **Manager** rail button and greys out *Start AI manager*. |
+| **Tiles** | Uniform *(default)* / Distinct | *Distinct* gives each grid tile a stable accent color in its title bar so you can tell sessions apart at a glance. |
+| **Show status as** | Frame *(default)* / Background | *Frame* draws a thin colored border; *Background* tints the whole tile's chrome with the status color. |
 | **Notify when a session is done** | on *(default)* / off | Master switch for attention alerts — sound **+** banner **+** Dock bounce. Off = fully silent. |
 | **Sound** | *Off* + all macOS system sounds | The tone played when a session needs you; picking one **previews** it. |
 
