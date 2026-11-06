@@ -228,4 +228,4 @@
 "Status anzeigen als:" = "ステータスの表示:";
 "Rahmen" = "枠線";
 "Hintergrund" = "背景";
-"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "「個別」にすると、各タイルのタイトルに固有のアクセントカラーが付き、見分けやすくなります。";
+"„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "「個別」にすると、各タイルの左端に色付きの帯が付き、見分けやすくなります。";

@@ -28,11 +28,15 @@ final class TileContainerView: NSView {
 final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDelegate {
     let session: Session
     private let dot = NSTextField(labelWithString: "●")
+    private let nameLabel = NSTextField(labelWithString: "")
     private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var selected = false
 
     private let contentContainer = NSView()
     private var headerStack: NSStackView!
+    /// Left accent stripe used for the "distinct" tile style (0 width when off).
+    private let stripe = NSView()
+    private var stripeWidthConstraint: NSLayoutConstraint!
     private let pageControl = NSSegmentedControl(labels: [L("Terminal"), L("Status"), L("Notizen"), L("Diff"), L("Dateien")],
                                                  trackingMode: .selectOne, target: nil, action: nil)
     private let pagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -56,11 +60,11 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         dot.textColor = session.displayState.color
         dot.font = .systemFont(ofSize: 10)
 
-        let name = NSTextField(labelWithString: session.title)
-        name.font = .systemFont(ofSize: 12, weight: .medium)
-        name.lineBreakMode = .byTruncatingTail
-        name.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        nameLabel.stringValue = session.title
+        nameLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        nameLabel.lineBreakMode = .byTruncatingTail
+        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         closeButton.target = self
         closeButton.action = #selector(onClose)
@@ -70,7 +74,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
         closeButton.toolTip = L("Session schließen")
 
-        headerStack = NSStackView(views: [dot, name, closeButton])
+        headerStack = NSStackView(views: [dot, nameLabel, closeButton])
         headerStack.orientation = .horizontal
         headerStack.distribution = .fill
         headerStack.spacing = 6
@@ -113,26 +117,38 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
 
         contentContainer.translatesAutoresizingMaskIntoConstraints = false
 
+        // Left accent stripe (hidden until "distinct"): everything else is anchored to
+        // its trailing edge, so a non-zero width simply shifts the content to the right.
+        stripe.wantsLayer = true
+        stripe.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stripe)
+        stripeWidthConstraint = stripe.widthAnchor.constraint(equalToConstant: 0)
+
         addSubview(headerStack)
         addSubview(contentContainer)
         addSubview(pageControl)
         addSubview(pagePopup)
         NSLayoutConstraint.activate([
+            stripe.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stripe.topAnchor.constraint(equalTo: topAnchor),
+            stripe.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stripeWidthConstraint,
+
             headerStack.topAnchor.constraint(equalTo: topAnchor),
-            headerStack.leadingAnchor.constraint(equalTo: leadingAnchor),
+            headerStack.leadingAnchor.constraint(equalTo: stripe.trailingAnchor),
             headerStack.trailingAnchor.constraint(equalTo: trailingAnchor),
             headerStack.heightAnchor.constraint(equalToConstant: 24),
 
             contentContainer.topAnchor.constraint(equalTo: headerStack.bottomAnchor),
-            contentContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 1),
+            contentContainer.leadingAnchor.constraint(equalTo: stripe.trailingAnchor, constant: 1),
             contentContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1),
 
             pageControl.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: 3),
-            pageControl.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
+            pageControl.leadingAnchor.constraint(equalTo: stripe.trailingAnchor, constant: 6),
             pageControl.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
             pageControl.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
 
-            pagePopup.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
+            pagePopup.leadingAnchor.constraint(equalTo: stripe.trailingAnchor, constant: 6),
             pagePopup.centerYAnchor.constraint(equalTo: pageControl.centerYAnchor),
         ])
 
@@ -156,7 +172,7 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
     func refresh() {
         let st = session.displayState
         let s = AppSettings.shared
-        dot.textColor = st.color
+        let statusBG = (s.statusDisplay == .background)
 
         // Border: selection / attention always win; otherwise the status color in
         // "background" mode, or the neutral separator in "border" (default) mode.
@@ -164,25 +180,44 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         let borderWidth: CGFloat
         if st.needsYou           { borderColor = .systemRed;          borderWidth = 2 }
         else if selected         { borderColor = .controlAccentColor; borderWidth = 2 }
-        else if s.statusDisplay == .background { borderColor = st.color; borderWidth = 1 }
+        else if statusBG         { borderColor = st.color;            borderWidth = 1 }
         else                     { borderColor = .separatorColor;     borderWidth = 1 }
         layer?.borderColor = borderColor.cgColor
         layer?.borderWidth = borderWidth
+        layer?.backgroundColor = nil
 
-        // Status as the whole tile background (optional). The terminal fills the
-        // content area opaquely, so this shows through the header and the chrome.
-        layer?.backgroundColor = (s.statusDisplay == .background)
-            ? st.color.withAlphaComponent(0.20).cgColor
-            : nil
-
-        // Distinct per-session accent in the header (optional; the manager keeps
-        // its own look). Sits on top of the status tint, so both can be read:
-        // header = which session, chrome/border = its status.
-        if s.gridTileStyle == .distinct && !session.isManager {
-            headerStack.layer?.backgroundColor = s.distinctColor(for: session.id).withAlphaComponent(0.55).cgColor
+        // "Background" mode: fill the whole header bar with the status color — the
+        // most visible chrome, since the terminal below is opaque. The dot/title/close
+        // switch to a readable contrast color. "Border" mode keeps the classic look.
+        if statusBG {
+            headerStack.layer?.backgroundColor = st.color.cgColor
+            let txt = Self.readableText(on: st.color)
+            dot.textColor = txt
+            nameLabel.textColor = txt
+            closeButton.contentTintColor = txt
         } else {
             headerStack.layer?.backgroundColor = nil
+            dot.textColor = st.color
+            nameLabel.textColor = .labelColor
+            closeButton.contentTintColor = .secondaryLabelColor
         }
+
+        // Distinct tile style: a stable per-session color as a left stripe. It sits
+        // apart from the header, so it coexists with a status-colored header.
+        if s.gridTileStyle == .distinct && !session.isManager {
+            stripe.layer?.backgroundColor = s.distinctColor(for: session.id).cgColor
+            stripeWidthConstraint.constant = 4
+        } else {
+            stripe.layer?.backgroundColor = NSColor.clear.cgColor
+            stripeWidthConstraint.constant = 0
+        }
+    }
+
+    /// Black or white, whichever is more legible on top of `bg`.
+    private static func readableText(on bg: NSColor) -> NSColor {
+        guard let c = bg.usingColorSpace(.deviceRGB) else { return .white }
+        let lum = 0.299 * c.redComponent + 0.587 * c.greenComponent + 0.114 * c.blueComponent
+        return lum > 0.6 ? .black : .white
     }
 
     /// Put the keyboard into the terminal when this tile is selected and the terminal

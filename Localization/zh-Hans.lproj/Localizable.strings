@@ -228,4 +228,4 @@
 "Status anzeigen als:" = "状态显示方式:";
 "Rahmen" = "边框";
 "Hintergrund" = "背景";
-"„Unterschiedlich“ gibt jeder Kachel eine eigene Akzentfarbe im Titel, damit du sie besser auseinanderhältst." = "“区分”会为每个窗格的标题赋予专属强调色，便于区分。";
+"„Unterschiedlich“ gibt jeder Kachel einen farbigen Streifen am linken Rand, damit du sie besser auseinanderhältst." = "“区分”会在每个窗格的左侧边缘添加一条彩色条，便于区分。";
