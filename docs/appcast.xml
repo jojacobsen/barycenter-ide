@@ -3,6 +3,22 @@
     <channel>
         <title>Barycenter</title>
         <item>
+            <title>0.4.1</title>
+            <pubDate>Fri, 06 Nov 2026 22:57:12 +0100</pubDate>
+            <sparkle:version>15</sparkle:version>
+            <sparkle:shortVersionString>0.4.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter-0.4.1.dmg" length="3335540" type="application/octet-stream" sparkle:edSignature="aFuux5tOGMnR7gCi6a5ZwmmRQ9GvDZ65QBrXcQ/ypK3Lw631DmuRvWV6aZDhl7GMcmFvAzViqLCohO4wu9XaDg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter15-14.delta" sparkle:deltaFrom="14" length="128542" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Q6BJD76i0urzTkwLzFeDzXckOr5uNDdgZ+vymgUExT+LmcB5VSuUOjZI5wsXqC7zf48BUL0BxyoUq6crZsWnCA=="/>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter15-13.delta" sparkle:deltaFrom="13" length="182426" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="+etz40+gr2qIuRO4vAXZck5Wslld4wvSjBojt/e22zIMZvFgws0ylThds+y5D2GKqqxARhZZaIpoTl+TD2MWDQ=="/>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter15-12.delta" sparkle:deltaFrom="12" length="191346" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="3uVLx5K+rzZ+ij6YbkTW15gTgPCwL7S0/azXyrph8PXYWcWLAgjjLUXxDnwy9fpP9nvdYbfOz7vVUqw1MPyAAA=="/>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter15-11.delta" sparkle:deltaFrom="11" length="193998" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="18lzUZy0pxORUqzXeCTIVLPmCQtpL8cp+qH03qVpa2cf/E44VIF7s2YHjGeB9vqZ5Lwld18RnZ+2uHerwoSQAw=="/>
+                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter15-10.delta" sparkle:deltaFrom="10" length="189954" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="u5Km5ifCBsS3UmVbkN9jSIQfXwHoxkZCuY9ZkDyxy/7kR2vVOfOiL/2jxUWIGSwgiNenTACcHJRYRmZvISrzBA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.4.0</title>
             <pubDate>Fri, 06 Nov 2026 22:18:12 +0100</pubDate>
             <sparkle:version>14</sparkle:version>
@@ -32,22 +48,6 @@
                 <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter13-10.delta" sparkle:deltaFrom="10" length="149246" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Nt8TpjZQFIxruY+Eh/l3TIemJV702DsWnS42q27DWLqT0hwd63HVV59yyIlChjX98Wfqc9PR0cCdtEV9img6Bg=="/>
                 <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter13-9.delta" sparkle:deltaFrom="9" length="150102" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="/5KWF8/voQsD30KM4fRUpifC4KIVVmYITANdR7hVu3ndCCQLPzyi1E5zMuPsTuUVoKybAQWpmXJ1VZWZ+0TDAA=="/>
                 <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter13-8.delta" sparkle:deltaFrom="8" length="162710" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="8ZvXQeUPzq9quo/YomvKW9dn7Z8i3y7DnvoK4gWsFoKUklowLcvj/KciYF/MMpa2SPv8VpJ0znMIol//BNCuDQ=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
-            <title>0.3.5</title>
-            <pubDate>Sun, 01 Nov 2026 18:47:02 +0100</pubDate>
-            <sparkle:version>12</sparkle:version>
-            <sparkle:shortVersionString>0.3.5</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter-0.3.5.dmg" length="3325545" type="application/octet-stream" sparkle:edSignature="ctk/F9iEmjhLofv7uAsByOfyCT7NNEK7Id1uQ9u8v7hteUyjNkhkf78wpE24ShyJOwZu/xiMscg025ldexMjBA=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter12-11.delta" sparkle:deltaFrom="11" length="125326" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="VageV9SR7flmUW5L0GNf/hqTLTcE2zHLc0ryiiaLvP0Zjocm7di0YNMVkj5lQUGPv9BsCBfhv4IPieM7v0trAA=="/>
-                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter12-10.delta" sparkle:deltaFrom="10" length="140222" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Y2CEAjDtUOjevHgmVviFOmlcMiRJyuqe6FlRzyqbFbM88SVXMrWH++nl+WZgRqMsEk2h5hxNdIXy6HHlv5gkAA=="/>
-                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter12-9.delta" sparkle:deltaFrom="9" length="148102" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="p2B7MiBQ+EJh10/GHLuCsFhADy4iYaa+bkkFigfGyZhOl59Xeu9Jus0lwTIf+aVf/0D2PaaOwhbn3ycKObXgAg=="/>
-                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter12-8.delta" sparkle:deltaFrom="8" length="160174" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="BZun20jlqMa8YGIFw1kI8yAQlPBMYA0Xpv1J2SDVPvS/MOfacMG4qV+h9A0I/oDvPXCkTQ7fkuB1W8Tq0inFDQ=="/>
-                <enclosure url="https://github.com/jojacobsen/barycenter-ide/releases/download/appcast/Barycenter12-7.delta" sparkle:deltaFrom="7" length="162834" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="wT2sv7JEeezAfsQJegcHwOrb9f/3arsDx8PKg8xcoQrFj3acorhuoTQ4KMdYC624c0QqSmLFh3OJoQvIFVieAw=="/>
             </sparkle:deltas>
         </item>
     </channel>
