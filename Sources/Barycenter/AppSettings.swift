@@ -83,6 +83,12 @@ final class AppSettings {
         set { d.set(newValue.rawValue, forKey: "statusDisplay"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
     }
 
+    /// Max number of session tiles per grid page (4, 6 or 8; default 8).
+    var gridPageSize: Int {
+        get { let v = d.object(forKey: "gridPageSize") as? Int ?? 8; return [4, 6, 8].contains(v) ? v : 8 }
+        set { d.set(newValue, forKey: "gridPageSize"); NotificationCenter.default.post(name: .settingsChanged, object: nil) }
+    }
+
     /// Whether grid tiles look uniform (default) or get a per-session accent color.
     var gridTileStyle: GridTileStyle {
         get { GridTileStyle(rawValue: d.string(forKey: "gridTileStyle") ?? "") ?? .uniform }

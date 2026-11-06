@@ -308,6 +308,45 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         SessionManager.shared.requestClose(session.id, window: window)
     }
 
+    // MARK: Context menu (rename / settings)
+
+    /// Right-click on the header -> rename / per-session settings / close.
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let p = convert(event.locationInWindow, from: nil)
+        guard headerStack.frame.contains(p) else { return super.menu(for: event) }  // let the terminal keep its own menu
+        let m = NSMenu()
+        let rename = NSMenuItem(title: L("Umbenennen…"), action: #selector(renameSession), keyEquivalent: "")
+        m.addItem(rename)
+        if !session.isManager {
+            m.addItem(NSMenuItem(title: L("Session-Einstellungen…"), action: #selector(editSessionSettings), keyEquivalent: ""))
+        }
+        m.addItem(.separator())
+        m.addItem(NSMenuItem(title: L("Session schließen"), action: #selector(onClose), keyEquivalent: ""))
+        for it in m.items where it.action != nil { it.target = self }
+        return m
+    }
+
+    @objc private func renameSession() {
+        let alert = NSAlert()
+        alert.messageText = L("Session umbenennen")
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 240, height: 24))
+        field.stringValue = session.title
+        alert.accessoryView = field
+        alert.addButton(withTitle: L("Umbenennen"))
+        alert.addButton(withTitle: L("Abbrechen"))
+        alert.window.initialFirstResponder = field
+        let apply = { SessionManager.shared.rename(self.session.id, to: field.stringValue) }
+        if let win = window {
+            alert.beginSheetModal(for: win) { if $0 == .alertFirstButtonReturn { apply() } }
+        } else if alert.runModal() == .alertFirstButtonReturn {
+            apply()
+        }
+    }
+
+    @objc private func editSessionSettings() {
+        NotificationCenter.default.post(name: .sessionSettingsRequested, object: session.id)
+    }
+
     // MARK: Page switcher
 
     private func showPage(_ p: Int) {
@@ -466,9 +505,11 @@ final class ContentViewController: NSViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .sessionsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .selectionChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(agentsUpdated), name: .agentsUpdated, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(agentsUpdated), name: .settingsChanged, object: nil)
+        // Settings (e.g. tiles-per-page or tile styling) can change pagination -> full rebuild.
+        NotificationCenter.default.addObserver(self, selector: #selector(rebuild), name: .settingsChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentNewSession), name: .newSessionRequested, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(presentManager), name: .managerRequested, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(presentSessionSettings(_:)), name: .sessionSettingsRequested, object: nil)
         rebuild()
     }
 
@@ -476,6 +517,8 @@ final class ContentViewController: NSViewController {
 
     @objc private func rebuild() {
         let mgr = SessionManager.shared
+        // Keep the current page in range (tiles-per-page may have shrunk it).
+        if mgr.page >= mgr.pageCount { mgr.page = max(0, mgr.pageCount - 1) }
         // The manager lives in the Control Center (sidebar) and owns a single
         // terminal view. It must never be hosted as a main-area tile, or focusing
         // it would re-parent that terminal out of the Control Center (leaving it
@@ -563,6 +606,12 @@ final class ContentViewController: NSViewController {
         // Only block if our sheet is already open (robust against ghost entries).
         if presentedViewControllers?.contains(where: { $0 is NewSessionSheetController }) == true { return }
         presentAsSheet(NewSessionSheetController())
+    }
+    @objc private func presentSessionSettings(_ note: Notification) {
+        guard let id = note.object as? UUID,
+              let s = SessionManager.shared.sessions.first(where: { $0.id == id }) else { return }
+        if presentedViewControllers?.contains(where: { $0 is SessionSettingsSheetController }) == true { return }
+        presentAsSheet(SessionSettingsSheetController(session: s))
     }
     @objc private func presentManager() {
         guard AppSettings.shared.showManager else { return }
