@@ -29,6 +29,8 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 ## Features
 
 - **Grid & Focus**: all sessions at once, or one big; click a tile and type.
+  **Drag a tile's header** to rearrange the grid — the order is kept in your layout
+  and restored on the next launch.
 - **Attention routing**: a session that needs you turns 🔴 with a sound, Dock
   bounce and a macOS banner. For Claude Code this is driven by real **hooks**;
   others use a terminal-bell heuristic.

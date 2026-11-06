@@ -87,6 +87,23 @@ final class SessionManager {
         for s in workerSessions { remove(s.id) }
     }
 
+    /// Drag-to-reorder: move a worker session to `toIndex` in the worker list.
+    /// The new order flows into `currentSpecs()`, so it's captured by both the
+    /// auto-restore snapshot and any saved layout. Manager sessions are untouched.
+    func reorderWorker(_ id: UUID, toIndex: Int) {
+        guard let s = sessions.first(where: { $0.id == id }), !s.isManager else { return }
+        var workers = workerSessions
+        guard let from = workers.firstIndex(where: { $0.id == id }) else { return }
+        let to = max(0, min(toIndex, workers.count - 1))
+        guard from != to else { return }
+        workers.remove(at: from)
+        workers.insert(s, at: to)
+        // Managers aren't shown in the grid and are excluded from specs; keep them
+        // (in their existing order) ahead of the reordered workers.
+        sessions = sessions.filter { $0.isManager } + workers
+        NotificationCenter.default.post(name: .sessionsChanged, object: nil)
+    }
+
     /// Snapshot the open worker sessions so they can be auto-restored next launch.
     func persistOpenSessions() { LayoutStore.saveLastSession(currentSpecs()) }
 
