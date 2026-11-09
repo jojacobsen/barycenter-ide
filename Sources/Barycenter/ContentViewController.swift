@@ -199,6 +199,10 @@ final class SessionTileView: NSView, NSTextViewDelegate, NSGestureRecognizerDele
         let s = AppSettings.shared
         let statusBG = (s.statusDisplay == .background)
 
+        // Re-read the title: a reused tile (rename posts .sessionsChanged -> rebuild
+        // -> refresh) keeps the old name otherwise, since it's only set once in init.
+        nameLabel.stringValue = session.title
+
         // Border: selection / attention always win; otherwise the status color in
         // "background" mode, or the neutral separator in "border" (default) mode.
         let borderColor: NSColor
