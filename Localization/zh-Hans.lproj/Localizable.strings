@@ -238,3 +238,21 @@
 "Pull Request erstellen lassen?" = "创建拉取请求？";
 "Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "本会话的智能体将提交更改、推送并通过 gh 打开 PR。";
 "✓ Gesendet" = "✓ 已发送";
+
+/* Session settings + preferences tabs */
+"Allgemein" = "通用";
+"Raster" = "网格";
+"Neu starten" = "重启";
+"Umbenennen" = "重命名";
+"Umbenennen…" = "重命名…";
+"Übernehmen" = "应用";
+"Ändern…" = "更改…";
+"Session umbenennen" = "重命名会话";
+"Session-Einstellungen…" = "会话设置…";
+"Sessions pro Seite:" = "每页会话数:";
+"z. B. npm run dev" = "例如 npm run dev";
+"Session neu starten, um die Änderungen zu übernehmen?" = "重启会话以应用更改吗？";
+"Der laufende Prozess wird beendet und neu gestartet. Mit „Resume“ wird die Claude-Unterhaltung fortgesetzt." = "正在运行的进程会停止并重启。启用“Resume”可继续 Claude 的对话。";
+"Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "正在运行的进程会停止并重启。未保存的状态将丢失。";
+"Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "文件夹、配置、Remote Control 和 Resume 在启动时生效，更改会重启会话（Claude：带 --continue）。";
+"Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "主题、字体和字号作用于所有会话的终端（控制台），而非应用界面。立即生效。";

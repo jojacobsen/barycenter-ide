@@ -9,6 +9,8 @@ extension Notification.Name {
     static let newSessionRequested = Notification.Name("BarycenterNewSessionRequested")
     /// "Start AI manager" was requested -> show the config sheet (folder + AI).
     static let managerRequested = Notification.Name("BarycenterManagerRequested")
+    /// Per-session settings were requested (object = session UUID) -> show the sheet.
+    static let sessionSettingsRequested = Notification.Name("BarycenterSessionSettingsRequested")
 }
 
 enum ViewMode { case grid, focus }
@@ -22,7 +24,8 @@ final class SessionManager {
     var selectedID: UUID?
     var viewMode: ViewMode = .grid
     var page = 0
-    let pageSize = 8   // from 8 tiles on -> new page
+    /// Max tiles per grid page (user setting: 4, 6 or 8).
+    var pageSize: Int { AppSettings.shared.gridPageSize }
 
     var selectedSession: Session? { sessions.first { $0.id == selectedID } }
 
@@ -106,6 +109,37 @@ final class SessionManager {
 
     /// Snapshot the open worker sessions so they can be auto-restored next launch.
     func persistOpenSessions() { LayoutStore.saveLastSession(currentSpecs()) }
+
+    /// Rename a session live (no restart). The new name flows into layouts/restore.
+    func rename(_ id: UUID, to newTitle: String) {
+        guard let s = sessions.first(where: { $0.id == id }) else { return }
+        let t = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty, t != s.title else { return }
+        s.title = t
+        post(.sessionsChanged)
+    }
+
+    /// Apply new launch settings to a worker session by replacing it in place with a
+    /// freshly started session (same grid slot). The old process is terminated; for a
+    /// Claude session pass `resume: true` to continue its conversation (`--continue`).
+    /// Returns the new session, or nil if the id isn't a worker.
+    @discardableResult
+    func reconfigure(_ id: UUID, title: String, cwd: String, launchCommand: String?,
+                     profileName: String, remoteControl: Bool, resume: Bool) -> Session? {
+        guard let idx = sessions.firstIndex(where: { $0.id == id }), !sessions[idx].isManager else { return nil }
+        let old = sessions[idx]
+        let wasSelected = (selectedID == id)
+        let new = Session(title: title, cwd: cwd, launchCommand: launchCommand,
+                          profileName: profileName, remoteControl: remoteControl, resume: resume)
+        sessions[idx] = new            // keep the same position (grid slot)
+        old.terminate()
+        new.start()
+        if wasSelected { selectedID = new.id }
+        LaunchMemory.remember(cwd: cwd, profileName: profileName,
+                              launchCommand: launchCommand, remoteControl: remoteControl)
+        post(.sessionsChanged)
+        return new
+    }
 
     /// On launch: re-open the worker sessions from the last run, resuming each one's
     /// conversation (Claude `--continue`). Returns how many were restored.

@@ -238,3 +238,21 @@
 "Pull Request erstellen lassen?" = "プルリクエストを作成しますか？";
 "Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "このセッションのエージェントが変更をコミットし、プッシュして gh で PR を開きます。";
 "✓ Gesendet" = "✓ 送信しました";
+
+/* Session settings + preferences tabs */
+"Allgemein" = "一般";
+"Raster" = "グリッド";
+"Neu starten" = "再起動";
+"Umbenennen" = "変更";
+"Umbenennen…" = "名前を変更…";
+"Übernehmen" = "適用";
+"Ändern…" = "変更…";
+"Session umbenennen" = "セッション名を変更";
+"Session-Einstellungen…" = "セッション設定…";
+"Sessions pro Seite:" = "ページあたりのセッション数:";
+"z. B. npm run dev" = "例: npm run dev";
+"Session neu starten, um die Änderungen zu übernehmen?" = "変更を適用するためにセッションを再起動しますか？";
+"Der laufende Prozess wird beendet und neu gestartet. Mit „Resume“ wird die Claude-Unterhaltung fortgesetzt." = "実行中のプロセスを停止して再起動します。「Resume」で Claude の会話を継続します。";
+"Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "実行中のプロセスを停止して再起動します。保存していない状態は失われます。";
+"Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "フォルダ・プロファイル・Remote Control・Resume は起動時に適用されます。変更するとセッションを再起動します（Claude: --continue 付き）。";
+"Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "テーマ・フォント・サイズは全セッションのターミナル（コンソール）に適用され、アプリ UI には適用されません。即時反映されます。";

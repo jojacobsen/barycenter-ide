@@ -238,3 +238,21 @@
 "Pull Request erstellen lassen?" = "Creare una pull request?";
 "Der Agent dieser Session wird die Änderungen committen, pushen und einen PR via gh öffnen." = "L’agente di questa sessione farà il commit delle modifiche, il push e aprirà una PR con gh.";
 "✓ Gesendet" = "✓ Inviato";
+
+/* Session settings + preferences tabs */
+"Allgemein" = "Generale";
+"Raster" = "Griglia";
+"Neu starten" = "Riavvia";
+"Umbenennen" = "Rinomina";
+"Umbenennen…" = "Rinomina…";
+"Übernehmen" = "Applica";
+"Ändern…" = "Cambia…";
+"Session umbenennen" = "Rinomina sessione";
+"Session-Einstellungen…" = "Impostazioni sessione…";
+"Sessions pro Seite:" = "Sessioni per pagina:";
+"z. B. npm run dev" = "es. npm run dev";
+"Session neu starten, um die Änderungen zu übernehmen?" = "Riavviare la sessione per applicare le modifiche?";
+"Der laufende Prozess wird beendet und neu gestartet. Mit „Resume“ wird die Claude-Unterhaltung fortgesetzt." = "Il processo in esecuzione viene arrestato e riavviato. Con «Resume» la conversazione di Claude prosegue.";
+"Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "Il processo in esecuzione viene arrestato e riavviato. Lo stato non salvato va perso.";
+"Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "Cartella, profilo, Remote Control e resume si applicano all’avvio: modificarli riavvia la sessione (Claude: con --continue).";
+"Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Tema, font e dimensione valgono per i terminali (console) di tutte le sessioni, non per l’interfaccia dell’app. Effetto immediato.";
