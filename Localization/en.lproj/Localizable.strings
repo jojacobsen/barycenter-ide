@@ -256,3 +256,6 @@
 "Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "The running process will be stopped and restarted. Unsaved state is lost.";
 "Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "Folder, profile, Remote Control and resume apply at launch — changing them restarts the session (Claude: with --continue).";
 "Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Theme, font and size apply to the terminals (console) of all sessions — not the app interface. Takes effect immediately.";
+
+"Neu starten" = "Restart";
+"Neu starten (Unterhaltung fortsetzen)" = "Restart (resume conversation)";

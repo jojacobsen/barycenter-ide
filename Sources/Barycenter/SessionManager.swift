@@ -141,6 +141,18 @@ final class SessionManager {
         return new
     }
 
+    /// Restart a worker session in place, reusing its current launch config — e.g.
+    /// after installing new tools so the fresh process picks them up. A Claude session
+    /// resumes its conversation (`--continue`); other AIs/shells just relaunch. Returns
+    /// the new session, or nil if the id isn't a worker.
+    @discardableResult
+    func restart(_ id: UUID) -> Session? {
+        guard let s = sessions.first(where: { $0.id == id }), !s.isManager else { return nil }
+        let resume = (s.launchCommand == "claude")
+        return reconfigure(id, title: s.title, cwd: s.cwd, launchCommand: s.launchCommand,
+                           profileName: s.profileName, remoteControl: s.remoteControl, resume: resume)
+    }
+
     /// On launch: re-open the worker sessions from the last run, resuming each one's
     /// conversation (Claude `--continue`). Returns how many were restored.
     @discardableResult

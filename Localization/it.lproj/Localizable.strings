@@ -256,3 +256,6 @@
 "Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "Il processo in esecuzione viene arrestato e riavviato. Lo stato non salvato va perso.";
 "Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "Cartella, profilo, Remote Control e resume si applicano all’avvio: modificarli riavvia la sessione (Claude: con --continue).";
 "Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Tema, font e dimensione valgono per i terminali (console) di tutte le sessioni, non per l’interfaccia dell’app. Effetto immediato.";
+
+"Neu starten" = "Riavvia";
+"Neu starten (Unterhaltung fortsetzen)" = "Riavvia (riprendi conversazione)";

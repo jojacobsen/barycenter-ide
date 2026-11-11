@@ -13,6 +13,9 @@ final class SessionStatusView: NSView {
     private let preview = MarkdownPreviewView(frame: .zero)
     private let placeholder = NSTextField(wrappingLabelWithString: "")
 
+    // Restart action (reuses the session's launch config; Claude resumes --continue).
+    private let restartButton = NSButton(title: "", target: nil, action: nil)
+
     private weak var session: Session?
     private var isGenerating = false
     private var renderedText: String?   // avoid re-rendering the web view on every refresh
@@ -60,6 +63,13 @@ final class SessionStatusView: NSView {
         header.alignment = .centerY
         header.translatesAutoresizingMaskIntoConstraints = false
         addSubview(header)
+
+        restartButton.bezelStyle = .rounded
+        restartButton.controlSize = .small
+        restartButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)
+        restartButton.imagePosition = .imageLeading
+        restartButton.target = self
+        restartButton.action = #selector(restart)
 
         placeholder.font = .systemFont(ofSize: 12)
         placeholder.textColor = .tertiaryLabelColor
@@ -130,6 +140,20 @@ final class SessionStatusView: NSView {
             row(L("Befehl"), cmd)
         }
 
+        // Restart action — reuses the launch config; Claude resumes its conversation.
+        // Handy e.g. after installing new tools so the fresh process sees them.
+        if !session.isManager {
+            let title = (session.launchCommand == "claude")
+                ? L("Neu starten (Unterhaltung fortsetzen)")
+                : L("Neu starten")
+            restartButton.title = title
+            restartButton.toolTip = L("Beendet den Prozess und startet ihn im selben Ordner neu.")
+            let actionRow = NSStackView(views: [restartButton])
+            actionRow.orientation = .horizontal
+            actionRow.edgeInsets = NSEdgeInsets(top: 4, left: 0, bottom: 0, right: 0)
+            stack.addArrangedSubview(actionRow)
+        }
+
         refreshProjectStatus()
     }
 
@@ -170,6 +194,11 @@ final class SessionStatusView: NSView {
             .foregroundColor: NSColor.white,
             .font: NSFont.systemFont(ofSize: 12, weight: .semibold),
         ])
+    }
+
+    @objc private func restart() {
+        guard let id = session?.id else { return }
+        SessionManager.shared.restart(id)
     }
 
     @objc private func generate() {
