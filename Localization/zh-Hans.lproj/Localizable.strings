@@ -256,3 +256,6 @@
 "Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "正在运行的进程会停止并重启。未保存的状态将丢失。";
 "Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "文件夹、配置、Remote Control 和 Resume 在启动时生效，更改会重启会话（Claude：带 --continue）。";
 "Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "主题、字体和字号作用于所有会话的终端（控制台），而非应用界面。立即生效。";
+
+"Neu starten" = "重新启动";
+"Neu starten (Unterhaltung fortsetzen)" = "重新启动（继续对话）";

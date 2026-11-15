@@ -41,7 +41,9 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 - **Spawn with profiles**: Claude Code · Codex · Gemini CLI · Aider · Shell ·
   custom command, in any folder, optionally in its own **git worktree**.
 - **Per-session pages** (tab switcher per tile): **Terminal · Status**
-  (model / cost / context) **· Notes · Diff** (`git diff`, with one-click
+  (model / cost / context, plus a **Restart** button that relaunches the session in
+  place — e.g. after installing new tools; a Claude session resumes its conversation)
+  **· Notes · Diff** (`git diff`, with one-click
   **AI review** and **Create PR** that task the session's own agent) **· Files**:
   a mini file browser + editor with **syntax highlighting** and a rendered
   **Markdown preview**, plus recursive filename search.

@@ -256,3 +256,6 @@
 "Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "Le processus en cours est arrêté puis redémarré. L’état non enregistré est perdu.";
 "Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "Dossier, profil, Remote Control et resume s’appliquent au démarrage — les modifier redémarre la session (Claude : avec --continue).";
 "Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "Le thème, la police et la taille s’appliquent aux terminaux (console) de toutes les sessions, pas à l’interface de l’app. Effet immédiat.";
+
+"Neu starten" = "Redémarrer";
+"Neu starten (Unterhaltung fortsetzen)" = "Redémarrer (reprendre la conversation)";

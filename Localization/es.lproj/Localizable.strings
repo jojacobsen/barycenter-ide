@@ -256,3 +256,6 @@
 "Der laufende Prozess wird beendet und neu gestartet. Nicht gespeicherter Zustand geht verloren." = "El proceso en ejecución se detiene y se reinicia. El estado no guardado se pierde.";
 "Ordner, Profil, Remote Control und Resume gelten beim Start — beim Ändern wird die Session neu gestartet (Claude: mit --continue)." = "Carpeta, perfil, Remote Control y resume se aplican al iniciar; cambiarlos reinicia la sesión (Claude: con --continue).";
 "Theme, Schrift und Größe gelten für die Terminals (Konsole) aller Sessions — nicht für die App-Oberfläche. Wirkt sofort." = "El tema, la fuente y el tamaño se aplican a los terminales (consola) de todas las sesiones, no a la interfaz de la app. Efecto inmediato.";
+
+"Neu starten" = "Reiniciar";
+"Neu starten (Unterhaltung fortsetzen)" = "Reiniciar (continuar conversación)";
