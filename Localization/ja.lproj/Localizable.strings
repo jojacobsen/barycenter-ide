@@ -259,3 +259,16 @@
 
 "Neu starten" = "再起動";
 "Neu starten (Unterhaltung fortsetzen)" = "再起動（会話を再開）";
+
+"AKTIVITÄT" = "アクティビティ";
+"Noch keine Aktivität." = "まだアクティビティはありません。";
+"Prompt" = "プロンプト";
+"Wartet" = "待機中";
+"Fertig" = "完了";
+"bereit für dich" = "入力待ち";
+"fortgesetzt" = "再開";
+"Exit-Code %@" = "終了コード %@";
+"Beendet" = "終了";
+"Signal" = "シグナル";
+"Terminal-Glocke" = "ターミナルベル";
+"Todo-Liste aktualisiert" = "Todo リストを更新";

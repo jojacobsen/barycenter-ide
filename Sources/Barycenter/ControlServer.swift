@@ -84,7 +84,7 @@ final class ControlServer {
         var result: [String: Any] = ["ok": false, "error": "bad request"]
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let cmd = obj["cmd"] as? String {
-            if cmd == "list" || cmd == "read" || cmd == "notes" || cmd == "diff" || cmd == "files" {
+            if ["list", "read", "notes", "diff", "files", "activity"].contains(cmd) {
                 // Reading: synchronous, since we return the data.
                 DispatchQueue.main.sync { result = BarycenterControl.execute(cmd: cmd, args: obj) }
             } else {
@@ -212,6 +212,13 @@ enum BarycenterControl {
             let changed = Git.isRepo(s.cwd) ? Git.run(["status", "--short"], cwd: s.cwd) : ""
             return ["ok": true, "id": s.id.uuidString, "title": s.title,
                     "repo": Git.isRepo(s.cwd), "cwd": s.cwd, "changed": changed]
+
+        case "activity":
+            guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }
+            let limit = (args["limit"] as? Int) ?? (args["limit"] as? String).flatMap { Int($0) } ?? 50
+            let events = ActivityLog.events(for: s, limit: max(1, limit))
+            return ["ok": true, "id": s.id.uuidString, "title": s.title,
+                    "activity": ActivityLog.plainText(events)]
 
         case "focus":
             guard let s = resolve(args) else { return ["ok": false, "error": "session not found"] }

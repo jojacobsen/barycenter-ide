@@ -41,16 +41,18 @@ see what each is doing at a glance, and get pulled in the moment one needs you.
 - **Spawn with profiles**: Claude Code · Codex · Gemini CLI · Aider · Shell ·
   custom command, in any folder, optionally in its own **git worktree**.
 - **Per-session pages** (tab switcher per tile): **Terminal · Status**
-  (model / cost / context, plus a **Restart** button that relaunches the session in
-  place — e.g. after installing new tools; a Claude session resumes its conversation)
+  (model / cost / context, an **activity timeline** — prompts, tool calls such as
+  Bash commands and edited files, waiting / done, newest first — and a **Restart**
+  button that relaunches the session in place, e.g. after installing new tools; a
+  Claude session resumes its conversation)
   **· Notes · Diff** (`git diff`, with one-click
   **AI review** and **Create PR** that task the session's own agent) **· Files**:
   a mini file browser + editor with **syntax highlighting** and a rendered
   **Markdown preview**, plus recursive filename search.
 - **AI Manager** (the *Control Center*): an AI manager — itself a Claude session —
   that controls Barycenter via a tiny local command (`baryctl`): list / spawn /
-  send / focus / close, **read a session's `git diff`, changed files or a file's
-  content**, and it maintains your shared todo list (notes / note-add / notes-set).
+  send / focus / close, **read a session's `git diff`, changed files, a file's
+  content or its activity timeline**, and it maintains your shared todo list (notes / note-add / notes-set).
 - **Activity rail**: toggle **Sessions**, **Manager** and **History** (cross-repo
   git history); two tools split the panel 50/50.
 - **Shared notes / todo list** as a Markdown file with an edit/preview switch and

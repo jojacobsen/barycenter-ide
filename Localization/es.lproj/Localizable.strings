@@ -259,3 +259,16 @@
 
 "Neu starten" = "Reiniciar";
 "Neu starten (Unterhaltung fortsetzen)" = "Reiniciar (continuar conversación)";
+
+"AKTIVITÄT" = "ACTIVIDAD";
+"Noch keine Aktivität." = "Aún no hay actividad.";
+"Prompt" = "Prompt";
+"Wartet" = "Esperando";
+"Fertig" = "Listo";
+"bereit für dich" = "lista para ti";
+"fortgesetzt" = "reanudada";
+"Exit-Code %@" = "código de salida %@";
+"Beendet" = "Finalizada";
+"Signal" = "Señal";
+"Terminal-Glocke" = "campana del terminal";
+"Todo-Liste aktualisiert" = "lista de tareas actualizada";

@@ -66,19 +66,28 @@ final class AttentionCenter {
         runtimeDir.appendingPathComponent("\(id.uuidString).status.json").path
     }
 
+    /// Path of the per-session activity timeline (see `ActivityLog`).
+    func activityFilePath(for id: UUID) -> String {
+        runtimeDir.appendingPathComponent("\(id.uuidString).activity.log").path
+    }
+
     /// Writes per-session hook settings (+ statusLine) for Claude Code and returns the file path.
     func writeClaudeHookSettings(sessionID: UUID) -> String? {
         let path = runtimeDir.appendingPathComponent("\(sessionID.uuidString).json")
         let events = shellQuote(eventsURL.path)
+        // Every hook also appends its payload to the session's activity timeline.
+        let activity: [String: Any] = ["type": "command", "command": ActivityLog.hookCommand(for: sessionID)]
         func hook(_ ev: String) -> [String: Any] {
             ["hooks": [["type": "command",
-                        "command": "echo '\(sessionID.uuidString) \(ev)' >> \(events)"]]]
+                        "command": "echo '\(sessionID.uuidString) \(ev)' >> \(events)"],
+                       activity]]
         }
         let settings: [String: Any] = [
             "hooks": [
                 "Notification":     [hook("attention")],  // waiting for you / approval
                 "Stop":             [hook("attention")],  // turn done -> ready for you
                 "UserPromptSubmit": [hook("running")],     // you typed -> working again
+                "PreToolUse":       [["matcher": "*", "hooks": [activity]]],  // timeline only
             ],
             // statusLine writes the status JSON to the file (stdout stays empty).
             "statusLine": [

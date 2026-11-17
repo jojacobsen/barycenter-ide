@@ -259,3 +259,16 @@
 
 "Neu starten" = "Restart";
 "Neu starten (Unterhaltung fortsetzen)" = "Restart (resume conversation)";
+
+"AKTIVITÄT" = "ACTIVITY";
+"Noch keine Aktivität." = "No activity yet.";
+"Prompt" = "Prompt";
+"Wartet" = "Waiting";
+"Fertig" = "Done";
+"bereit für dich" = "ready for you";
+"fortgesetzt" = "resumed";
+"Exit-Code %@" = "exit code %@";
+"Beendet" = "Exited";
+"Signal" = "Signal";
+"Terminal-Glocke" = "terminal bell";
+"Todo-Liste aktualisiert" = "updated todo list";

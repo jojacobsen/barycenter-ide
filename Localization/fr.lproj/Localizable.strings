@@ -259,3 +259,16 @@
 
 "Neu starten" = "Redémarrer";
 "Neu starten (Unterhaltung fortsetzen)" = "Redémarrer (reprendre la conversation)";
+
+"AKTIVITÄT" = "ACTIVITÉ";
+"Noch keine Aktivität." = "Aucune activité pour l’instant.";
+"Prompt" = "Prompt";
+"Wartet" = "En attente";
+"Fertig" = "Terminé";
+"bereit für dich" = "prête pour vous";
+"fortgesetzt" = "reprise";
+"Exit-Code %@" = "code de sortie %@";
+"Beendet" = "Terminée";
+"Signal" = "Signal";
+"Terminal-Glocke" = "cloche du terminal";
+"Todo-Liste aktualisiert" = "liste de tâches mise à jour";
