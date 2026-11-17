@@ -132,6 +132,7 @@ final class SessionManager {
         let new = Session(title: title, cwd: cwd, launchCommand: launchCommand,
                           profileName: profileName, remoteControl: remoteControl, resume: resume)
         sessions[idx] = new            // keep the same position (grid slot)
+        ActivityLog.transfer(from: old.id, to: new.id)   // keep the timeline across the restart
         old.terminate()
         new.start()
         if wasSelected { selectedID = new.id }
@@ -291,6 +292,10 @@ final class SessionManager {
           \(ctl) files --title <name> [--path <relative/file>]
               -> without --path: the changed files (git status --short) in the session's
                  folder. With --path: that file's current content. Alternatively --id <uuid>.
+          \(ctl) activity --title <name> [--limit <n>]
+              -> the session's activity timeline, newest first (default 50 entries): prompts,
+                 tool calls (Bash commands, edited files, …), waiting/done. The quickest way to
+                 see what a session did since you last looked. Alternatively --id <uuid>.
           \(ctl) notes                    -> reads the global todo/notes list (Markdown).
           \(ctl) note-add --text "<todo>" -> appends a new todo (- [ ] …) to the list.
           \(ctl) notes-set --text "<md>"  -> replaces the whole list (Markdown, checkboxes - [ ]/- [x]).

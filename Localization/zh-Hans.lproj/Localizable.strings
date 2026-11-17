@@ -259,3 +259,16 @@
 
 "Neu starten" = "重新启动";
 "Neu starten (Unterhaltung fortsetzen)" = "重新启动（继续对话）";
+
+"AKTIVITÄT" = "活动";
+"Noch keine Aktivität." = "暂无活动。";
+"Prompt" = "提示";
+"Wartet" = "等待中";
+"Fertig" = "完成";
+"bereit für dich" = "等待你操作";
+"fortgesetzt" = "已恢复";
+"Exit-Code %@" = "退出码 %@";
+"Beendet" = "已结束";
+"Signal" = "信号";
+"Terminal-Glocke" = "终端铃声";
+"Todo-Liste aktualisiert" = "已更新待办列表";

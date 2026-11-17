@@ -82,6 +82,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
             // attention — Claude Code also rings the bell WHILE working, which would
             // wrongly flag a busy session. So the bell heuristic is for other CLIs only.
             guard self.launchCommand != "claude" else { return }
+            ActivityLog.append(self.id, event: "BarycenterBell")
             DispatchQueue.main.async {
                 // Only report when the session is NOT currently being viewed.
                 if SessionManager.shared.selectedID != self.id {
@@ -109,6 +110,8 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
             for a in extraArgs { inner! += " " + shellQuote(a) }
             statusFilePath = AttentionCenter.shared.statusFilePath(for: id)
         }
+        ActivityLog.append(id, event: "BarycenterStart",
+                           ["profile": profileName, "resume": resume && launchCommand == "claude"])
         let (exe, args) = Profile.launchSpec(command: inner)
         terminalView.startProcess(executable: exe, args: args,
                                   environment: childEnvironment(), currentDirectory: cwd)
@@ -196,6 +199,7 @@ final class Session: NSObject, LocalProcessTerminalViewDelegate {
         status = .done
         self.endedAt = Date()
         self.exitCode = exitCode
+        ActivityLog.append(id, event: "BarycenterExit", exitCode.map { ["code": Int($0)] } ?? [:])
         NotificationCenter.default.post(name: .sessionsChanged, object: nil)
     }
 

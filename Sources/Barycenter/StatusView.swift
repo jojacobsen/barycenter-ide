@@ -1,7 +1,8 @@
 import AppKit
 
 /// Status page of a session: profile, folder, start time, state and — for Claude —
-/// model, cost, context (from the statusLine file). Below that, an AI-generated
+/// model, cost, context (from the statusLine file). Then the activity timeline
+/// (see `ActivityLog`), and below that an AI-generated
 /// project status (summary / roadmap / open points), produced on demand.
 final class SessionStatusView: NSView {
     private let stack = NSStackView()
@@ -15,6 +16,11 @@ final class SessionStatusView: NSView {
 
     // Restart action (reuses the session's launch config; Claude resumes --continue).
     private let restartButton = NSButton(title: "", target: nil, action: nil)
+
+    // Activity timeline section (newest first), re-rendered only when the log grows.
+    private let activityScroll = NSScrollView()
+    private let activityText = NSTextView()
+    private var renderedActivity: (id: UUID, size: UInt64)?
 
     private weak var session: Session?
     private var isGenerating = false
@@ -71,6 +77,30 @@ final class SessionStatusView: NSView {
         restartButton.target = self
         restartButton.action = #selector(restart)
 
+        let activityTitle = NSTextField(labelWithString: L("AKTIVITÄT"))
+        activityTitle.font = .systemFont(ofSize: 11, weight: .semibold)
+        activityTitle.textColor = .secondaryLabelColor
+        activityTitle.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(activityTitle)
+
+        activityText.isEditable = false
+        activityText.isSelectable = true
+        activityText.drawsBackground = false
+        activityText.textContainerInset = NSSize(width: 4, height: 4)
+        activityText.isVerticallyResizable = true
+        activityText.isHorizontallyResizable = false
+        activityText.autoresizingMask = [.width]
+        activityText.textContainer?.widthTracksTextView = true
+        activityScroll.documentView = activityText
+        activityScroll.hasVerticalScroller = true
+        activityScroll.drawsBackground = false
+        activityScroll.borderType = .noBorder
+        activityScroll.translatesAutoresizingMaskIntoConstraints = false
+        activityScroll.wantsLayer = true
+        activityScroll.layer?.cornerRadius = 6
+        activityScroll.layer?.backgroundColor = NSColor.quaternaryLabelColor.withAlphaComponent(0.08).cgColor
+        addSubview(activityScroll)
+
         placeholder.font = .systemFont(ofSize: 12)
         placeholder.textColor = .tertiaryLabelColor
         placeholder.translatesAutoresizingMaskIntoConstraints = false
@@ -89,7 +119,21 @@ final class SessionStatusView: NSView {
             stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
             stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -14),
 
-            header.topAnchor.constraint(equalTo: stack.bottomAnchor, constant: 16),
+            activityTitle.topAnchor.constraint(equalTo: stack.bottomAnchor, constant: 16),
+            activityTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
+
+            activityScroll.topAnchor.constraint(equalTo: activityTitle.bottomAnchor, constant: 6),
+            activityScroll.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            activityScroll.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            activityScroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
+            {
+                // About half of the page; yields when the tile is small.
+                let c = activityScroll.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.45)
+                c.priority = .defaultHigh
+                return c
+            }(),
+
+            header.topAnchor.constraint(equalTo: activityScroll.bottomAnchor, constant: 14),
             header.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
             header.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14),
 
@@ -154,7 +198,43 @@ final class SessionStatusView: NSView {
             stack.addArrangedSubview(actionRow)
         }
 
+        refreshActivity()
         refreshProjectStatus()
+    }
+
+    /// Render the timeline (newest first) — only when the log changed since last time.
+    private func refreshActivity() {
+        guard let session else { return }
+        let size = ActivityLog.size(for: session.id)
+        if let r = renderedActivity, r.id == session.id, r.size == size { return }
+        renderedActivity = (session.id, size)
+
+        let events = ActivityLog.events(for: session)
+        let out = NSMutableAttributedString()
+        let para = NSMutableParagraphStyle()
+        para.lineBreakMode = .byTruncatingTail
+        para.paragraphSpacing = 2
+        if events.isEmpty {
+            out.append(NSAttributedString(string: L("Noch keine Aktivität."), attributes: [
+                .font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.tertiaryLabelColor,
+                .paragraphStyle: para]))
+        }
+        for e in events {
+            out.append(NSAttributedString(string: ActivityLog.timeString(e.date) + "  ", attributes: [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 10.5, weight: .regular),
+                .foregroundColor: NSColor.tertiaryLabelColor, .paragraphStyle: para]))
+            let count = e.count > 1 ? " ×\(e.count)" : ""
+            out.append(NSAttributedString(string: e.label + count + "  ", attributes: [
+                .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
+                .foregroundColor: ActivityLog.color(for: e.kind), .paragraphStyle: para]))
+            let detailFont: NSFont = (e.kind == .tool)
+                ? .monospacedSystemFont(ofSize: 10.5, weight: .regular)
+                : .systemFont(ofSize: 11)
+            out.append(NSAttributedString(string: e.detail + "\n", attributes: [
+                .font: detailFont, .foregroundColor: NSColor.secondaryLabelColor, .paragraphStyle: para]))
+        }
+        activityText.textStorage?.setAttributedString(out)
+        activityText.scrollToBeginningOfDocument(nil)
     }
 
     /// Load the cached overview (only re-rendering the web view when it changed) and

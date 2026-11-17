@@ -259,3 +259,16 @@
 
 "Neu starten" = "Riavvia";
 "Neu starten (Unterhaltung fortsetzen)" = "Riavvia (riprendi conversazione)";
+
+"AKTIVITÄT" = "ATTIVITÀ";
+"Noch keine Aktivität." = "Nessuna attività finora.";
+"Prompt" = "Prompt";
+"Wartet" = "In attesa";
+"Fertig" = "Fatto";
+"bereit für dich" = "pronta per te";
+"fortgesetzt" = "ripresa";
+"Exit-Code %@" = "codice di uscita %@";
+"Beendet" = "Terminata";
+"Signal" = "Segnale";
+"Terminal-Glocke" = "campanello del terminale";
+"Todo-Liste aktualisiert" = "lista attività aggiornata";
